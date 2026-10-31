@@ -27,7 +27,8 @@ describe("MessageTemplateCard", () => {
     expect(container.querySelector("h1")?.textContent).toBe("Olá, Maria!");
     expect(container.querySelector("p")?.textContent).toBe("Que bom ter você por aqui!");
     expect(container.querySelector("article")?.className).toContain("message-template--layout-card");
-    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.querySelector(".status-sticker")).not.toBeNull();
+    expect(container.querySelector(".status-sticker")?.getAttribute("style")).toContain("background-position");
     expect(container.querySelector("img")).toBeNull();
 
     rerender(<MessageTemplateCard data={{ recipientName: "Ana" }} definition={definition} />);

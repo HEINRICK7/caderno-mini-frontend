@@ -2,15 +2,28 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
-import { MessageTemplateCard } from "@/components/message-template-card";
-import { ApiError, api } from "@/lib/api-client";
-import type { Template } from "@/lib/api-contracts";
+import { StatusSticker } from "../../components/status-sticker";
+import { SiteHeader } from "../../components/site-header";
+import { ApiError, api } from "../../lib/api-client";
+import type { Template } from "../../lib/api-contracts";
+
+const categories = [
+  "Todos",
+  "Agradecimento",
+  "Boas-vindas",
+  "Datas especiais",
+  "Cobrança",
+  "Entrega",
+  "Promoções",
+] as const;
+
+type Segment = "product" | "service";
+type CategoryFilter = typeof categories[number];
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [search, setSearch] = useState("");
+  const [segment, setSegment] = useState<Segment>("product");
+  const [category, setCategory] = useState<CategoryFilter>("Todos");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -37,26 +50,48 @@ export default function TemplatesPage() {
     return () => { active = false; };
   }, []);
 
-  const visibleTemplates = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase("pt-BR");
-    if (!term) return templates;
-    return templates.filter((template) =>
-      `${template.name} ${template.description ?? ""}`.toLocaleLowerCase("pt-BR").includes(term),
-    );
-  }, [search, templates]);
+  const visibleTemplates = useMemo(() => templates.filter((template) => {
+    const metadata = template.definition.catalog;
+    const matchesSegment = metadata?.segment === undefined || metadata.segment === "both" || metadata.segment === segment;
+    const matchesCategory = category === "Todos" || metadata?.category === category;
+    return matchesSegment && matchesCategory;
+  }), [category, segment, templates]);
 
   return (
-    <main className="subpage-shell">
+    <main className="subpage-shell templates-shell">
       <SiteHeader />
-      <section className="subpage-content">
-        <div className="page-heading">
-          <h1>Modelos</h1>
-          <label className="search-field">
-            <Search aria-hidden="true" size={17} />
-            <span className="visually-hidden">Buscar modelo</span>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar modelo" />
-          </label>
+      <section className="subpage-content templates-content">
+        <div className="templates-heading">
+          <h1>Escolha um modelo</h1>
+          <p>Cartões para o seu negócio. Personalize e compartilhe em segundos.</p>
         </div>
+
+        <div aria-label="Tipo de negócio" className="template-segment" role="group">
+          <button
+            aria-pressed={segment === "product"}
+            className={segment === "product" ? "is-active" : ""}
+            onClick={() => setSegment("product")}
+            type="button"
+          >Produtos</button>
+          <button
+            aria-pressed={segment === "service"}
+            className={segment === "service" ? "is-active" : ""}
+            onClick={() => setSegment("service")}
+            type="button"
+          >Serviços</button>
+        </div>
+
+        <nav aria-label="Categorias de modelos" className="template-filters">
+          {categories.map((item) => (
+            <button
+              aria-pressed={category === item}
+              className={category === item ? "is-active" : ""}
+              key={item}
+              onClick={() => setCategory(item)}
+              type="button"
+            >{item}</button>
+          ))}
+        </nav>
 
         {loading ? <p className="page-message" role="status">Carregando modelos…</p> : null}
         {!loading && error ? (
@@ -73,18 +108,26 @@ export default function TemplatesPage() {
           <div className="template-grid">
             {visibleTemplates.map((template) => (
               <article className="template-card" key={template.id}>
-                <div className="template-card__preview">
-                  <MessageTemplateCard
-                    data={{ recipientName: "Maria" }}
-                    definition={template.definition}
-                    title={template.name}
-                  />
-                </div>
-                <div className="template-card__content">
-                  <h2>{template.name}</h2>
-                  {template.description ? <p>{template.description}</p> : null}
-                  <Link className="text-link" href={`/templates/${encodeURIComponent(template.id)}`}>Abrir modelo <span aria-hidden="true">→</span></Link>
-                </div>
+                <Link
+                  aria-label={`${template.name}. ${template.description ?? ""} Abrir modelo`}
+                  className="template-card__link"
+                  href={`/templates/${encodeURIComponent(template.id)}`}
+                >
+                  <div
+                    className="template-card__art"
+                    style={{ backgroundColor: template.definition.visual?.background ?? "#e1f3ef" }}
+                  >
+                    <StatusSticker
+                      className="status-sticker--catalog"
+                      illustration={template.definition.card?.illustration ?? "wave"}
+                      label={template.name}
+                    />
+                  </div>
+                  <div className="template-card__content">
+                    <h2>{template.name}</h2>
+                    {template.description ? <p>{template.description}</p> : null}
+                  </div>
+                </Link>
               </article>
             ))}
           </div>

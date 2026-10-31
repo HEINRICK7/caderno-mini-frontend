@@ -34,14 +34,37 @@ export const templateVisualSchema = z.object({
 }).strict();
 
 export const templateCardSchema = z.object({
-  illustration: z.enum(["wave", "shopping-bag-heart", "gift"]),
+  illustration: z.enum([
+    "wave",
+    "shopping-bag-heart",
+    "installment-calendar",
+    "due-calendar",
+    "overdue-warning",
+    "pix-qr",
+    "payment-check",
+    "trophy",
+    "service-clipboard",
+    "service-seal",
+    "gift",
+    "product-tag",
+    "offer-tag",
+    "collection-bag",
+    "reactivation-heart",
+    "approval-hourglass",
+  ]),
   heading: z.string().min(1).max(300),
   message: z.string().max(500).optional(),
   footer: z.literal("heart"),
 }).strict();
 
+export const templateCatalogSchema = z.object({
+  segment: z.enum(["product", "service", "both"]),
+  category: z.enum(["Agradecimento", "Boas-vindas", "Datas especiais", "Cobrança", "Entrega", "Promoções"]),
+}).strict();
+
 export const templateDefinitionSchema = z.object({
   fields: z.array(templateFieldSchema).max(100),
+  catalog: templateCatalogSchema.optional(),
   visual: templateVisualSchema.optional(),
   card: templateCardSchema.optional(),
 }).strict();

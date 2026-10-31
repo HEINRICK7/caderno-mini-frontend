@@ -14,6 +14,7 @@ const template = {
   name: "Boas-vindas",
   description: "Uma mensagem de boas-vindas.",
   definition: {
+    catalog: { segment: "both", category: "Boas-vindas" },
     fields: [
       { id: "recipientName", type: "text", label: "Nome do cliente", required: true, maxLength: 120 },
       { id: "message", type: "textarea", label: "Mensagem", maxLength: 500 },
@@ -46,7 +47,12 @@ describe("contrato de Template publicado pelo backend", () => {
     expect(templateSchema.parse(template)).toEqual(template);
   });
 
-  it("rejeita metadados de catálogo que o backend ainda não fornece", () => {
+  it("usa segmento e categoria definidos pelo backend para organizar o catálogo", () => {
+    expect(templateSchema.parse(template).definition.catalog).toEqual({ segment: "both", category: "Boas-vindas" });
+    expect(() => templateSchema.parse({
+      ...template,
+      definition: { ...template.definition, catalog: { segment: "unknown", category: "Outros" } },
+    })).toThrow();
     expect(() => templateSchema.parse({ ...template, category: "products" })).toThrow();
   });
 
