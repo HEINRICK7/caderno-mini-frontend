@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   authMessageResponseSchema,
   draftResponseSchema,
+  publicPublicationResponseSchema,
   publicationResponseSchema,
   purchaseStatusResponseSchema,
   templateSchema,
@@ -30,6 +31,12 @@ const template = {
       bodyFont: "sans",
       frame: "none",
     },
+    card: {
+      illustration: "wave",
+      heading: "Olá, {{recipientName}}!",
+      message: "Que bom ter você por aqui!",
+      footer: "heart",
+    },
   },
   createdAt: "2026-10-31T10:00:00.000Z",
 };
@@ -53,6 +60,14 @@ describe("contrato de Template publicado pelo backend", () => {
     };
 
     expect(() => templateSchema.parse(invalid)).toThrow();
+  });
+
+  it("aceita composição semântica de cartão e rejeita marcação HTML", () => {
+    expect(templateSchema.parse(template).definition.card).toEqual(template.definition.card);
+    expect(() => templateSchema.parse({
+      ...template,
+      definition: { ...template.definition, card: { ...template.definition.card, html: "<script>" } },
+    })).toThrow();
   });
 });
 
@@ -93,6 +108,26 @@ describe("contratos de criação e compartilhamento", () => {
     };
     expect(publicationResponseSchema.parse(publication)).toEqual(publication);
     expect(() => publicationResponseSchema.parse({ data: { ...publication.data, status: "paid" } })).toThrow();
+  });
+
+  it("usa a definição do modelo fixada na versão da publicação", () => {
+    const publication = {
+      data: {
+        templateId: "welcome",
+        templateVersion: 3,
+        templateName: "Boas-vindas",
+        templateDescription: null,
+        templateDefinition: template.definition,
+        publicUrl: `https://caderno.example/p/${"a".repeat(43)}`,
+        data: { recipientName: "Maria", message: "Que bom ter você por aqui!" },
+        publishedAt: timestamp,
+      },
+    };
+
+    expect(publicPublicationResponseSchema.parse(publication)).toEqual(publication);
+    expect(() => publicPublicationResponseSchema.parse({
+      data: { ...publication.data, templateDefinition: { ...template.definition, html: "<script>" } },
+    })).toThrow();
   });
 
   it("aceita apenas estados de compra publicados pelo backend", () => {

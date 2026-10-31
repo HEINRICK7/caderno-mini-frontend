@@ -17,6 +17,9 @@ npm run dev
 ```
 
 Abra [http://localhost:3001](http://localhost:3001). O Next encaminha chamadas `/api/v1/*` para `API_BASE_URL`.
+O link público de cada cartão vem do backend pela configuração `PUBLIC_APP_URL`; configure esse valor com a origem do frontend em cada ambiente.
+
+As prévias no editor e na página pública são montadas em HTML/SVG a partir da composição e da paleta versionadas pelo backend. O frontend não exibe o PNG do endpoint de preview; o backend mantém a renderização PNG para exportação e para a prévia automática do link no WhatsApp.
 
 ## Validação
 

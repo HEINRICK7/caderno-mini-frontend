@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { MessageTemplateCard } from "@/components/message-template-card";
 import { ApiError, api } from "@/lib/api-client";
 import type { Template } from "@/lib/api-contracts";
 
@@ -72,6 +73,13 @@ export default function TemplatesPage() {
           <div className="template-grid">
             {visibleTemplates.map((template) => (
               <article className="template-card" key={template.id}>
+                <div className="template-card__preview">
+                  <MessageTemplateCard
+                    data={{ recipientName: "Maria" }}
+                    definition={template.definition}
+                    title={template.name}
+                  />
+                </div>
                 <div className="template-card__content">
                   <h2>{template.name}</h2>
                   {template.description ? <p>{template.description}</p> : null}

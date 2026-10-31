@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { TemplateFields } from "@/components/template-fields";
+import { MessageTemplateCard } from "@/components/message-template-card";
 import { ApiError, api } from "@/lib/api-client";
 import type { Template } from "@/lib/api-contracts";
 
@@ -62,7 +63,7 @@ export default function TemplatePage() {
   return (
     <main className="subpage-shell">
       <SiteHeader />
-      <section className="subpage-content subpage-content--narrow">
+      <section className="subpage-content">
         <Link className="back-link" href="/templates">← Modelos</Link>
         {loading ? <p className="page-message" role="status">Carregando modelo…</p> : null}
         {!loading && error && !template ? (
@@ -77,17 +78,22 @@ export default function TemplatePage() {
               <h1>{template.name}</h1>
               {template.description ? <p>{template.description}</p> : null}
             </div>
-            <form className="template-form" onSubmit={submit}>
-              <TemplateFields
-                fields={template.definition.fields}
-                values={values}
-                onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
-              />
-              {error ? <p className="form-error" role="alert">{error}</p> : null}
-              <button className="button button--primary form-submit" disabled={saving} type="submit">
-                {saving ? "Salvando…" : "Continuar"}
-              </button>
-            </form>
+            <div className="editor-layout">
+              <form className="template-form" onSubmit={submit}>
+                <TemplateFields
+                  fields={template.definition.fields}
+                  values={values}
+                  onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
+                />
+                {error ? <p className="form-error" role="alert">{error}</p> : null}
+                <button className="button button--primary form-submit" disabled={saving} type="submit">
+                  {saving ? "Salvando…" : "Continuar"}
+                </button>
+              </form>
+              <div className="preview-panel" aria-label="Prévia da mensagem">
+                <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
+              </div>
+            </div>
           </>
         ) : null}
       </section>

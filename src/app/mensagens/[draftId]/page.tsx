@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { TemplateFields } from "@/components/template-fields";
+import { MessageTemplateCard } from "@/components/message-template-card";
 import { ApiError, api } from "@/lib/api-client";
 import type { Draft, Template } from "@/lib/api-contracts";
 
@@ -33,7 +33,6 @@ export default function DraftPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
-  const [previewUnavailable, setPreviewUnavailable] = useState(false);
 
   const loadDraft = useCallback(async () => {
     try {
@@ -155,18 +154,9 @@ export default function DraftPage() {
                   </button>
                 </div>
               </form>
-              {!previewUnavailable ? (
-                <div className="preview-panel">
-                  <Image
-                    alt={`Prévia de ${template.name}`}
-                    onError={() => setPreviewUnavailable(true)}
-                    width={800}
-                    height={600}
-                    src={`/api/v1/drafts/${encodeURIComponent(draft.id)}/preview.png`}
-                    unoptimized
-                  />
-                </div>
-              ) : null}
+              <div className="preview-panel" aria-label="Prévia da mensagem">
+                <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
+              </div>
             </div>
           </>
         ) : null}

@@ -33,9 +33,17 @@ export const templateVisualSchema = z.object({
   frame: z.enum(["none", "single", "double"]).optional(),
 }).strict();
 
+export const templateCardSchema = z.object({
+  illustration: z.enum(["wave", "shopping-bag-heart", "gift"]),
+  heading: z.string().min(1).max(300),
+  message: z.string().max(500).optional(),
+  footer: z.literal("heart"),
+}).strict();
+
 export const templateDefinitionSchema = z.object({
   fields: z.array(templateFieldSchema).max(100),
   visual: templateVisualSchema.optional(),
+  card: templateCardSchema.optional(),
 }).strict();
 
 export const templateSchema = z.object({
@@ -122,6 +130,8 @@ export const publicPublicationResponseSchema = z.object({
     templateVersion: z.number().int().positive(),
     templateName: z.string(),
     templateDescription: z.string().nullable(),
+    templateDefinition: templateDefinitionSchema,
+    publicUrl: z.string().url(),
     data: jsonObjectSchema,
     publishedAt: z.string().datetime({ offset: true }),
   }).strict(),
@@ -131,6 +141,8 @@ export const publicPublicationResponseSchema = z.object({
 export type Template = z.infer<typeof templateSchema>;
 export type TemplateField = z.infer<typeof templateFieldSchema>;
 export type TemplateVisual = z.infer<typeof templateVisualSchema>;
+export type TemplateCard = z.infer<typeof templateCardSchema>;
+export type TemplateDefinition = z.infer<typeof templateDefinitionSchema>;
 export type Draft = z.infer<typeof draftSchema>;
 export type PurchaseStatus = z.infer<typeof purchaseStatusResponseSchema>["data"];
 export type PublicPublication = z.infer<typeof publicPublicationResponseSchema>["data"];
