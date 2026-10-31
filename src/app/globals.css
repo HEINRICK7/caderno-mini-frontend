@@ -90,14 +90,14 @@ a:focus-visible { outline: 2px solid #058e91; outline-offset: 3px; }
 
 @media (min-width: 900px) {
   .home-shell { width: min(1450px, calc(100% - 64px)); }
-  .site-header { height: 78px; }
+  .site-header { height: 60px; }
   .brand-mark__symbol { width: 42px; height: 42px; }
   .brand-mark__name { font-size: 23px; }
   .brand-mark__express { font-size: 7px; padding: 3px 7px; }
-  .hero { min-height: clamp(340px, 38vw, 540px); grid-template-columns: minmax(300px, .72fr) minmax(0, 1.28fr); gap: 22px; }
+  .hero { min-height: clamp(390px, 28vw, 400px); grid-template-columns: minmax(300px, .72fr) minmax(0, 1.28fr); gap: 22px; }
   .sample-card { border-radius: 22px; }
   .sample-card__body { min-height: 116px; padding: 12px 10px 9px; }
-  .steps { min-height: 88px; padding-inline: 26px; border-radius: 20px; }
+  .steps { min-height: 72px; padding-inline: 26px; border-radius: 20px; }
   .step { gap: 11px; }
   .step__number { width: 32px; height: 32px; font-size: 19px; }
   .step__icon { width: 48px; height: 48px; }
