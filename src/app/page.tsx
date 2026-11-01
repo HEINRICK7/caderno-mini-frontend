@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Pencil, Share2 } from "lucide-react";
-import { BrandMark } from "@/components/brand-mark";
+import { SiteHeader } from "@/components/site-header";
 import { StatusSticker } from "@/components/status-sticker";
 
 const cards = [
@@ -39,18 +39,7 @@ const steps = [
 export default function Home() {
   return (
     <main className="home-shell">
-      <header className="site-header">
-        <BrandMark />
-        <nav aria-label="Navegação principal" className="site-nav">
-          <Link href="/templates">Modelos</Link>
-          <Link href="#steps">Como funciona</Link>
-          <Link href="/templates">Para o seu negócio</Link>
-          <Link href="#examples">Depoimentos</Link>
-          <Link className="button button--primary button--header" href="/templates">
-            Criar minha mensagem <ArrowRight aria-hidden="true" size={13} />
-          </Link>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <section className="hero">
         <div className="hero__copy">
