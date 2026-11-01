@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   authMessageResponseSchema,
   draftResponseSchema,
+  imageUploadResponseSchema,
+  publicPublicationResponseSchema,
   publicationResponseSchema,
   purchaseStatusResponseSchema,
   templateSchema,
@@ -13,6 +15,7 @@ const template = {
   name: "Boas-vindas",
   description: "Uma mensagem de boas-vindas.",
   definition: {
+    catalog: { segment: "both", category: "Boas-vindas" },
     fields: [
       { id: "recipientName", type: "text", label: "Nome do cliente", required: true, maxLength: 120 },
       { id: "message", type: "textarea", label: "Mensagem", maxLength: 500 },
@@ -30,6 +33,12 @@ const template = {
       bodyFont: "sans",
       frame: "none",
     },
+    card: {
+      illustration: "wave",
+      heading: "Olá, {{recipientName}}!",
+      message: "Que bom ter você por aqui!",
+      footer: "heart",
+    },
   },
   createdAt: "2026-10-31T10:00:00.000Z",
 };
@@ -39,7 +48,12 @@ describe("contrato de Template publicado pelo backend", () => {
     expect(templateSchema.parse(template)).toEqual(template);
   });
 
-  it("rejeita metadados de catálogo que o backend ainda não fornece", () => {
+  it("usa segmento e categoria definidos pelo backend para organizar o catálogo", () => {
+    expect(templateSchema.parse(template).definition.catalog).toEqual({ segment: "both", category: "Boas-vindas" });
+    expect(() => templateSchema.parse({
+      ...template,
+      definition: { ...template.definition, catalog: { segment: "unknown", category: "Outros" } },
+    })).toThrow();
     expect(() => templateSchema.parse({ ...template, category: "products" })).toThrow();
   });
 
@@ -54,10 +68,82 @@ describe("contrato de Template publicado pelo backend", () => {
 
     expect(() => templateSchema.parse(invalid)).toThrow();
   });
+
+  it("aceita composição semântica de cartão e rejeita marcação HTML", () => {
+    expect(templateSchema.parse(template).definition.card).toEqual(template.definition.card);
+    expect(() => templateSchema.parse({
+      ...template,
+      definition: { ...template.definition, card: { ...template.definition.card, html: "<script>" } },
+    })).toThrow();
+  });
+
+  it("aceita campos organizados pelo backend e detalhes estruturados do cartão", () => {
+    const structured = {
+      ...template,
+      definition: {
+        ...template.definition,
+        fields: [
+          { id: "recipientName", type: "text", label: "Nome do cliente", width: "half" },
+          { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 5242880 },
+          { id: "productImage", type: "image", label: "Imagem do produto", maxBytes: 5242880 },
+          { id: "purchaseAmount", type: "number", label: "Valor", format: "currency", section: "Detalhes do pedido", width: "half" },
+        ],
+        card: {
+          illustration: "shopping-bag-heart",
+          heading: "Obrigado, {{recipientName}}!",
+          details: [
+            { label: "Produto", value: "Conjunto", icon: "package", imageFieldId: "productImage" },
+            { label: "Valor", value: "{{purchaseAmount}}", icon: "credit-card", format: "currency" },
+          ],
+          action: { label: "Ver detalhes da compra" },
+          brand: { businessNameFieldId: "recipientName", logoFieldId: "businessLogo" },
+          footer: "none",
+        },
+      },
+    };
+
+    expect(templateSchema.parse(structured)).toEqual(structured);
+    expect(() => templateSchema.parse({
+      ...structured,
+      definition: { ...structured.definition, fields: [{ id: "value", type: "text", format: "currency" }] },
+    })).toThrow();
+  });
+
+  it("aceita datas estruturadas e as duas ações configuradas para um modelo de serviço", () => {
+    const approvalTemplate = {
+      ...template,
+      definition: {
+        ...template.definition,
+        fields: [
+          { id: "scheduledAt", type: "date", label: "Data da realização" },
+          { id: "approveLink", type: "url", label: "Link para aprovar" },
+          { id: "rejectLink", type: "url", label: "Link para recusar" },
+        ],
+        card: {
+          illustration: "approval-hourglass",
+          heading: "Olá, cliente!",
+          details: [{ label: "Data da realização", value: "{{scheduledAt}}", format: "date" }],
+          actions: [
+            { label: "Sim, quero", hrefFieldId: "approveLink" },
+            { label: "Agora não", hrefFieldId: "rejectLink" },
+          ],
+          footer: "none",
+        },
+      },
+    };
+
+    expect(templateSchema.parse(approvalTemplate).definition.card?.actions).toHaveLength(2);
+  });
 });
 
 describe("contratos de criação e compartilhamento", () => {
   const timestamp = "2026-10-31T10:00:00.000Z";
+
+  it("aceita somente a referência criada pelo backend para uma imagem enviada", () => {
+    const response = { data: { id: "7b7d828b-f189-496a-b59b-9fae6a9b8531", contentUrl: "/api/v1/assets/7b7d828b-f189-496a-b59b-9fae6a9b8531/content" } };
+    expect(imageUploadResponseSchema.parse(response)).toEqual(response);
+    expect(() => imageUploadResponseSchema.parse({ data: { ...response.data, id: "inline-image-data" } })).toThrow();
+  });
 
   it("aceita somente o formato de rascunho do backend", () => {
     const draft = {
@@ -93,6 +179,26 @@ describe("contratos de criação e compartilhamento", () => {
     };
     expect(publicationResponseSchema.parse(publication)).toEqual(publication);
     expect(() => publicationResponseSchema.parse({ data: { ...publication.data, status: "paid" } })).toThrow();
+  });
+
+  it("usa a definição do modelo fixada na versão da publicação", () => {
+    const publication = {
+      data: {
+        templateId: "welcome",
+        templateVersion: 3,
+        templateName: "Boas-vindas",
+        templateDescription: null,
+        templateDefinition: template.definition,
+        publicUrl: `https://caderno.example/p/${"a".repeat(43)}`,
+        data: { recipientName: "Maria", message: "Que bom ter você por aqui!" },
+        publishedAt: timestamp,
+      },
+    };
+
+    expect(publicPublicationResponseSchema.parse(publication)).toEqual(publication);
+    expect(() => publicPublicationResponseSchema.parse({
+      data: { ...publication.data, templateDefinition: { ...template.definition, html: "<script>" } },
+    })).toThrow();
   });
 
   it("aceita apenas estados de compra publicados pelo backend", () => {

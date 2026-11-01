@@ -10,6 +10,7 @@ import {
   templateListResponseSchema,
   templateResponseSchema,
   templateValidationResponseSchema,
+  imageUploadResponseSchema,
   publicationResponseSchema,
   type Draft,
   type PublicPublication,
@@ -74,6 +75,13 @@ async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit 
 }
 
 export const api = {
+  async uploadImage(dataUrl: string): Promise<{ id: string; contentUrl: string }> {
+    return (await request("/api/v1/assets", imageUploadResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ dataUrl }),
+    })).data;
+  },
+
   async getTemplates(): Promise<Template[]> {
     return (await request("/api/v1/templates", templateListResponseSchema)).data;
   },

@@ -1,0 +1,530 @@
+[
+  {
+    "template": "boas-vindas",
+    "personalizedHeight430": 1042,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 973,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 998,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1034,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "agradecimento-compra",
+    "personalizedHeight430": 1028,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 956,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 989,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1020,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "parcela-proxima",
+    "personalizedHeight430": 1151,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1047,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1100,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1143,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "parcela-hoje",
+    "personalizedHeight430": 1117,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1018,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1069,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1109,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "parcela-atrasada",
+    "personalizedHeight430": 1098,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1002,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1052,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1090,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "cobranca-pix",
+    "personalizedHeight430": 1087,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1087,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1055,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1087,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "pagamento-confirmado",
+    "personalizedHeight430": 1109,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1035,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1062,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1101,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "caderneta-quitada",
+    "personalizedHeight430": 1087,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1007,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1011,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1079,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "servico-contratado",
+    "personalizedHeight430": 1068,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1002,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1032,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1060,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "servico-concluido",
+    "personalizedHeight430": 1037,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 964,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 997,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1029,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "aniversario",
+    "personalizedHeight430": 1047,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 950,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 986,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1039,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "produto-destaque",
+    "personalizedHeight430": 1023,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 939,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 967,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1015,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "oferta-especial",
+    "personalizedHeight430": 1093,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 1005,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 1039,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1093,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "novidades-colecao",
+    "personalizedHeight430": 976,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 884,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 891,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 968,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "reativacao-cliente",
+    "personalizedHeight430": 994,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 932,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 922,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 986,
+        "overflowNodes": 0
+      }
+    ]
+  },
+  {
+    "template": "lembrete-aprovacao",
+    "personalizedHeight430": 1028,
+    "widthChecks": [
+      {
+        "width": 360,
+        "viewport": 360,
+        "documentWidth": 360,
+        "bodyWidth": 360,
+        "cardWidth": 360,
+        "cardHeight": 940,
+        "overflowNodes": 0
+      },
+      {
+        "width": 390,
+        "viewport": 390,
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "cardWidth": 390,
+        "cardHeight": 962,
+        "overflowNodes": 0
+      },
+      {
+        "width": 430,
+        "viewport": 430,
+        "documentWidth": 430,
+        "bodyWidth": 430,
+        "cardWidth": 430,
+        "cardHeight": 1020,
+        "overflowNodes": 0
+      }
+    ]
+  }
+]
