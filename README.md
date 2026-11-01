@@ -39,3 +39,11 @@ O GitHub Actions executa essas etapas em pushes e pull requests para `dev`, `sta
 - [Brand kit aprovado](CADERNO_EXPRESS_BRANDKIT/BRANDING_FRONTEND_MASTER.md)
 
 O navegador usa apenas os campos retornados por `/api/v1`. A API atual não fornece categorias ou tags no catálogo. Links públicos usam o caminho `/p/:slug` retornado pelo backend. Segredos e configuração da Cakto permanecem no backend.
+
+## Deploy na Hostinger
+
+O deploy de produção é acionado somente por push em `main`, após CI verde e com `PRODUCTION_DEPLOY_ENABLED=true` nas variáveis do repositório. No ambiente GitHub `production`, configure `HOSTINGER_HOST`, `HOSTINGER_USER`, `HOSTINGER_SSH_PORT`, `HOSTINGER_APP_PATH`, `HOSTINGER_WEB_PORT` e `PUBLIC_URL`, além dos segredos `HOSTINGER_SSH_PRIVATE_KEY` e `HOSTINGER_KNOWN_HOSTS`. O caminho deve ser exclusivo e terminar em `/caderno-mini/frontend`; a porta deve estar livre e ligada somente ao loopback.
+
+O workflow se recusa a sincronizar sobre uma pasta preenchida sem marcador Cadernô, não usa `rsync --delete`, não altera o proxy e só atualiza o projeto Docker `caderno-mini-production-frontend`. A rede privada `caderno-mini-production` deve ser criada pelo deploy do backend ou pelo próprio workflow. Faça o deploy do backend antes do frontend; o proxy HTTPS existente deve encaminhar o domínio para `127.0.0.1:HOSTINGER_WEB_PORT`. O workflow testa a saúde do container antes de concluir.
+
+Não habilite o deploy nem altere domínio, proxy ou DNS até confirmar o destino no painel Hostinger. Isso mantém os outros sites e aplicações da VPS fora da área de deploy.

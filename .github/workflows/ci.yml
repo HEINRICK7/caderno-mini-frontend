@@ -20,6 +20,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check out backend catalog for contract tests
+        uses: actions/checkout@v4
+        with:
+          repository: HEINRICK7/caderno-mini-backend
+          ref: feature/sprint-1-backend-foundation
+          path: mini-backend
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -43,3 +50,17 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Build production container
+        run: docker build --build-arg API_BASE_URL=http://api:3000 --tag caderno-mini-frontend:ci .
+
+  deploy-production:
+    name: deploy production
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PRODUCTION_DEPLOY_ENABLED == 'true' }}
+    needs: verify
+    permissions:
+      contents: read
+      deployments: write
+    uses: ./.github/workflows/deploy-hostinger.yml
+    with:
+      deploy_environment: production
