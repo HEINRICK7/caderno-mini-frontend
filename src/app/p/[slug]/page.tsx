@@ -51,6 +51,7 @@ export default async function PublicMessagePage({ params }: PublicMessagePagePro
         data={publication.data}
         definition={publication.templateDefinition}
         description={publication.templateDescription}
+        mode="published"
         title={publication.templateName}
       />
     </main>

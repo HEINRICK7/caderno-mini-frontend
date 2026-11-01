@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   authMessageResponseSchema,
   draftResponseSchema,
+  imageUploadResponseSchema,
   publicPublicationResponseSchema,
   publicationResponseSchema,
   purchaseStatusResponseSchema,
@@ -75,10 +76,74 @@ describe("contrato de Template publicado pelo backend", () => {
       definition: { ...template.definition, card: { ...template.definition.card, html: "<script>" } },
     })).toThrow();
   });
+
+  it("aceita campos organizados pelo backend e detalhes estruturados do cartão", () => {
+    const structured = {
+      ...template,
+      definition: {
+        ...template.definition,
+        fields: [
+          { id: "recipientName", type: "text", label: "Nome do cliente", width: "half" },
+          { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 131072 },
+          { id: "productImage", type: "image", label: "Imagem do produto", maxBytes: 131072 },
+          { id: "purchaseAmount", type: "number", label: "Valor", format: "currency", section: "Detalhes do pedido", width: "half" },
+        ],
+        card: {
+          illustration: "shopping-bag-heart",
+          heading: "Obrigado, {{recipientName}}!",
+          details: [
+            { label: "Produto", value: "Conjunto", icon: "package", imageFieldId: "productImage" },
+            { label: "Valor", value: "{{purchaseAmount}}", icon: "credit-card", format: "currency" },
+          ],
+          action: { label: "Ver detalhes da compra" },
+          brand: { businessNameFieldId: "recipientName", logoFieldId: "businessLogo" },
+          footer: "none",
+        },
+      },
+    };
+
+    expect(templateSchema.parse(structured)).toEqual(structured);
+    expect(() => templateSchema.parse({
+      ...structured,
+      definition: { ...structured.definition, fields: [{ id: "value", type: "text", format: "currency" }] },
+    })).toThrow();
+  });
+
+  it("aceita datas estruturadas e as duas ações configuradas para um modelo de serviço", () => {
+    const approvalTemplate = {
+      ...template,
+      definition: {
+        ...template.definition,
+        fields: [
+          { id: "scheduledAt", type: "date", label: "Data da realização" },
+          { id: "approveLink", type: "url", label: "Link para aprovar" },
+          { id: "rejectLink", type: "url", label: "Link para recusar" },
+        ],
+        card: {
+          illustration: "approval-hourglass",
+          heading: "Olá, cliente!",
+          details: [{ label: "Data da realização", value: "{{scheduledAt}}", format: "date" }],
+          actions: [
+            { label: "Sim, quero", hrefFieldId: "approveLink" },
+            { label: "Agora não", hrefFieldId: "rejectLink" },
+          ],
+          footer: "none",
+        },
+      },
+    };
+
+    expect(templateSchema.parse(approvalTemplate).definition.card?.actions).toHaveLength(2);
+  });
 });
 
 describe("contratos de criação e compartilhamento", () => {
   const timestamp = "2026-10-31T10:00:00.000Z";
+
+  it("aceita somente a referência criada pelo backend para uma imagem enviada", () => {
+    const response = { data: { id: "7b7d828b-f189-496a-b59b-9fae6a9b8531", contentUrl: "/api/v1/assets/7b7d828b-f189-496a-b59b-9fae6a9b8531/content" } };
+    expect(imageUploadResponseSchema.parse(response)).toEqual(response);
+    expect(() => imageUploadResponseSchema.parse({ data: { ...response.data, id: "inline-image-data" } })).toThrow();
+  });
 
   it("aceita somente o formato de rascunho do backend", () => {
     const draft = {

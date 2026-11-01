@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { ArrowRight, Share2 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SiteHeader } from "@/components/site-header";
-import { TemplateFields } from "@/components/template-fields";
-import { MessageTemplateCard } from "@/components/message-template-card";
-import { ApiError, api } from "@/lib/api-client";
-import type { Template } from "@/lib/api-contracts";
+import { SiteHeader } from "../../../components/site-header";
+import { TemplateFields } from "../../../components/template-fields";
+import { MessageTemplateCard } from "../../../components/message-template-card";
+import { ApiError, api } from "../../../lib/api-client";
+import type { Template } from "../../../lib/api-contracts";
 
 type FieldValue = string | number | boolean;
 
@@ -19,6 +19,7 @@ export default function TemplatePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const loadTemplate = useCallback(async () => {
     try {
@@ -63,8 +64,7 @@ export default function TemplatePage() {
   return (
     <main className="subpage-shell">
       <SiteHeader />
-      <section className="subpage-content">
-        <Link className="back-link" href="/templates">← Modelos</Link>
+      <section className="subpage-content template-editor-content">
         {loading ? <p className="page-message" role="status">Carregando modelo…</p> : null}
         {!loading && error && !template ? (
           <div className="page-message page-message--error" role="alert">
@@ -74,23 +74,35 @@ export default function TemplatePage() {
         ) : null}
         {!loading && template ? (
           <>
-            <div className="page-heading page-heading--stacked">
-              <h1>{template.name}</h1>
-              {template.description ? <p>{template.description}</p> : null}
+            <div className="template-editor-heading">
+              <h1>Personalize sua mensagem</h1>
+              <p>Preencha os detalhes e veja a prévia do seu cartão.</p>
             </div>
-            <div className="editor-layout">
-              <form className="template-form" onSubmit={submit}>
+            <div className="template-editor-layout">
+              <form className="template-form template-editor-form" onSubmit={submit}>
                 <TemplateFields
                   fields={template.definition.fields}
                   values={values}
+                  onUploadStateChange={setUploadingImage}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
                 />
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
-                <button className="button button--primary form-submit" disabled={saving} type="submit">
-                  {saving ? "Salvando…" : "Continuar"}
-                </button>
+                <div className="template-editor-actions">
+                  <button className="button button--primary form-submit" disabled={saving || uploadingImage} type="submit">
+                    {saving ? "Salvando…" : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
+                  </button>
+                  <button
+                    aria-label="Compartilhar (disponível após a publicação)"
+                    className="button button--share"
+                    disabled
+                    title="Disponível após a publicação"
+                    type="button"
+                  >
+                    <Share2 aria-hidden="true" size={16} /> Compartilhar
+                  </button>
+                </div>
               </form>
-              <div className="preview-panel" aria-label="Prévia da mensagem">
+              <div className="template-editor-preview" aria-label="Prévia da mensagem">
                 <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
               </div>
             </div>

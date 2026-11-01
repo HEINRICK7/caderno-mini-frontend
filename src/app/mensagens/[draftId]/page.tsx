@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
@@ -121,8 +120,7 @@ export default function DraftPage() {
   return (
     <main className="subpage-shell">
       <SiteHeader />
-      <section className="subpage-content">
-        <Link className="back-link" href="/templates">← Modelos</Link>
+      <section className="subpage-content template-editor-content">
         {loading ? <p className="page-message" role="status">Carregando mensagem…</p> : null}
         {!loading && error && !draft ? (
           <div className="page-message page-message--error" role="alert">
@@ -132,12 +130,12 @@ export default function DraftPage() {
         ) : null}
         {!loading && draft && template ? (
           <>
-            <div className="page-heading page-heading--stacked">
-              <h1>{template.name}</h1>
-              {template.description ? <p>{template.description}</p> : null}
+            <div className="template-editor-heading">
+              <h1>Personalize sua mensagem</h1>
+              <p>Preencha os detalhes e veja a prévia do seu cartão.</p>
             </div>
-            <div className="editor-layout">
-              <form className="template-form" onSubmit={(event) => { event.preventDefault(); void save().catch(() => undefined); }}>
+            <div className="template-editor-layout">
+              <form className="template-form template-editor-form" onSubmit={(event) => { event.preventDefault(); void save().catch(() => undefined); }}>
                 <TemplateFields
                   fields={template.definition.fields}
                   values={values}
@@ -145,16 +143,16 @@ export default function DraftPage() {
                 />
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 {notice ? <p className="form-notice" role="status">{notice}</p> : null}
-                <div className="editor-actions">
+                <div className="template-editor-actions">
                   <button className="button button--secondary" disabled={saving || checkingOut} type="submit">
                     {saving ? "Salvando…" : "Salvar alterações"}
                   </button>
-                  <button className="button button--primary" disabled={saving || checkingOut} onClick={() => void continueToCheckout()} type="button">
-                    {checkingOut ? "Aguarde…" : "Continuar para checkout"}
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut} onClick={() => void continueToCheckout()} type="button">
+                    {checkingOut ? "Aguarde…" : "Desbloquear link"}
                   </button>
                 </div>
               </form>
-              <div className="preview-panel" aria-label="Prévia da mensagem">
+              <div className="template-editor-preview" aria-label="Prévia da mensagem">
                 <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
               </div>
             </div>

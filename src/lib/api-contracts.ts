@@ -4,14 +4,24 @@ const hexColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 
 export const templateFieldSchema = z.object({
   id: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
-  type: z.enum(["text", "textarea", "number", "boolean", "select", "url", "color", "date"]),
+  type: z.enum(["text", "textarea", "number", "boolean", "select", "url", "color", "date", "image"]),
   label: z.string().min(1).max(120).optional(),
   placeholder: z.string().max(200).optional(),
   helpText: z.string().max(500).optional(),
+  section: z.string().min(1).max(80).optional(),
+  width: z.enum(["half", "full"]).optional(),
+  format: z.enum(["currency"]).optional(),
   required: z.boolean().optional(),
   maxLength: z.number().int().min(1).max(20_000).optional(),
+  maxBytes: z.number().int().min(1).max(131_072).optional(),
   options: z.array(z.string().min(1).max(120)).optional(),
 }).strict().superRefine((field, context) => {
+  if (field.format !== undefined && field.type !== "number") {
+    context.addIssue({ code: "custom", message: "O formato de moeda só pode ser usado em campos numéricos.", path: ["format"] });
+  }
+  if (field.maxBytes !== undefined && field.type !== "image") {
+    context.addIssue({ code: "custom", message: "O limite em bytes só pode ser usado em campos de imagem.", path: ["maxBytes"] });
+  }
   if (field.type === "select" && (!field.options || field.options.length === 0)) {
     context.addIssue({ code: "custom", message: "Campos de seleção precisam de opções.", path: ["options"] });
   }
@@ -54,7 +64,26 @@ export const templateCardSchema = z.object({
   ]),
   heading: z.string().min(1).max(300),
   message: z.string().max(500).optional(),
-  footer: z.literal("heart"),
+  details: z.array(z.object({
+    label: z.string().min(1).max(80),
+    value: z.string().max(300),
+    imageFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    icon: z.enum(["package", "credit-card", "calendar", "check", "link", "qrcode"]).optional(),
+    format: z.enum(["currency", "date"]).optional(),
+  }).strict()).min(1).max(6).optional(),
+  action: z.object({
+    label: z.string().min(1).max(120),
+    hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict().optional(),
+  actions: z.array(z.object({
+    label: z.string().min(1).max(120),
+    hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict()).min(1).max(3).optional(),
+  brand: z.object({
+    businessNameFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
+    logoFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict().optional(),
+  footer: z.enum(["heart", "none"]),
 }).strict();
 
 export const templateCatalogSchema = z.object({
@@ -88,6 +117,10 @@ export const templateResponseSchema = z.object({
 
 export const templateValidationResponseSchema = z.object({
   data: z.object({ valid: z.literal(true) }).strict(),
+}).strict();
+
+export const imageUploadResponseSchema = z.object({
+  data: z.object({ id: z.string().uuid(), contentUrl: z.string() }).strict(),
 }).strict();
 
 export const jsonObjectSchema = z.record(z.string(), z.unknown());

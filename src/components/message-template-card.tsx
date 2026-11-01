@@ -1,4 +1,6 @@
 import type { CSSProperties } from "react";
+import Image from "next/image";
+import { CalendarDays, Check, CreditCard, Link2, Package, QrCode } from "lucide-react";
 import type { TemplateDefinition } from "@/lib/api-contracts";
 import { StatusSticker } from "./status-sticker";
 
@@ -7,9 +9,12 @@ type MessageTemplateCardProps = {
   data: Record<string, unknown>;
   title?: string;
   description?: string | null;
+  mode?: "preview" | "published";
 };
 
-export function MessageTemplateCard({ definition, data, title, description }: MessageTemplateCardProps) {
+const detailIcons = { package: Package, "credit-card": CreditCard, calendar: CalendarDays, check: Check, link: Link2, qrcode: QrCode };
+
+export function MessageTemplateCard({ definition, data, title, description, mode = "preview" }: MessageTemplateCardProps) {
   const visual = definition.visual;
   const style = {
     "--card-art-background": visual?.background ?? "#fff0c3",
@@ -45,9 +50,26 @@ export function MessageTemplateCard({ definition, data, title, description }: Me
 
   const heading = interpolate(definition.card.heading, definition, data);
   const message = definition.card.message ? interpolate(definition.card.message, definition, data) : "";
+  const details = (definition.card.details ?? []).map((detail) => ({
+    ...detail,
+    displayValue: formatDetail(detail.value, detail.format, definition, data, false),
+    imageSrc: detail.imageFieldId ? safeImageAssetPath(data[detail.imageFieldId]) : null,
+  })).filter((detail) => detail.displayValue.trim() !== "" || detail.imageSrc !== null);
+  const actions = definition.card.actions ?? (definition.card.action ? [definition.card.action] : []);
+  const brand = definition.card.brand;
+  const brandName = brand ? interpolate(`{{${brand.businessNameFieldId}}}`, definition, data) : "";
+  const brandLogo = brand?.logoFieldId
+    ? safeImageAssetPath(data[brand.logoFieldId])
+    : null;
 
   return (
-      <article className={`message-template message-template--${definition.card.illustration} ${visualClasses}`} style={style}>
+    <article className={`message-template message-template--${definition.card.illustration} ${visualClasses}${details.length ? " message-template--with-details" : ""}`} style={style}>
+      {brand ? (
+        <div className="message-template__brand">
+          {brandLogo ? <Image alt="" className="message-template__brand-logo" height={34} src={brandLogo} unoptimized width={34} /> : null}
+          {brandName ? <span>{brandName}</span> : null}
+        </div>
+      ) : null}
       <div aria-hidden="true" className="message-template__art">
         <StatusSticker
           className="message-template__illustration"
@@ -58,18 +80,72 @@ export function MessageTemplateCard({ definition, data, title, description }: Me
       <div className="message-template__copy">
         <h1>{heading}</h1>
         {message ? <p>{message}</p> : null}
-        <span aria-hidden="true" className="message-template__heart">♡</span>
+        {details.length > 0 ? (
+          <dl className="message-template__details">
+            {details.map((detail) => {
+              const Icon = detail.icon ? detailIcons[detail.icon] : null;
+              return (
+                <div className="message-template__detail" key={`${detail.label}-${detail.value}`}>
+                  <span aria-hidden="true" className="message-template__detail-icon">{detail.imageSrc ? <Image alt="" className="message-template__detail-image" height={36} src={detail.imageSrc} unoptimized width={36} /> : Icon ? <Icon size={17} strokeWidth={2.3} /> : null}</span>
+                  <div>
+                    <dt>{detail.label}</dt>
+                    <dd>{detail.displayValue}</dd>
+                  </div>
+                </div>
+              );
+            })}
+          </dl>
+        ) : null}
+        {actions.map((action) => {
+          const actionHrefValue = action.hrefFieldId ? data[action.hrefFieldId] : undefined;
+          const actionHref = mode === "published" && typeof actionHrefValue === "string" ? safeHttpUrl(actionHrefValue) : null;
+          if (mode === "published" && !actionHref) return null;
+          return mode === "preview" ? (
+            <div className="message-template__action" key={action.label}>{action.label}</div>
+          ) : (
+            <a className="message-template__action" href={actionHref!} key={action.label} rel="noreferrer" target="_blank">{action.label}</a>
+          );
+        })}
+        {definition.card.footer === "heart" ? <span aria-hidden="true" className="message-template__heart">♡</span> : null}
       </div>
     </article>
   );
 }
 
-function interpolate(template: string, definition: TemplateDefinition, data: Record<string, unknown>): string {
+function interpolate(template: string, definition: TemplateDefinition, data: Record<string, unknown>, usePlaceholders = true): string {
   return template.replace(/\{\{([A-Za-z][A-Za-z0-9_]{0,63})\}\}/g, (_match, fieldId: string) => {
     const value = data[fieldId];
     if (typeof value === "string" || typeof value === "number") return String(value);
-    return definition.fields.find((field) => field.id === fieldId)?.placeholder ?? "";
+    return usePlaceholders ? definition.fields.find((field) => field.id === fieldId)?.placeholder ?? "" : "";
   });
+}
+
+function formatDetail(template: string, format: "currency" | "date" | undefined, definition: TemplateDefinition, data: Record<string, unknown>, usePlaceholders = true): string {
+  const value = interpolate(template, definition, data, usePlaceholders);
+  if (format === "date" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const date = new Date(`${value}T12:00:00.000Z`);
+    if (Number.isFinite(date.getTime())) {
+      return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "UTC" }).format(date);
+    }
+  }
+  if (format !== "currency" || value.trim() === "") return value;
+  const amount = Number(value.replace(",", "."));
+  if (!Number.isFinite(amount)) return value;
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount);
+}
+
+function safeHttpUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeImageAssetPath(value: unknown): string | null {
+  if (typeof value !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return null;
+  return `/api/v1/assets/${value}/content`;
 }
 
 function displayValue(value: unknown): string {
