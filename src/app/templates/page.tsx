@@ -81,7 +81,7 @@ export default function TemplatesPage() {
           >Serviços</button>
         </div>
 
-        <nav aria-label="Categorias de modelos" className="template-filters">
+        <nav aria-label="Categorias de modelos" className="template-filters" tabIndex={0}>
           {categories.map((item) => (
             <button
               aria-pressed={category === item}

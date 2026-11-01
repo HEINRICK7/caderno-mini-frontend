@@ -6,9 +6,12 @@
 .template-segment { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: var(--control-radius); background: #f0f1f1; }
 .template-segment button { min-width: 0; min-height: 44px; border: 0; border-radius: var(--control-radius); background: transparent; color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
 .template-segment button.is-active { background: #078f92; color: #fff; }
-.template-filters { display: flex; gap: 8px; overflow-x: auto; margin: 12px 0 14px; padding: 2px 1px 6px; scrollbar-width: none; overscroll-behavior-inline: contain; }
-.template-filters::-webkit-scrollbar { display: none; }
-.template-filters button { min-height: 40px; flex: none; padding: 0 15px; border: 0; border-radius: var(--control-radius); background: #f0f1f1; color: #173561; font-size: 12px; font-weight: 600; cursor: pointer; }
+.template-filters { width: 100%; min-width: 0; display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; margin: 12px 0 14px; padding: 2px 1px 9px; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; scrollbar-color: var(--teal) var(--mint); scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.template-filters::-webkit-scrollbar { height: 5px; }
+.template-filters::-webkit-scrollbar-track { border-radius: 999px; background: var(--mint); }
+.template-filters::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--teal); }
+.template-filters:focus-visible { outline: 2px solid var(--teal-action); outline-offset: 3px; }
+.template-filters button { min-height: 40px; flex: none; padding: 0 15px; border: 0; border-radius: var(--control-radius); background: #f0f1f1; color: #173561; font-size: 12px; font-weight: 600; cursor: pointer; scroll-snap-align: start; }
 .template-filters button.is-active { background: #078f92; color: #fff; }
 
 .subpage-content { padding: 28px 0 64px; }
