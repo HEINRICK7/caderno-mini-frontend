@@ -2,10 +2,10 @@
 
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import catalog from "../../../mini-backend/catalog/templates.json";
 import { MessageTemplateCard } from "./message-template-card";
 import type { TemplateDefinition } from "@/lib/api-contracts";
 import { personalizedData } from "../../tests/visual-fixtures/template-fixtures";
+import { backendCatalog } from "../../tests/helpers/backend-catalog";
 
 afterEach(cleanup);
 
@@ -22,7 +22,7 @@ const definition: TemplateDefinition = {
 
 describe("MessageTemplateCard", () => {
   it("renders all 16 catalog templates with personalized values", () => {
-    const templates = catalog as unknown as Array<{ id: string; definition: TemplateDefinition }>;
+    const templates = backendCatalog as unknown as Array<{ id: string; definition: TemplateDefinition }>;
     const renderedIds: string[] = [];
 
     expect(templates).toHaveLength(16);
