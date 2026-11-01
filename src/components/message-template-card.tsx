@@ -10,11 +10,21 @@ type MessageTemplateCardProps = {
   title?: string;
   description?: string | null;
   mode?: "preview" | "published";
+  imagePreviews?: Record<string, string>;
+  showBusinessNamePlaceholder?: boolean;
 };
 
 const detailIcons = { package: Package, "credit-card": CreditCard, calendar: CalendarDays, check: Check, link: Link2, qrcode: QrCode };
 
-export function MessageTemplateCard({ definition, data, title, description, mode = "preview" }: MessageTemplateCardProps) {
+export function MessageTemplateCard({
+  definition,
+  data,
+  title,
+  description,
+  mode = "preview",
+  imagePreviews,
+  showBusinessNamePlaceholder = true,
+}: MessageTemplateCardProps) {
   const visual = definition.visual;
   const style = {
     "--card-art-background": visual?.background ?? "#fff0c3",
@@ -53,20 +63,26 @@ export function MessageTemplateCard({ definition, data, title, description, mode
   const details = (definition.card.details ?? []).map((detail) => ({
     ...detail,
     displayValue: formatDetail(detail.value, detail.format, definition, data, false),
-    imageSrc: detail.imageFieldId ? safeImageAssetPath(data[detail.imageFieldId]) : null,
+    imageSrc: detail.imageFieldId
+      ? safeImageAssetPath(data[detail.imageFieldId], imagePreviews?.[detail.imageFieldId])
+      : null,
   })).filter((detail) => detail.displayValue.trim() !== "" || detail.imageSrc !== null);
   const actions = definition.card.actions ?? (definition.card.action ? [definition.card.action] : []);
   const brand = definition.card.brand;
-  const brandName = brand ? interpolate(`{{${brand.businessNameFieldId}}}`, definition, data) : "";
+  const businessName = brand ? data[brand.businessNameFieldId] : "";
+  const businessNameField = brand ? definition.fields.find((field) => field.id === brand.businessNameFieldId) : undefined;
+  const brandName = typeof businessName === "string" && businessName.trim()
+    ? businessName
+    : showBusinessNamePlaceholder ? businessNameField?.placeholder ?? "" : "";
   const brandLogo = brand?.logoFieldId
-    ? safeImageAssetPath(data[brand.logoFieldId])
+    ? safeImageAssetPath(data[brand.logoFieldId], imagePreviews?.[brand.logoFieldId])
     : null;
 
   return (
     <article className={`message-template message-template--${definition.card.illustration} ${visualClasses}${details.length ? " message-template--with-details" : ""}`} style={style}>
-      {brand ? (
+      {brand && (brandName || brandLogo) ? (
         <div className="message-template__brand">
-          {brandLogo ? <Image alt="" className="message-template__brand-logo" height={34} src={brandLogo} unoptimized width={34} /> : null}
+          {brandLogo ? <Image alt={brandName ? "" : "Logo da empresa"} className="message-template__brand-logo" height={34} src={brandLogo} unoptimized width={34} /> : null}
           {brandName ? <span>{brandName}</span> : null}
         </div>
       ) : null}
@@ -86,7 +102,7 @@ export function MessageTemplateCard({ definition, data, title, description, mode
               const Icon = detail.icon ? detailIcons[detail.icon] : null;
               return (
                 <div className="message-template__detail" key={`${detail.label}-${detail.value}`}>
-                  <span aria-hidden="true" className="message-template__detail-icon">{detail.imageSrc ? <Image alt="" className="message-template__detail-image" height={36} src={detail.imageSrc} unoptimized width={36} /> : Icon ? <Icon size={17} strokeWidth={2.3} /> : null}</span>
+                  <span aria-hidden="true" className={"message-template__detail-icon" + (detail.imageSrc ? " message-template__detail-icon--image" : "")}>{detail.imageSrc ? <Image alt="" className="message-template__detail-image" height={52} src={detail.imageSrc} unoptimized width={52} /> : Icon ? <Icon size={17} strokeWidth={2.3} /> : null}</span>
                   <div>
                     <dt>{detail.label}</dt>
                     <dd>{detail.displayValue}</dd>
@@ -143,7 +159,10 @@ function safeHttpUrl(value: string): string | null {
   }
 }
 
-function safeImageAssetPath(value: unknown): string | null {
+function safeImageAssetPath(value: unknown, localPreview?: string): string | null {
+  if (typeof localPreview === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(localPreview)) {
+    return localPreview;
+  }
   if (typeof value !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return null;
   return `/api/v1/assets/${value}/content`;
 }

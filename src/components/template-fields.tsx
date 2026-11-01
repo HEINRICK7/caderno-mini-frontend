@@ -1,7 +1,7 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
 import { api } from "../lib/api-client";
-import type { TemplateField } from "@/lib/api-contracts";
+import { MAX_TEMPLATE_IMAGE_BYTES, type TemplateField } from "@/lib/api-contracts";
 
 type FieldValue = string | number | boolean;
 
@@ -10,16 +10,28 @@ type TemplateFieldsProps = {
   values: Record<string, FieldValue>;
   onChange: (id: string, value: FieldValue) => void;
   onUploadStateChange?: (uploading: boolean) => void;
+  imagePreviews?: Record<string, string>;
+  onImagePreviewChange?: (id: string, preview: string | null) => void;
 };
 
-export function TemplateFields({ fields, values, onChange, onUploadStateChange }: TemplateFieldsProps) {
+export function TemplateFields({
+  fields,
+  values,
+  onChange,
+  onUploadStateChange,
+  imagePreviews,
+  onImagePreviewChange,
+}: TemplateFieldsProps) {
   const [currencyInputs, setCurrencyInputs] = useState<Record<string, string>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const anyUploadActive = Object.values(uploading).some(Boolean);
+  const hasUploadErrors = Object.values(uploadErrors).some(Boolean);
+  useEffect(() => {
+    onUploadStateChange?.(anyUploadActive || hasUploadErrors);
+  }, [anyUploadActive, hasUploadErrors, onUploadStateChange]);
   const setFieldUploading = (fieldId: string, active: boolean) => {
     setUploading((current) => ({ ...current, [fieldId]: active }));
-    onUploadStateChange?.(active);
   };
   return fields.map((field, index) => {
     const previousField = fields[index - 1];
@@ -102,8 +114,10 @@ export function TemplateFields({ fields, values, onChange, onUploadStateChange }
         input = <input {...shared} type="date" value={String(value)} onChange={(event) => onChange(field.id, event.target.value)} />;
         break;
       case "image": {
-        const maxBytes = field.maxBytes ?? 131_072;
+        const maxBytes = field.maxBytes ?? MAX_TEMPLATE_IMAGE_BYTES;
         const imageValue = typeof value === "string" && isImageAssetId(value) ? value : "";
+        const localPreview = imagePreviews?.[field.id];
+        const previewSrc = localPreview || (imageValue ? `/api/v1/assets/${imageValue}/content` : "");
         input = (
           <div className="form-field__image-upload">
             <input
@@ -116,24 +130,32 @@ export function TemplateFields({ fields, values, onChange, onUploadStateChange }
                 event.currentTarget.value = "";
                 if (!file) return;
                 if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+                  onImagePreviewChange?.(field.id, null);
                   setUploadErrors((current) => ({ ...current, [field.id]: "Escolha um arquivo PNG, JPEG ou WebP." }));
                   return;
                 }
                 if (file.size > maxBytes) {
-                  setUploadErrors((current) => ({ ...current, [field.id]: `A imagem deve ter até ${Math.floor(maxBytes / 1024)} KB.` }));
+                  onImagePreviewChange?.(field.id, null);
+                  setUploadErrors((current) => ({ ...current, [field.id]: "A imagem deve ter até " + formatFileSize(maxBytes) + "." }));
                   return;
                 }
+                onChange(field.id, "");
+                onImagePreviewChange?.(field.id, null);
+                setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
                 setFieldUploading(field.id, true);
                 const reader = new FileReader();
                 reader.onload = async () => {
                   if (typeof reader.result !== "string" || !imageDataUriMatchesMime(reader.result, file.type)) {
+                    onImagePreviewChange?.(field.id, null);
                     setUploadErrors((current) => ({ ...current, [field.id]: "Não foi possível ler essa imagem." }));
                     setFieldUploading(field.id, false);
                     return;
                   }
+                  onImagePreviewChange?.(field.id, reader.result);
                   try {
                     const uploaded = await api.uploadImage(reader.result);
                     setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
+                    onImagePreviewChange?.(field.id, null);
                     onChange(field.id, uploaded.id);
                   } catch (error) {
                     setUploadErrors((current) => ({
@@ -145,17 +167,19 @@ export function TemplateFields({ fields, values, onChange, onUploadStateChange }
                   }
                 };
                 reader.onerror = () => {
+                  onImagePreviewChange?.(field.id, null);
                   setUploadErrors((current) => ({ ...current, [field.id]: "Não foi possível ler essa imagem." }));
                   setFieldUploading(field.id, false);
                 };
                 reader.readAsDataURL(file);
               }}
             />
-            {imageValue ? (
+            {previewSrc ? (
               <div className="form-field__image-preview">
-                <Image alt={`Prévia de ${label.toLowerCase()}`} height={52} src={`/api/v1/assets/${imageValue}/content`} unoptimized width={52} />
+                <Image alt={"Prévia de " + label.toLowerCase()} height={52} src={previewSrc} unoptimized width={52} />
                 <button type="button" disabled={anyUploadActive} onClick={() => {
                   onChange(field.id, "");
+                  onImagePreviewChange?.(field.id, null);
                   setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
                 }}>Remover imagem</button>
               </div>
@@ -204,4 +228,10 @@ function isImageAssetId(value: string): boolean {
 
 function formatCurrencyInput(value: number): string {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatFileSize(bytes: number): string {
+  const megabytes = bytes / (1024 * 1024);
+  if (Number.isInteger(megabytes)) return megabytes + " MB";
+  return Math.ceil(bytes / 1024) + " KB";
 }

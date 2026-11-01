@@ -84,8 +84,8 @@ describe("contrato de Template publicado pelo backend", () => {
         ...template.definition,
         fields: [
           { id: "recipientName", type: "text", label: "Nome do cliente", width: "half" },
-          { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 131072 },
-          { id: "productImage", type: "image", label: "Imagem do produto", maxBytes: 131072 },
+          { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 5242880 },
+          { id: "productImage", type: "image", label: "Imagem do produto", maxBytes: 5242880 },
           { id: "purchaseAmount", type: "number", label: "Valor", format: "currency", section: "Detalhes do pedido", width: "half" },
         ],
         card: {

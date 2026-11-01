@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { TemplateFields } from "@/components/template-fields";
-import { MessageTemplateCard } from "@/components/message-template-card";
+import { MessagePhonePreview } from "@/components/message-phone-preview";
 import { ApiError, api } from "@/lib/api-client";
 import type { Draft, Template } from "@/lib/api-contracts";
 
@@ -27,10 +27,12 @@ export default function DraftPage() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [template, setTemplate] = useState<Template | null>(null);
   const [values, setValues] = useState<Record<string, FieldValue>>({});
+  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imageUploadBlocked, setImageUploadBlocked] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
 
   const loadDraft = useCallback(async () => {
@@ -40,6 +42,7 @@ export default function DraftPage() {
       setDraft(loadedDraft);
       setTemplate(loadedTemplate);
       setValues(initialValues(loadedDraft, loadedTemplate));
+      setImagePreviews({});
       setError("");
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar a mensagem.");
@@ -58,6 +61,7 @@ export default function DraftPage() {
       setDraft(loadedDraft);
       setTemplate(loadedTemplate);
       setValues(initialValues(loadedDraft, loadedTemplate));
+      setImagePreviews({});
     }).catch((cause: unknown) => {
       if (active) setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar a mensagem.");
     }).finally(() => {
@@ -139,22 +143,28 @@ export default function DraftPage() {
                 <TemplateFields
                   fields={template.definition.fields}
                   values={values}
+                  onUploadStateChange={setImageUploadBlocked}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
+                  imagePreviews={imagePreviews}
+                  onImagePreviewChange={(id, preview) => setImagePreviews((current) => {
+                    const next = { ...current };
+                    if (preview) next[id] = preview;
+                    else delete next[id];
+                    return next;
+                  })}
                 />
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 {notice ? <p className="form-notice" role="status">{notice}</p> : null}
                 <div className="template-editor-actions">
-                  <button className="button button--secondary" disabled={saving || checkingOut} type="submit">
+                  <button className="button button--secondary" disabled={saving || checkingOut || imageUploadBlocked} type="submit">
                     {saving ? "Salvando…" : "Salvar alterações"}
                   </button>
-                  <button className="button button--primary form-submit" disabled={saving || checkingOut} onClick={() => void continueToCheckout()} type="button">
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || imageUploadBlocked} onClick={() => void continueToCheckout()} type="button">
                     {checkingOut ? "Aguarde…" : "Desbloquear link"}
                   </button>
                 </div>
               </form>
-              <div className="template-editor-preview" aria-label="Prévia da mensagem">
-                <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
-              </div>
+              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} title={template.name} />
             </div>
           </>
         ) : null}

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { TemplateFields } from "../../../components/template-fields";
-import { MessageTemplateCard } from "../../../components/message-template-card";
+import { MessagePhonePreview } from "../../../components/message-phone-preview";
 import { ApiError, api } from "../../../lib/api-client";
 import type { Template } from "../../../lib/api-contracts";
 
@@ -16,6 +16,7 @@ export default function TemplatePage() {
   const router = useRouter();
   const [template, setTemplate] = useState<Template | null>(null);
   const [values, setValues] = useState<Record<string, FieldValue>>({});
+  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -85,6 +86,13 @@ export default function TemplatePage() {
                   values={values}
                   onUploadStateChange={setUploadingImage}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
+                  imagePreviews={imagePreviews}
+                  onImagePreviewChange={(id, preview) => setImagePreviews((current) => {
+                    const next = { ...current };
+                    if (preview) next[id] = preview;
+                    else delete next[id];
+                    return next;
+                  })}
                 />
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 <div className="template-editor-actions">
@@ -102,9 +110,7 @@ export default function TemplatePage() {
                   </button>
                 </div>
               </form>
-              <div className="template-editor-preview" aria-label="Prévia da mensagem">
-                <MessageTemplateCard data={values} definition={template.definition} title={template.name} />
-              </div>
+              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} title={template.name} />
             </div>
           </>
         ) : null}

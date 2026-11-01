@@ -88,8 +88,8 @@ describe("MessageTemplateCard", () => {
     const brandedDefinition: TemplateDefinition = {
       fields: [
         { id: "businessName", type: "text", placeholder: "Loja Exemplo" },
-        { id: "businessLogo", type: "image", maxBytes: 131_072 },
-        { id: "productImage", type: "image", maxBytes: 131_072 },
+        { id: "businessLogo", type: "image", maxBytes: 5 * 1024 * 1024 },
+        { id: "productImage", type: "image", maxBytes: 5 * 1024 * 1024 },
       ],
       card: {
         illustration: "shopping-bag-heart",
@@ -107,6 +107,35 @@ describe("MessageTemplateCard", () => {
     expect(container.querySelector(".message-template__brand")?.textContent).toContain("Loja Ana");
     expect(container.querySelector(".message-template__brand-logo")?.getAttribute("src")).toBe(`/api/v1/assets/${logo}/content`);
     expect(container.querySelector(".message-template__detail-image")?.getAttribute("src")).toBe(`/api/v1/assets/${logo}/content`);
+  });
+
+  it("shows newly selected company and product images in the phone preview before upload finishes", () => {
+    const brandedDefinition: TemplateDefinition = {
+      fields: [
+        { id: "businessName", type: "text", placeholder: "Loja Exemplo" },
+        { id: "businessLogo", type: "image", maxBytes: 5 * 1024 * 1024 },
+        { id: "productImage", type: "image", maxBytes: 5 * 1024 * 1024 },
+      ],
+      card: {
+        illustration: "shopping-bag-heart",
+        heading: "Obrigado!",
+        details: [{ label: "Produto", value: "Conjunto de mesa", imageFieldId: "productImage", icon: "package" }],
+        brand: { businessNameFieldId: "businessName", logoFieldId: "businessLogo" },
+        footer: "none",
+      },
+    };
+    const logoPreview = "data:image/png;base64,bG9nbw==";
+    const productPreview = "data:image/webp;base64,cHJvZHVjdA==";
+    const { container } = render(
+      <MessageTemplateCard
+        data={{ businessName: "Loja Ana" }}
+        definition={brandedDefinition}
+        imagePreviews={{ businessLogo: logoPreview, productImage: productPreview }}
+      />,
+    );
+
+    expect(container.querySelector(".message-template__brand-logo")?.getAttribute("src")).toBe(logoPreview);
+    expect(container.querySelector(".message-template__detail-image")?.getAttribute("src")).toBe(productPreview);
   });
 
   it("shows both service approval choices and uses the matching backend URLs after publication", () => {

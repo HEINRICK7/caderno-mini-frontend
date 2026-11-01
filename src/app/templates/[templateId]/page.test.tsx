@@ -36,10 +36,10 @@ const purchaseTemplate: Template = {
     fields: [
       { id: "recipientName", type: "text", label: "Nome do cliente", placeholder: "Maria", required: true, width: "half" },
       { id: "businessName", type: "text", label: "Nome da empresa", placeholder: "Cadernô Express", required: true, width: "half" },
-      { id: "businessLogo", type: "image", label: "Logo da empresa", helpText: "PNG, JPEG ou WebP · até 128 KB", maxBytes: 131072, width: "full" },
+      { id: "businessLogo", type: "image", label: "Logo da empresa", helpText: "PNG, JPEG ou WebP · até 5 MB", maxBytes: 5242880, width: "full" },
       { id: "message", type: "textarea", label: "Mensagem principal", placeholder: "Sua compra foi registrada com sucesso.\nEsperamos que aproveite seu produto.", required: true, maxLength: 300, width: "full" },
       { id: "productName", type: "text", label: "Produto", placeholder: "Conjunto de mesa", required: true, section: "Detalhes do pedido", width: "half" },
-      { id: "productImage", type: "image", label: "Imagem do produto", helpText: "PNG, JPEG ou WebP · até 128 KB", maxBytes: 131072, section: "Detalhes do pedido", width: "full" },
+      { id: "productImage", type: "image", label: "Imagem do produto", helpText: "PNG, JPEG ou WebP · até 5 MB", maxBytes: 5242880, section: "Detalhes do pedido", width: "full" },
       { id: "purchaseAmount", type: "number", label: "Valor", placeholder: "0,00", format: "currency", section: "Detalhes do pedido", width: "half" },
       { id: "purchaseLink", type: "url", label: "Link dos detalhes da compra", section: "Detalhes do pedido", width: "full" },
     ],
@@ -70,7 +70,7 @@ const serviceTemplate: Template = {
     fields: [
       { id: "recipientName", type: "text", label: "Nome do cliente", placeholder: "Maria", required: true, width: "half" },
       { id: "businessName", type: "text", label: "Nome da empresa", placeholder: "Cadernô Express", required: true, width: "half" },
-      { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 131072 },
+      { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 5242880 },
       { id: "message", type: "textarea", label: "Mensagem principal", placeholder: "Confirmamos a contratação do seu serviço.", required: true },
       { id: "serviceName", type: "text", label: "Serviço", placeholder: "Manutenção de equipamento", required: true, section: "Detalhes do serviço" },
       { id: "scheduledAt", type: "date", label: "Data prevista para realização", section: "Detalhes do serviço", width: "half" },

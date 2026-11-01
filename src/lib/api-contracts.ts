@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const hexColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+export const MAX_TEMPLATE_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export const templateFieldSchema = z.object({
   id: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
@@ -13,7 +14,7 @@ export const templateFieldSchema = z.object({
   format: z.enum(["currency"]).optional(),
   required: z.boolean().optional(),
   maxLength: z.number().int().min(1).max(20_000).optional(),
-  maxBytes: z.number().int().min(1).max(131_072).optional(),
+  maxBytes: z.number().int().min(1).max(MAX_TEMPLATE_IMAGE_BYTES).optional(),
   options: z.array(z.string().min(1).max(120)).optional(),
 }).strict().superRefine((field, context) => {
   if (field.format !== undefined && field.type !== "number") {
