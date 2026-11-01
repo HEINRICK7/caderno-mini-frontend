@@ -47,11 +47,11 @@ jobs:
       - name: Unit and integration tests
         run: npm test
 
-      - name: Typecheck
-        run: npm run typecheck
-
       - name: Build
         run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Build production container
         run: docker build --build-arg API_BASE_URL=http://api:3000 --tag caderno-mini-frontend:ci .
