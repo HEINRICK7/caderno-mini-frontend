@@ -26,6 +26,8 @@ jobs:
           repository: HEINRICK7/caderno-mini-backend
           ref: feature/sprint-1-backend-foundation
           path: mini-backend
+          sparse-checkout: catalog/templates.json
+          sparse-checkout-cone-mode: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
