@@ -3,12 +3,12 @@
 .templates-shell .templates-heading h1 { margin: 0; color: var(--ink); font: 800 clamp(28px, 8vw, 36px)/1.08 var(--font-heading); letter-spacing: -.06em; }
 .templates-shell .templates-heading p { max-width: 46ch; margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
 
-.template-segment { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: #f0f1f1; }
-.template-segment button { min-width: 0; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+.template-segment { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: var(--control-radius); background: #f0f1f1; }
+.template-segment button { min-width: 0; min-height: 44px; border: 0; border-radius: var(--control-radius); background: transparent; color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
 .template-segment button.is-active { background: #078f92; color: #fff; box-shadow: 0 2px 5px #078f9229; }
 .template-filters { display: flex; gap: 8px; overflow-x: auto; margin: 12px 0 14px; padding: 2px 1px 6px; scrollbar-width: none; overscroll-behavior-inline: contain; }
 .template-filters::-webkit-scrollbar { display: none; }
-.template-filters button { min-height: 40px; flex: none; padding: 0 15px; border: 0; border-radius: 999px; background: #f0f1f1; color: #173561; font-size: 12px; font-weight: 600; cursor: pointer; }
+.template-filters button { min-height: 40px; flex: none; padding: 0 15px; border: 0; border-radius: var(--control-radius); background: #f0f1f1; color: #173561; font-size: 12px; font-weight: 600; cursor: pointer; }
 .template-filters button.is-active { background: #078f92; color: #fff; }
 
 .subpage-content { padding: 28px 0 64px; }
@@ -17,7 +17,7 @@
 .page-heading h1 { margin: 0; color: var(--ink); font: 800 clamp(30px, 8vw, 42px)/1.06 var(--font-heading); letter-spacing: -.065em; }
 .page-heading--stacked { display: block; }
 .page-heading--stacked > p { max-width: 620px; margin: 10px 0 0; color: var(--muted); font-size: 16px; }
-.search-field { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 13px; border: 1px solid var(--border); border-radius: 12px; background: white; color: #687895; }
+.search-field { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 13px; border: 1px solid var(--border); border-radius: var(--control-radius); background: white; color: #687895; }
 .search-field input { width: 100%; min-width: 0; min-height: 44px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 16px; }
 .search-field:focus-within { outline: 2px solid #078f92; outline-offset: 2px; }
 .template-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -30,7 +30,7 @@
 .text-link { margin-top: auto; }
 .text-link span { padding-left: 4px; }
 .back-link { min-height: 44px; display: inline-flex; align-items: center; margin-bottom: 12px; }
-.text-button { padding: 0; border: 0; background: transparent; cursor: pointer; }
+.text-button { padding: 0; border: 0; border-radius: var(--control-radius); background: transparent; cursor: pointer; }
 .page-message { margin: 24px 0; color: var(--muted); }
 .page-message--error, .form-error { color: #b3433d; }
 .page-message p { margin: 0 0 10px; }
@@ -38,17 +38,17 @@
 .template-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .form-field { min-width: 0; display: grid; gap: 7px; }
 .form-field > label { color: #173561; font-size: 14px; font-weight: 650; }
-.form-field input:not([type="checkbox"]):not([type="color"]), .form-field select, .form-field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 11px 13px; border: 1px solid #dcdedc; border-radius: 10px; outline: 0; background: #fff; color: var(--ink); font-size: 16px; }
+.form-field input:not([type="checkbox"]):not([type="color"]), .form-field select, .form-field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 11px 13px; border: 1px solid #dcdedc; border-radius: var(--control-radius); outline: 0; background: #fff; color: var(--ink); font-size: 16px; }
 .form-field textarea { min-height: 120px; resize: vertical; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: #078f92; box-shadow: 0 0 0 3px #078f921c; }
 .form-field--checkbox > label { min-height: 44px; display: flex; align-items: center; gap: 10px; color: #173561; font-size: 14px; }
 .form-field--checkbox input { width: 20px; height: 20px; flex: none; accent-color: var(--teal-action); }
 .form-field__help { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
 .form-field__image-upload { min-width: 0; display: grid; gap: 8px; }
-.form-field__image-upload input[type="file"] { width: 100%; min-height: 48px; padding: 9px; border: 1px dashed #cbd5e1; border-radius: 8px; background: #fff; color: #365277; font-size: 13px; }
+.form-field__image-upload input[type="file"] { width: 100%; min-height: 48px; padding: 9px; border: 1px dashed #cbd5e1; border-radius: var(--control-radius); background: #fff; color: #365277; font-size: 13px; }
 .form-field__image-preview { display: flex; align-items: center; gap: 10px; }
 .form-field__image-preview img { width: 56px; height: 56px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 9px; background: #fff; }
-.form-field__image-preview button { min-height: 44px; padding: 5px 8px; border: 0; background: transparent; color: #176b6e; font-size: 13px; cursor: pointer; }
+.form-field__image-preview button { min-height: 44px; padding: 5px 8px; border: 0; border-radius: var(--control-radius); background: transparent; color: #176b6e; font-size: 13px; cursor: pointer; }
 .form-field__error { margin: 0; color: #b3433d; font-size: 13px; }
 .button--secondary { min-height: 46px; padding: 0 18px; border: 1px solid #d7e0dd; background: #fff; color: #126d70; }
 .form-submit { min-height: 48px; justify-self: stretch; padding: 0 20px; font-size: 15px; }
@@ -84,7 +84,7 @@
 .message-template__detail-image { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
 .message-template__detail dt { color: var(--card-muted); font-size: 12px; line-height: 1.3; }
 .message-template__detail dd { margin: 1px 0 0; color: var(--card-heading); font-size: 15px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
-.message-template__action { min-height: 44px; display: flex; align-items: center; justify-content: center; margin-top: 12px; padding: 8px 12px; border-radius: 12px; background: var(--teal-action); color: white; font-size: 14px; font-weight: 700; text-align: center; overflow-wrap: anywhere; }
+.message-template__action { min-height: 44px; display: flex; align-items: center; justify-content: center; margin-top: 12px; padding: 8px 12px; border-radius: var(--control-radius); background: var(--teal-action); color: white; font-size: 14px; font-weight: 700; text-align: center; overflow-wrap: anywhere; }
 .share-result { min-width: 0; display: grid; justify-items: start; gap: 18px; margin: 24px 0; }
 .share-result__url { max-width: 100%; overflow-wrap: anywhere; color: #087f83; font-size: 14px; }
 .public-message-shell { min-height: 100svh; display: grid; place-items: center; padding: 20px 16px; background: #fff9f0; }
@@ -122,12 +122,12 @@
 .form-section-heading { margin: 8px 0 -2px; color: var(--ink); font: 700 16px/1.3 var(--font-heading); }
 .template-editor-form .form-field > label { color: #1e355d; font-size: 14px; font-weight: 600; }
 .template-editor-form .form-field input:not([type="checkbox"]):not([type="color"]),
-.template-editor-form .form-field select, .template-editor-form .form-field textarea { min-height: 48px; padding: 11px 12px; border-color: #d8dde5; border-radius: 9px; color: #152d55; font-size: 16px; }
+.template-editor-form .form-field select, .template-editor-form .form-field textarea { min-height: 48px; padding: 11px 12px; border-color: #d8dde5; border-radius: var(--control-radius); color: #152d55; font-size: 16px; }
 .template-editor-form .form-field input::placeholder, .template-editor-form .form-field textarea::placeholder { color: #385176; opacity: 1; }
 .template-editor-form .form-field textarea { min-height: 112px; padding-bottom: 28px; resize: vertical; }
 .form-field__textarea-wrap { position: relative; min-width: 0; }
 .form-field__counter { position: absolute; right: 10px; bottom: 7px; color: #71809a; font-size: 11px; line-height: 1; }
-.form-field__currency { min-width: 0; display: flex; align-items: center; min-height: 48px; overflow: hidden; border: 1px solid #d8dde5; border-radius: 9px; background: #fff; }
+.form-field__currency { min-width: 0; display: flex; align-items: center; min-height: 48px; overflow: hidden; border: 1px solid #d8dde5; border-radius: var(--control-radius); background: #fff; }
 .form-field__currency > span { flex: none; padding-left: 12px; color: #365277; font-size: 14px; }
 .template-editor-form .form-field__currency input { min-width: 0; border: 0 !important; box-shadow: none !important; }
 .template-editor-form .form-field__currency:focus-within { border-color: #078f92; box-shadow: 0 0 0 3px #078f921c; }
@@ -150,7 +150,7 @@
 .template-editor-preview .message-template__detail-icon { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 8px; background: #dcedff; color: #1475ea; }
 .template-editor-preview .message-template__detail dt { color: #66809e; font-size: 11px; line-height: 1.2; }
 .template-editor-preview .message-template__detail dd { margin: 1px 0 0; color: #173258; font-size: 13px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
-.template-editor-preview .message-template__action { min-height: 40px; margin-top: 9px; border-radius: 10px; background: #0f786f; font-size: 13px; }
+.template-editor-preview .message-template__action { min-height: 40px; margin-top: 9px; border-radius: var(--control-radius); background: #0f786f; font-size: 13px; }
 .template-editor-preview .message-template__heart { align-self: center; }
 
 @media (min-width: 640px) {
