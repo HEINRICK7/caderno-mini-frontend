@@ -12,7 +12,7 @@ const { getTemplate, validateTemplate, createDraft, push } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useParams: () => ({ templateId: "obrigado-compra" }),
+  useParams: () => ({ templateId: "agradecimento-compra" }),
   useRouter: () => ({ push }),
 }));
 vi.mock("../../../components/site-header", () => ({ SiteHeader: () => <header /> }));
@@ -27,7 +27,7 @@ vi.mock("../../../lib/api-client", () => ({
 import TemplatePage from "./page";
 
 const purchaseTemplate: Template = {
-  id: "obrigado-compra",
+  id: "agradecimento-compra",
   version: 1,
   name: "Agradecimento pela compra",
   description: "Valoriza o cliente após a venda.",
@@ -35,12 +35,13 @@ const purchaseTemplate: Template = {
   definition: {
     fields: [
       { id: "recipientName", type: "text", label: "Nome do cliente", placeholder: "Maria", required: true, width: "half" },
-      { id: "businessName", type: "text", label: "Nome do seu comércio", placeholder: "Cadernô Express", required: true, width: "half" },
+      { id: "businessName", type: "text", label: "Nome da empresa", placeholder: "Cadernô Express", required: true, width: "half" },
       { id: "businessLogo", type: "image", label: "Logo da empresa", helpText: "PNG, JPEG ou WebP · até 128 KB", maxBytes: 131072, width: "full" },
       { id: "message", type: "textarea", label: "Mensagem principal", placeholder: "Sua compra foi registrada com sucesso.\nEsperamos que aproveite seu produto.", required: true, maxLength: 300, width: "full" },
       { id: "productName", type: "text", label: "Produto", placeholder: "Conjunto de mesa", required: true, section: "Detalhes do pedido", width: "half" },
       { id: "productImage", type: "image", label: "Imagem do produto", helpText: "PNG, JPEG ou WebP · até 128 KB", maxBytes: 131072, section: "Detalhes do pedido", width: "full" },
-      { id: "purchaseAmount", type: "number", label: "Valor", placeholder: "350,00", required: true, format: "currency", section: "Detalhes do pedido", width: "half" },
+      { id: "purchaseAmount", type: "number", label: "Valor", placeholder: "0,00", format: "currency", section: "Detalhes do pedido", width: "half" },
+      { id: "purchaseLink", type: "url", label: "Link dos detalhes da compra", section: "Detalhes do pedido", width: "full" },
     ],
     catalog: { segment: "product", category: "Agradecimento" },
     visual: { background: "#e5f0ff", surface: "#ffffff", accent: "#2563eb" },
@@ -53,7 +54,7 @@ const purchaseTemplate: Template = {
         { label: "Produto", value: "{{productName}}", imageFieldId: "productImage", icon: "package" },
         { label: "Valor", value: "{{purchaseAmount}}", icon: "credit-card", format: "currency" },
       ],
-      action: { label: "Ver detalhes da compra" },
+      action: { label: "Ver detalhes da compra", hrefFieldId: "purchaseLink" },
       footer: "none",
     },
   },
@@ -72,10 +73,11 @@ const serviceTemplate: Template = {
       { id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 131072 },
       { id: "message", type: "textarea", label: "Mensagem principal", placeholder: "Confirmamos a contratação do seu serviço.", required: true },
       { id: "serviceName", type: "text", label: "Serviço", placeholder: "Manutenção de equipamento", required: true, section: "Detalhes do serviço" },
-      { id: "scheduledAt", type: "date", label: "Data da realização", required: true, section: "Detalhes do serviço", width: "half" },
-      { id: "servicePrice", type: "number", label: "Valor", format: "currency", section: "Detalhes do serviço", width: "half" },
+      { id: "scheduledAt", type: "date", label: "Data prevista para realização", section: "Detalhes do serviço", width: "half" },
+      { id: "servicePrice", type: "number", label: "Valor do serviço", format: "currency", section: "Detalhes do serviço", width: "half" },
+      { id: "serviceDetailsLink", type: "url", label: "Link com os detalhes do serviço", section: "Detalhes do serviço", width: "full" },
     ],
-    catalog: { segment: "service", category: "Agradecimento" },
+    catalog: { segment: "service", category: "Entrega" },
     visual: { background: "#e5f0ff", surface: "#ffffff", accent: "#2563eb" },
     card: {
       illustration: "service-clipboard",
@@ -87,6 +89,7 @@ const serviceTemplate: Template = {
         { label: "Data da realização", value: "{{scheduledAt}}", icon: "calendar", format: "date" },
         { label: "Valor", value: "{{servicePrice}}", icon: "credit-card", format: "currency" },
       ],
+      action: { label: "Ver detalhes do serviço", hrefFieldId: "serviceDetailsLink" },
       footer: "none",
     },
   },
@@ -106,7 +109,7 @@ describe("editor de modelo", () => {
 
     expect(await screen.findByRole("heading", { name: "Personalize sua mensagem" })).toBeTruthy();
     expect(screen.getByLabelText(/Nome do cliente/)).toBeTruthy();
-    expect(screen.getByLabelText(/Nome do seu comércio/)).toBeTruthy();
+    expect(screen.getByLabelText(/Nome da empresa/)).toBeTruthy();
     expect(screen.getByLabelText(/Logo da empresa/)).toBeTruthy();
     expect(screen.getByLabelText(/Mensagem principal/)).toBeTruthy();
     expect(screen.getByText("Detalhes do pedido")).toBeTruthy();
@@ -123,14 +126,14 @@ describe("editor de modelo", () => {
     await screen.findByRole("heading", { name: "Personalize sua mensagem" });
 
     fireEvent.change(screen.getByLabelText(/Nome do cliente/), { target: { value: "Maria" } });
-    fireEvent.change(screen.getByLabelText(/Nome do seu comércio/), { target: { value: "Cadernô Express" } });
+    fireEvent.change(screen.getByLabelText(/Nome da empresa/), { target: { value: "Cadernô Express" } });
     fireEvent.change(screen.getByLabelText(/Mensagem principal/), { target: { value: "Sua compra foi registrada com sucesso." } });
     fireEvent.change(screen.getByLabelText(/^Produto/), { target: { value: "Conjunto de mesa" } });
     fireEvent.change(screen.getByLabelText(/^Valor/), { target: { value: "350,00" } });
     fireEvent.click(screen.getByRole("button", { name: /Ver prévia gratuita/ }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/mensagens/draft-1"));
-    expect(validateTemplate).toHaveBeenCalledWith("obrigado-compra", {
+    expect(validateTemplate).toHaveBeenCalledWith("agradecimento-compra", {
       recipientName: "Maria",
       businessName: "Cadernô Express",
       message: "Sua compra foi registrada com sucesso.",
@@ -147,13 +150,13 @@ describe("editor de modelo", () => {
     expect(screen.getByLabelText(/Nome da empresa/)).toBeTruthy();
     expect(screen.getByLabelText(/Logo da empresa/)).toBeTruthy();
     expect(screen.getByLabelText(/^Serviço/)).toBeTruthy();
-    expect(screen.getByLabelText(/Data da realização/)).toBeTruthy();
-    expect(screen.getByLabelText(/^Valor/)).toBeTruthy();
+    expect(screen.getByLabelText("Data prevista para realização")).toBeTruthy();
+    expect(screen.getByLabelText("Valor do serviço")).toBeTruthy();
     expect(screen.getByText("Detalhes do serviço")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText(/^Serviço/), { target: { value: "Manutenção de equipamento" } });
-    fireEvent.change(screen.getByLabelText(/Data da realização/), { target: { value: "2026-11-10" } });
-    fireEvent.change(screen.getByLabelText(/^Valor/), { target: { value: "1200,00" } });
+    fireEvent.change(screen.getByLabelText("Data prevista para realização"), { target: { value: "2026-11-10" } });
+    fireEvent.change(screen.getByLabelText("Valor do serviço"), { target: { value: "1200,00" } });
 
     expect(screen.getByText("Manutenção de equipamento")).toBeTruthy();
     expect(screen.getByText("10 de novembro de 2026")).toBeTruthy();
