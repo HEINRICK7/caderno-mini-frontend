@@ -87,8 +87,9 @@ export default function PurchasePage() {
     return () => { active = false; window.clearInterval(interval); };
   }, [purchaseId, router]);
 
-  const whatsappUrl = publicUrl
-    ? `https://wa.me/?text=${encodeURIComponent(publicUrl)}`
+  const shareablePublicUrl = purchase?.accessStatus === "active" ? publicUrl : "";
+  const whatsappUrl = shareablePublicUrl
+    ? `https://wa.me/?text=${encodeURIComponent(shareablePublicUrl)}`
     : "";
 
   return (
@@ -96,14 +97,14 @@ export default function PurchasePage() {
       <SiteHeader />
       <section className="subpage-content subpage-content--narrow">
         <div className="page-heading page-heading--stacked">
-          <h1>{publicUrl ? "Link pronto" : "Acompanhar compra"}</h1>
+          <h1>{shareablePublicUrl ? "Link pronto" : "Acompanhar compra"}</h1>
           {purchase ? <p>{statusLabels[purchase.status]}</p> : null}
         </div>
         {loading && !purchase ? <p className="page-message" role="status">Consultando compra…</p> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}
-        {publicUrl ? (
+        {shareablePublicUrl ? (
           <div className="share-result">
-            <a className="share-result__url" href={publicUrl}>{publicUrl}</a>
+            <a className="share-result__url" href={shareablePublicUrl}>{shareablePublicUrl}</a>
             <a className="button button--primary form-submit" href={whatsappUrl} rel="noreferrer" target="_blank">Compartilhar no WhatsApp</a>
           </div>
         ) : null}

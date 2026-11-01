@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { getPurchase, publishDraft, replace } = vi.hoisted(() => ({
@@ -8,6 +8,7 @@ const { getPurchase, publishDraft, replace } = vi.hoisted(() => ({
   publishDraft: vi.fn(),
   replace: vi.fn(),
 }));
+let pollPurchase: (() => void) | undefined;
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ purchaseId: "purchase-1" }),
@@ -33,7 +34,11 @@ beforeEach(() => {
   getPurchase.mockReset();
   publishDraft.mockReset();
   replace.mockReset();
-  vi.spyOn(window, "setInterval").mockReturnValue(123 as unknown as ReturnType<typeof window.setInterval>);
+  pollPurchase = undefined;
+  vi.spyOn(window, "setInterval").mockImplementation((handler) => {
+    pollPurchase = handler as () => void;
+    return 123 as unknown as ReturnType<typeof window.setInterval>;
+  });
   vi.spyOn(window, "clearInterval").mockImplementation(() => undefined);
 });
 
@@ -80,5 +85,42 @@ describe("acompanhamento da compra", () => {
     expect(await screen.findByText("Aguardando confirmação")).toBeTruthy();
     expect(publishDraft).not.toHaveBeenCalled();
     expect(screen.queryByRole("link", { name: "Compartilhar no WhatsApp" })).toBeNull();
+  });
+
+  it("oculta o link público e o compartilhamento se o backend revogar o acesso", async () => {
+    const publicUrl = "https://app.example/p/slug-publico";
+    getPurchase.mockResolvedValue({
+      purchaseId: "purchase-1",
+      draftId: "draft-1",
+      status: "paid",
+      accessStatus: "active",
+      updatedAt: "2026-10-31T12:00:00.000Z",
+    });
+    publishDraft.mockResolvedValue({
+      slug: "slug-publico",
+      status: "published",
+      publicPath: "/p/slug-publico",
+      publicUrl,
+      publishedAt: "2026-10-31T12:01:00.000Z",
+    });
+
+    render(<PurchasePage />);
+    expect(await screen.findByRole("link", { name: "Compartilhar no WhatsApp" })).toBeTruthy();
+
+    getPurchase.mockResolvedValue({
+      purchaseId: "purchase-1",
+      draftId: "draft-1",
+      status: "refunded",
+      accessStatus: "revoked",
+      updatedAt: "2026-10-31T12:02:00.000Z",
+    });
+
+    await act(async () => { pollPurchase?.(); });
+
+    expect(await screen.findByText("Compra reembolsada")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: publicUrl })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Compartilhar no WhatsApp" })).toBeNull();
+    });
   });
 });
