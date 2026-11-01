@@ -68,6 +68,11 @@ export function MessageTemplateCard({
       : null,
   })).filter((detail) => detail.displayValue.trim() !== "" || detail.imageSrc !== null);
   const actions = definition.card.actions ?? (definition.card.action ? [definition.card.action] : []);
+  const visibleActions = actions.filter((action) => {
+    if (mode !== "published") return true;
+    const href = action.hrefFieldId ? data[action.hrefFieldId] : undefined;
+    return typeof href === "string" && safeHttpUrl(href) !== null;
+  });
   const brand = definition.card.brand;
   const businessName = brand ? data[brand.businessNameFieldId] : "";
   const businessNameField = brand ? definition.fields.find((field) => field.id === brand.businessNameFieldId) : undefined;
@@ -112,17 +117,16 @@ export function MessageTemplateCard({
             })}
           </dl>
         ) : null}
-        {actions.map((action) => {
+        {visibleActions.map((action) => {
           const actionHrefValue = action.hrefFieldId ? data[action.hrefFieldId] : undefined;
           const actionHref = mode === "published" && typeof actionHrefValue === "string" ? safeHttpUrl(actionHrefValue) : null;
-          if (mode === "published" && !actionHref) return null;
           return mode === "preview" ? (
             <div className="message-template__action" key={action.label}>{action.label}</div>
           ) : (
             <a className="message-template__action" href={actionHref!} key={action.label} rel="noreferrer" target="_blank">{action.label}</a>
           );
         })}
-        {definition.card.footer === "heart" ? <span aria-hidden="true" className="message-template__heart">♡</span> : null}
+        {definition.card.footer === "heart" && visibleActions.length === 0 ? <span aria-hidden="true" className="message-template__heart">♡</span> : null}
       </div>
     </article>
   );
