@@ -21,10 +21,16 @@ export function MessagePhonePreview({
       <div aria-label="Tela do celular" className="message-phone" role="region">
         <div aria-hidden="true" className="message-phone__status">
           <span>9:41</span>
-          <span className="message-phone__signal">
-            <i />
-            <i />
-            <i />
+          <span className="message-phone__island" />
+          <span className="message-phone__indicators">
+            <span className="message-phone__signal">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            <span className="message-phone__wifi" />
+            <span className="message-phone__battery"><i /></span>
           </span>
         </div>
         <div className="message-phone__screen">
