@@ -34,6 +34,7 @@ export function TemplateFields({
     setUploading((current) => ({ ...current, [fieldId]: active }));
   };
   return fields.map((field, index) => {
+    if (field.editable === false) return null;
     const previousField = fields[index - 1];
     const sectionHeading = field.section && field.section !== previousField?.section ? field.section : null;
     const label = field.label ?? field.id;

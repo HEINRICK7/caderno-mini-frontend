@@ -2,8 +2,10 @@
 
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import catalog from "../../../mini-backend/catalog/templates.json";
 import { MessageTemplateCard } from "./message-template-card";
 import type { TemplateDefinition } from "@/lib/api-contracts";
+import { personalizedData } from "../../tests/visual-fixtures/template-fixtures";
 
 afterEach(cleanup);
 
@@ -19,14 +21,42 @@ const definition: TemplateDefinition = {
 };
 
 describe("MessageTemplateCard", () => {
+  it("renders all 16 catalog templates with personalized values", () => {
+    const templates = catalog as unknown as Array<{ id: string; definition: TemplateDefinition }>;
+    const renderedIds: string[] = [];
+
+    expect(templates).toHaveLength(16);
+
+    for (const template of templates) {
+      const { container } = render(
+        <MessageTemplateCard data={personalizedData(template.definition)} definition={template.definition} />,
+      );
+      const article = container.querySelector("article");
+      const card = template.definition.card;
+
+      expect(article).not.toBeNull();
+      expect(article?.className).toContain(`message-template--${card?.illustration}`);
+      expect(container.querySelector(".status-sticker")).not.toBeNull();
+      expect(container.querySelector("h1")?.textContent).toBeTruthy();
+      expect(article?.textContent).toContain("Conteúdo personalizado");
+      expect(article?.textContent).not.toContain("Conjunto de mesa");
+      expect(article?.textContent).not.toContain("Maria");
+
+      renderedIds.push(template.id);
+      cleanup();
+    }
+
+    expect(new Set(renderedIds).size).toBe(16);
+  });
+
   it("renders the backend template as HTML and updates its field binding", () => {
     const { container, rerender } = render(
-      <MessageTemplateCard data={{}} definition={definition} />,
+      <MessageTemplateCard data={{ recipientName: "Maria" }} definition={definition} />,
     );
 
     expect(container.querySelector("h1")?.textContent).toBe("Olá, Maria!");
     expect(container.querySelector("p")?.textContent).toBe("Que bom ter você por aqui!");
-    expect(container.querySelector("article")?.className).toContain("message-template--layout-card");
+    expect(container.querySelector("article")?.className).toContain("message-template--standard");
     expect(container.querySelector(".status-sticker")).not.toBeNull();
     expect(container.querySelector(".status-sticker")?.getAttribute("style")).toContain("background-position");
     expect(container.querySelector("img")).toBeNull();
@@ -171,5 +201,178 @@ describe("MessageTemplateCard", () => {
       "https://example.com/approve",
       "https://example.com/reject",
     ]);
+  });
+
+  it("resolves editable labels, highlighted variables, typed values, and unlabeled welcome rows", () => {
+    const customDefinition: TemplateDefinition = {
+      fields: [
+        { id: "title", type: "text" },
+        { id: "highlightedText", type: "text" },
+        { id: "businessName", type: "text" },
+        { id: "detailLabel", type: "text" },
+        { id: "amount", type: "number" },
+        { id: "welcomeLine", type: "text" },
+      ],
+      card: {
+        illustration: "wave",
+        layout: "welcome",
+        heading: "{{title}}",
+        highlightedText: "{valor} · {{highlightedText}}",
+        details: [
+          { labelFieldId: "detailLabel", value: "{{amount}}", format: "currency", icon: "credit-card" },
+          { value: "{{welcomeLine}}", icon: "chat" },
+        ],
+        variables: { valor: "amount", nome_empresa: "businessName" },
+        footer: "none",
+      },
+    };
+    const { container } = render(<MessageTemplateCard
+      data={{ title: "Mensagem personalizada", highlightedText: "para a sua equipe", amount: 87.5, detailLabel: "Total ajustado", welcomeLine: "Atendimento próximo" }}
+      definition={customDefinition}
+    />);
+
+    expect(container.querySelector("h1")?.textContent).toBe("Mensagem personalizada");
+    expect(container.querySelector(".message-template__highlight")?.textContent).toBe("87.5 · para a sua equipe");
+    expect(container.querySelectorAll(".message-template__detail")).toHaveLength(2);
+    expect(container.querySelectorAll("dt")).toHaveLength(1);
+    expect(container.textContent).toContain("Total ajustado");
+    expect(container.textContent).toContain("R$ 87,50");
+    expect(container.textContent).toContain("Atendimento próximo");
+  });
+
+  it("keeps reference-specific subtitle order and formats date variables for pt-BR", () => {
+    const orderedDefinition: TemplateDefinition = {
+      fields: [{ id: "dueDate", type: "date" }],
+      card: {
+        illustration: "due-calendar",
+        heading: "{{dueDate}}",
+        subtitle: "Sua parcela vence em",
+        subtitlePlacement: "before-highlight",
+        subtitleStyle: "subheading",
+        highlightedText: "3 dias.",
+        details: [{ value: "{{dueDate}}", icon: "calendar", format: "date", valueStyle: "supporting" }],
+        footer: "none",
+      },
+    };
+    const { container } = render(<MessageTemplateCard data={{ dueDate: "2027-02-19" }} definition={orderedDefinition} />);
+
+    expect([...container.querySelector(".message-template__heading")!.children].map((node) => node.className)).toEqual([
+      "message-template__heading-title",
+      "message-template__subtitle message-template__subtitle--subheading",
+      "message-template__highlight",
+    ]);
+    expect(container.querySelector(".message-template__subtitle")?.textContent).toBe("Sua parcela vence em");
+    expect(container.querySelector(".message-template__detail dd")?.textContent).toBe("19 de fev de 2027");
+  });
+
+  it("renders a template status badge next to its typed value", () => {
+    const badgeDefinition: TemplateDefinition = {
+      fields: [{ id: "amount", type: "number", format: "currency" }],
+      card: {
+        illustration: "due-calendar",
+        heading: "Vence hoje",
+        details: [{ label: "Valor da parcela", value: "{{amount}}", format: "currency", statusBadge: "HOJE" }],
+        footer: "none",
+      },
+    };
+    const { container } = render(<MessageTemplateCard data={{ amount: 79 }} definition={badgeDefinition} />);
+
+    expect(container.querySelector(".message-template__detail-badge")?.textContent).toBe("HOJE");
+    expect(container.querySelector(".message-template__detail-value-line")?.textContent).toContain("R$ 79,00");
+  });
+
+  it("renders special-offer prices in the approved stacked order with a calculated discount", () => {
+    const offerDefinition: TemplateDefinition = {
+      fields: [
+        { id: "productName", type: "text" },
+        { id: "oldPrice", type: "number", format: "currency" },
+        { id: "newPrice", type: "number", format: "currency" },
+      ],
+      card: {
+        illustration: "offer-tag",
+        layout: "offer",
+        heading: "Oferta especial",
+        product: { nameFieldId: "productName", originalPriceFieldId: "oldPrice", priceFieldId: "newPrice", icon: "calendar" },
+        footer: "none",
+      },
+    };
+    const { container } = render(<MessageTemplateCard data={{ productName: "Produto", oldPrice: 99.9, newPrice: 79.9 }} definition={offerDefinition} />);
+
+    const prices = container.querySelector(".message-template__prices--offer");
+    expect(prices?.firstElementChild?.textContent).toContain("99,90");
+    expect(prices?.lastElementChild?.textContent).toContain("R$ 79,90");
+    expect(prices?.textContent).toContain("20% OFF");
+  });
+
+  it("places Pix details before its application-provided QR panel", () => {
+    const pixDefinition: TemplateDefinition = {
+      fields: [
+        { id: "amount", type: "number", format: "currency" },
+        { id: "pixQrImage", type: "image" },
+        { id: "pixSecurityNote", type: "text" },
+      ],
+      card: {
+        illustration: "pix-qr",
+        layout: "pix",
+        heading: "Cobrança Pix",
+        pixNoteFieldId: "pixSecurityNote",
+        details: [
+          { label: "Valor", value: "{{amount}}", format: "currency", icon: "credit-card" },
+          { label: "QR Pix", value: "{{pixQrImage}}", imageFieldId: "pixQrImage", icon: "qrcode" },
+        ],
+        footer: "none",
+      },
+    };
+    const { container } = render(
+      <MessageTemplateCard
+        data={{ amount: 70, pixSecurityNote: "Orientação personalizada" }}
+        definition={pixDefinition}
+        imagePreviews={{ pixQrImage: "data:image/png;base64,cGl4" }}
+      />,
+    );
+    const content = container.querySelector(".message-template__surface")!;
+
+    expect(content.querySelector(".message-template__detail")).not.toBeNull();
+    expect(content.querySelector(".message-template__detail")!.compareDocumentPosition(content.querySelector(".message-template__pix")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(content.querySelector(".message-template__pix-note")?.textContent).toBe("Orientação personalizada");
+  });
+
+  it("maps every approved status illustration to its own sprite cell", () => {
+    const cells = [
+      ["wave", 0, 0], ["shopping-bag-heart", 1, 0], ["installment-calendar", 2, 0], ["due-calendar", 3, 0],
+      ["overdue-warning", 0, 1], ["pix-qr", 1, 1], ["payment-check", 2, 1], ["trophy", 3, 1],
+      ["service-clipboard", 0, 2], ["service-seal", 1, 2], ["gift", 2, 2], ["product-tag", 3, 2],
+      ["offer-tag", 0, 3], ["collection-bag", 1, 3], ["reactivation-heart", 2, 3], ["approval-hourglass", 3, 3],
+    ] as const;
+    const { container, rerender } = render(<MessageTemplateCard data={{}} definition={{
+      fields: [],
+      card: { illustration: "wave", heading: "Preview", footer: "none" },
+    }} />);
+
+    for (const [illustration, column, row] of cells) {
+      rerender(<MessageTemplateCard data={{}} definition={{
+        fields: [],
+        card: { illustration, heading: "Preview", footer: "none" },
+      }} />);
+      expect(container.querySelector(".status-sticker")?.getAttribute("style"), illustration)
+        .toContain(`background-position: ${column * 100 / 3}% ${row * 100 / 3}%`);
+    }
+  });
+
+  it("keeps paid and settled messages unavailable without trusted financial state", () => {
+    const paidDefinition: TemplateDefinition = {
+      fields: [{ id: "paymentStatus", type: "select", options: ["confirmed", "pending"] }],
+      card: {
+        illustration: "payment-check",
+        heading: "Pagamento confirmado",
+        financial: { stateFieldId: "paymentStatus", expectedState: "confirmed" },
+        footer: "none",
+      },
+    };
+    const { container, rerender } = render(<MessageTemplateCard data={{ paymentStatus: "pending" }} definition={paidDefinition} mode="published" />);
+    expect(container.querySelector("article")?.getAttribute("aria-label")).toBe("Mensagem indisponível");
+
+    rerender(<MessageTemplateCard data={{ paymentStatus: "confirmed" }} definition={paidDefinition} mode="published" />);
+    expect(container.querySelector("h1")?.textContent).toBe("Pagamento confirmado");
   });
 });

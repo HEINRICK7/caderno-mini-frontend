@@ -11,6 +11,13 @@ import type { Template } from "../../../lib/api-contracts";
 
 type FieldValue = string | number | boolean;
 
+function editableExampleValues(template: Template): Record<string, FieldValue> {
+  const editableFields = new Set(template.definition.fields.filter((field) => field.editable !== false).map((field) => field.id));
+  return Object.fromEntries(
+    Object.entries(template.definition.exampleData ?? {}).filter(([fieldId]) => editableFields.has(fieldId)),
+  ) as Record<string, FieldValue>;
+}
+
 export default function TemplatePage() {
   const { templateId } = useParams<{ templateId: string }>();
   const router = useRouter();
@@ -24,7 +31,9 @@ export default function TemplatePage() {
 
   const loadTemplate = useCallback(async () => {
     try {
-      setTemplate(await api.getTemplate(templateId));
+      const loadedTemplate = await api.getTemplate(templateId);
+      setTemplate(loadedTemplate);
+      setValues(editableExampleValues(loadedTemplate));
       setError("");
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
@@ -36,7 +45,10 @@ export default function TemplatePage() {
   useEffect(() => {
     let active = true;
     void api.getTemplate(templateId).then((loadedTemplate) => {
-      if (active) setTemplate(loadedTemplate);
+      if (active) {
+        setTemplate(loadedTemplate);
+        setValues(editableExampleValues(loadedTemplate));
+      }
     }).catch((cause: unknown) => {
       if (active) setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
     }).finally(() => {
@@ -77,7 +89,7 @@ export default function TemplatePage() {
           <>
             <div className="template-editor-heading">
               <h1>Personalize sua mensagem</h1>
-              <p>Preencha os detalhes e veja a prévia do seu cartão.</p>
+              <p>Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real.</p>
             </div>
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
@@ -110,7 +122,12 @@ export default function TemplatePage() {
                   </button>
                 </div>
               </form>
-              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} title={template.name} />
+              <MessagePhonePreview
+                data={{ ...(template.definition.exampleData ?? {}), ...values }}
+                definition={template.definition}
+                imagePreviews={imagePreviews}
+                title={template.name}
+              />
             </div>
           </>
         ) : null}

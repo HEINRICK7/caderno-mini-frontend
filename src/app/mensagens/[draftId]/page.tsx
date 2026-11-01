@@ -13,6 +13,7 @@ type FieldValue = string | number | boolean;
 function initialValues(draft: Draft, template: Template): Record<string, FieldValue> {
   const values: Record<string, FieldValue> = {};
   for (const field of template.definition.fields) {
+    if (field.editable === false) continue;
     const value = draft.data[field.id];
     if (field.type === "boolean") values[field.id] = Boolean(value);
     else if (field.type === "number") values[field.id] = typeof value === "number" ? value : "";

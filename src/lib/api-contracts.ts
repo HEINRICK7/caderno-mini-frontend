@@ -13,6 +13,7 @@ export const templateFieldSchema = z.object({
   width: z.enum(["half", "full"]).optional(),
   format: z.enum(["currency"]).optional(),
   required: z.boolean().optional(),
+  editable: z.boolean().optional(),
   maxLength: z.number().int().min(1).max(20_000).optional(),
   maxBytes: z.number().int().min(1).max(MAX_TEMPLATE_IMAGE_BYTES).optional(),
   options: z.array(z.string().min(1).max(120)).optional(),
@@ -63,23 +64,62 @@ export const templateCardSchema = z.object({
     "reactivation-heart",
     "approval-hourglass",
   ]),
+  layout: z.enum(["standard", "welcome", "product", "offer", "collection", "pix", "approval", "celebration", "settled"]).optional(),
+  variables: z.record(z.string().regex(/^[a-z_]{1,32}$/), z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/)).optional(),
   heading: z.string().min(1).max(300),
+  highlightedText: z.string().max(300).optional(),
+  subtitle: z.string().max(500).optional(),
+  subtitlePlacement: z.enum(["before-highlight", "after-highlight"]).optional(),
+  subtitleStyle: z.enum(["supporting", "subheading"]).optional(),
+  pixNoteFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
   message: z.string().max(500).optional(),
   details: z.array(z.object({
-    label: z.string().min(1).max(80),
+    label: z.string().min(1).max(80).optional(),
+    labelFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
     value: z.string().max(300),
+    valueStyle: z.enum(["emphasis", "supporting"]).optional(),
+    statusBadge: z.string().min(1).max(24).optional(),
     imageFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
-    icon: z.enum(["package", "credit-card", "calendar", "check", "link", "qrcode"]).optional(),
+    icon: z.enum([
+      "package", "credit-card", "calendar", "check", "link", "qrcode", "chat", "badge", "wallet", "receipt",
+      "heart", "shield", "gift", "cake", "sparkles", "shopping-bag", "clock", "clipboard-check",
+    ]).optional(),
     format: z.enum(["currency", "date"]).optional(),
   }).strict()).min(1).max(6).optional(),
-  action: z.object({
-    label: z.string().min(1).max(120),
-    hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  product: z.object({
+    nameFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    descriptionFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    imageFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    galleryFieldIds: z.array(z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/)).max(6).optional(),
+    priceFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    originalPriceFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    icon: z.enum(["cake", "calendar"]).optional(),
   }).strict().optional(),
-  actions: z.array(z.object({
-    label: z.string().min(1).max(120),
+  financial: z.object({
+    stateFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
+    expectedState: z.enum(["confirmed", "settled"]),
+    balanceFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict().optional(),
+  action: z.object({
+    label: z.string().min(1).max(120).optional(),
+    labelFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
     hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
-  }).strict()).min(1).max(3).optional(),
+    copyFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict().superRefine((action, context) => {
+    if (!action.label && !action.labelFieldId) {
+      context.addIssue({ code: "custom", message: "Cada ação precisa de um texto ou campo de texto." });
+    }
+  }).optional(),
+  actions: z.array(z.object({
+    label: z.string().min(1).max(120).optional(),
+    labelFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+    copyFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
+  }).strict().superRefine((action, context) => {
+    if (!action.label && !action.labelFieldId) {
+      context.addIssue({ code: "custom", message: "Cada ação precisa de um texto ou campo de texto." });
+    }
+  })).min(1).max(3).optional(),
   brand: z.object({
     businessNameFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
     logoFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
@@ -94,6 +134,7 @@ export const templateCatalogSchema = z.object({
 
 export const templateDefinitionSchema = z.object({
   fields: z.array(templateFieldSchema).max(100),
+  exampleData: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   catalog: templateCatalogSchema.optional(),
   visual: templateVisualSchema.optional(),
   card: templateCardSchema.optional(),
@@ -199,6 +240,7 @@ export type Template = z.infer<typeof templateSchema>;
 export type TemplateField = z.infer<typeof templateFieldSchema>;
 export type TemplateVisual = z.infer<typeof templateVisualSchema>;
 export type TemplateCard = z.infer<typeof templateCardSchema>;
+export type TemplateCardAction = NonNullable<TemplateCard["action"]>;
 export type TemplateDefinition = z.infer<typeof templateDefinitionSchema>;
 export type Draft = z.infer<typeof draftSchema>;
 export type PurchaseStatus = z.infer<typeof purchaseStatusResponseSchema>["data"];

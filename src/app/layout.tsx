@@ -1,5 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import "@fontsource/poppins/latin-700.css";
+import "@fontsource/poppins/latin-ext-700.css";
+import "@fontsource/poppins/latin-800.css";
+import "@fontsource/poppins/latin-ext-800.css";
+import "@fontsource/poppins/latin-900.css";
+import "@fontsource/poppins/latin-ext-900.css";
+import "@fontsource/poppins/latin-800-italic.css";
+import "@fontsource/poppins/latin-ext-800-italic.css";
+import "@fontsource/manrope/latin-400.css";
+import "@fontsource/manrope/latin-ext-400.css";
+import "@fontsource/manrope/latin-500.css";
+import "@fontsource/manrope/latin-ext-500.css";
+import "@fontsource/manrope/latin-600.css";
+import "@fontsource/manrope/latin-ext-600.css";
 import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource-variable/dm-sans";
 import "./globals.css";
@@ -25,8 +39,8 @@ export const viewport: Viewport = { themeColor: "#FFF9F0" };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="pt-BR" data-scroll-behavior="smooth">
-      <body>{children}</body>
+    <html lang="pt-BR" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
