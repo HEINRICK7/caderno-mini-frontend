@@ -8,7 +8,7 @@
   --muted: #334c76;
   --mint: #e3f6f2;
   --border: #e9e8e3;
-  --control-radius: 4px;
+  --control-radius: 8px;
   --font-heading: "Plus Jakarta Sans Variable", sans-serif;
   --font-body: "DM Sans Variable", sans-serif;
   --page-gutter: 16px;
@@ -90,9 +90,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .site-menu__links a:hover { background: #f1f7f5; }
 .site-menu__cta { min-height: 46px; font-size: 14px; }
 
-.button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: var(--control-radius); font-weight: 600; white-space: nowrap; transition: background .15s ease, transform .15s ease; cursor: pointer; }
-.button:hover { transform: translateY(-1px); }
-.button--primary { color: #fff; background: #078d91; box-shadow: 0 3px 8px #078d9129; }
+.button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: var(--control-radius); font-weight: 600; white-space: nowrap; transition: background-color .16s ease, border-color .16s ease, color .16s ease; cursor: pointer; }
+.button--primary { color: #fff; background: #078d91; }
 .button--primary:hover { background: #087e83; }
 .button--header { min-height: 40px; padding: 0 12px; font-size: 12px; }
 .button--header-wide { display: none; }
