@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicPublication } from "@/lib/public-publication";
-import { clientLogoAssetId } from "@/lib/share-preview";
+import { clientCompanyName, clientLogoAssetId } from "@/lib/share-preview";
 
 type PublicMessagePageProps = {
   params: Promise<{ slug: string }>;
@@ -18,26 +18,30 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
     };
   }
 
-  const description = publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
-  const logoId = clientLogoAssetId(publication.templateDefinition, publication.data);
-  const image = logoId ? [{ url: `/p/${slug}/share-image`, width: 1200, height: 630, alt: "Logo do cliente" }] : undefined;
+  const companyName = clientCompanyName(publication.templateDefinition, publication.data);
+  const title = companyName || publication.templateName;
+  const description = companyName
+    ? `Mensagem de ${companyName}`
+    : publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
+  const hasPreview = Boolean(companyName || clientLogoAssetId(publication.templateDefinition, publication.data));
+  const image = { url: `/p/${slug}/share-image`, width: 1200, height: 630, alt: companyName || publication.templateName };
 
   return {
-    title: publication.templateName,
+    title,
     description,
     openGraph: {
       type: "website",
-      siteName: "Cadernô Express",
-      title: publication.templateName,
+      siteName: companyName || "Cadernô Express",
+      title,
       description,
       url: publication.publicUrl,
-      ...(image ? { images: image } : {}),
+      ...(hasPreview ? { images: [image] } : {}),
     },
     twitter: {
       card: "summary_large_image",
-      title: publication.templateName,
+      title,
       description,
-      ...(image ? { images: [image[0].url] } : {}),
+      ...(hasPreview ? { images: [image.url] } : {}),
     },
   };
 }
