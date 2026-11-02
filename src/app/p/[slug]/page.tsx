@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
-import { getPublicPublication, getPublicPublicationImageUrl } from "@/lib/public-publication";
+import { getPublicPublication } from "@/lib/public-publication";
+import { clientLogoAssetId } from "@/lib/share-preview";
 
 type PublicMessagePageProps = {
   params: Promise<{ slug: string }>;
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
   }
 
   const description = publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
-  const image = getPublicPublicationImageUrl(slug);
+  const logoId = clientLogoAssetId(publication.templateDefinition, publication.data);
+  const image = logoId ? [{ url: `/p/${slug}/share-image`, width: 1200, height: 630, alt: "Logo do cliente" }] : undefined;
 
   return {
     title: publication.templateName,
@@ -29,13 +31,13 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
       title: publication.templateName,
       description,
       url: publication.publicUrl,
-      images: [image],
+      ...(image ? { images: image } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: publication.templateName,
       description,
-      images: [image],
+      ...(image ? { images: [image[0].url] } : {}),
     },
   };
 }
