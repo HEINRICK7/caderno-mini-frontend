@@ -141,7 +141,8 @@ jobs:
             "$HOSTINGER_USER@$HOSTINGER_HOST" \
             "set -eu
             cd '$HOSTINGER_APP_PATH'
-            WEB_PORT='$HOSTINGER_WEB_PORT' docker compose -f compose.production.yaml --project-name caderno-mini-production-frontend up -d --build
+            export WEB_PORT='$HOSTINGER_WEB_PORT'
+            docker compose -f compose.production.yaml --project-name caderno-mini-production-frontend up -d --build
             for attempt in \$(seq 1 30); do
               container=\$(docker compose -f compose.production.yaml --project-name caderno-mini-production-frontend ps -q web)
               health=\$(docker inspect --format '{{.State.Health.Status}}' \"\$container\" 2>/dev/null || true)
