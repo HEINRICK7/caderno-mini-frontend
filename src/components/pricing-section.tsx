@@ -166,9 +166,11 @@ export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: Prici
         </article>
       </div>
 
-      <p className="pricing-section__note" id="pricing-checkout-note">
-        A compra dos planos estará disponível em breve.
-      </p>
+      {annualCheckoutUrl && lifetimeCheckoutUrl ? null : (
+        <p className="pricing-section__note" id="pricing-checkout-note">
+          A compra dos planos estará disponível em breve.
+        </p>
+      )}
     </section>
   );
 }

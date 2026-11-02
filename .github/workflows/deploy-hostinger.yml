@@ -129,8 +129,40 @@ jobs:
             --exclude='coverage/' \
             --exclude='*.tsbuildinfo' \
             --exclude='.env' \
+            --exclude='.env.checkout' \
             --exclude='.caderno-mini-frontend-deploy' \
             ./ "$HOSTINGER_USER@$HOSTINGER_HOST:$HOSTINGER_APP_PATH/"
+
+      - name: Configure checkout links
+        shell: bash
+        env:
+          CAKTO_CHECKOUT_ANNUAL_URL: ${{ vars.CAKTO_CHECKOUT_ANNUAL_URL }}
+          CAKTO_CHECKOUT_LIFETIME_URL: ${{ vars.CAKTO_CHECKOUT_LIFETIME_URL }}
+        run: |
+          set -euo pipefail
+          HOSTINGER_SSH_PORT="${HOSTINGER_SSH_PORT:-22}"
+          for value in "$CAKTO_CHECKOUT_ANNUAL_URL" "$CAKTO_CHECKOUT_LIFETIME_URL"; do
+            if [ -n "$value" ] && [[ ! "$value" =~ ^https://pay\.cakto\.com\.br/[A-Za-z0-9_-]+/?$ ]]; then
+              echo 'Cakto checkout URLs must be hosted offer links without a query.' >&2
+              exit 1
+            fi
+          done
+          remote="umask 077
+          app_path='$HOSTINGER_APP_PATH'
+          config_file=\$app_path/.env.checkout
+          if [ -L \"\$config_file\" ]; then
+            echo 'Refusing to write checkout links through a symlink.' >&2
+            exit 1
+          fi
+          temp_file=\$(mktemp \"\$app_path/.env.checkout.XXXXXX\")
+          cat > \"\$temp_file\"
+          chmod 600 \"\$temp_file\"
+          mv \"\$temp_file\" \"\$config_file\""
+          {
+            printf 'CAKTO_CHECKOUT_ANNUAL_URL=%s\n' "$CAKTO_CHECKOUT_ANNUAL_URL"
+            printf 'CAKTO_CHECKOUT_LIFETIME_URL=%s\n' "$CAKTO_CHECKOUT_LIFETIME_URL"
+          } | ssh -o StrictHostKeyChecking=yes -p "$HOSTINGER_SSH_PORT" \
+            "$HOSTINGER_USER@$HOSTINGER_HOST" "$remote"
 
       - name: Build and restart the service
         shell: bash
