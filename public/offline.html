@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FFF9F0" />
+    <title>Sem conexão | Cadernô Express</title>
+    <style>
+      :root { color-scheme: light; font-family: "DM Sans", "Segoe UI", sans-serif; color: #24324a; background: #fff9f0; }
+      * { box-sizing: border-box; }
+      body { min-height: 100svh; display: grid; place-items: center; margin: 0; padding: 24px; }
+      main { width: min(100%, 420px); padding: 36px 28px; border: 1px solid #ece8df; border-radius: 28px; background: #fffdfa; box-shadow: 0 18px 50px #24324a12; text-align: center; }
+      .icon { width: 68px; height: 68px; display: inline-grid; place-items: center; margin-bottom: 18px; overflow: hidden; border-radius: 22px; box-shadow: 0 6px 16px #24324a22; }
+      .icon svg { display: block; width: 100%; height: 100%; }
+      h1 { margin: 0 0 10px; font-size: 24px; letter-spacing: -.04em; }
+      p { margin: 0; color: #52647f; line-height: 1.6; }
+      button { min-height: 48px; margin-top: 24px; padding: 0 22px; border: 0; border-radius: 14px; background: #168a80; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span aria-hidden="true" class="icon">
+        <svg viewBox="0 0 512 512">
+          <rect width="512" height="512" rx="112" fill="#24324A" />
+          <path d="m125 157 167-46 68 37v209c0 12-10 22-22 22H146c-12 0-22-10-22-22V179c0-10 0-17 1-22Z" fill="#168A80" />
+          <path d="M176 143c0-13 10-23 23-23h127l75 75v181c0 13-10 23-23 23H199c-13 0-23-10-23-23V143Z" fill="#F47D71" />
+          <path d="M326 120v67c0 5 4 9 9 9h66" fill="#FFF9F0" />
+          <path d="m407 92 20-49m35 87 45-14m-62 75 48 5" fill="none" stroke="#FFF9F0" stroke-linecap="round" stroke-width="17" />
+        </svg>
+      </span>
+      <h1>Você está sem conexão</h1>
+      <p>Assim que a internet voltar, suas mensagens e modelos estarão disponíveis novamente.</p>
+      <button onclick="location.reload()" type="button">Tentar novamente</button>
+    </main>
+  </body>
+</html>

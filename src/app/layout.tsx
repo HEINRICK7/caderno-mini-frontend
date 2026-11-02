@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { PwaServiceWorker } from "@/components/pwa-service-worker";
 import "@fontsource/poppins/latin-700.css";
 import "@fontsource/poppins/latin-ext-700.css";
 import "@fontsource/poppins/latin-800.css";
@@ -26,6 +27,11 @@ export const metadata: Metadata = {
   },
   description: "Crie cartões digitais personalizados para se conectar com seus clientes.",
   applicationName: "Cadernô Express",
+  appleWebApp: {
+    capable: true,
+    title: "Cadernô Express",
+    statusBarStyle: "default",
+  },
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -40,7 +46,10 @@ export const viewport: Viewport = { themeColor: "#FFF9F0" };
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="pt-BR" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <PwaServiceWorker />
+      </body>
     </html>
   );
 }

@@ -102,6 +102,18 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .site-menu__links a { min-height: 44px; display: flex; align-items: center; padding: 0 12px; border-radius: var(--control-radius); color: var(--ink); font-size: 14px; }
 .site-menu__links a:hover { background: #f1f7f5; }
 .site-menu__cta { min-height: 46px; font-size: 14px; }
+.pwa-install-action { display: inline-flex; align-items: center; justify-content: flex-start; gap: 9px; border: 0; border-radius: var(--control-radius); background: transparent; color: var(--teal); font: 600 13px/1.2 var(--font-body); cursor: pointer; }
+.pwa-install-action:hover { background: #eaf6f3; }
+.pwa-install-action--desktop { min-height: 36px; padding: 0 4px; white-space: nowrap; }
+.pwa-install-action--menu { width: 100%; min-height: 44px; padding: 0 12px; text-align: left; }
+.pwa-install-dialog-backdrop { position: fixed; z-index: 30; inset: 0; display: grid; place-items: center; padding: 20px; background: #14223888; }
+.pwa-install-dialog { position: relative; width: min(100%, 410px); padding: 30px; border: 1px solid #e9e8e3; border-radius: 24px; background: var(--paper); box-shadow: 0 24px 70px #10264f33; color: var(--ink); }
+.pwa-install-dialog__close { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #e3f6f2; color: var(--ink); cursor: pointer; }
+.pwa-install-dialog__icon { width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: 14px; border-radius: 16px; background: #e3f6f2; color: var(--teal); }
+.pwa-install-dialog h2 { margin: 0 40px 10px 0; font: 800 22px/1.2 var(--font-heading); letter-spacing: -.04em; }
+.pwa-install-dialog p, .pwa-install-dialog ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.pwa-install-dialog p { padding-left: 0; }
+.pwa-install-dialog li + li { margin-top: 5px; }
 
 .button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: var(--control-radius); font-weight: 600; white-space: nowrap; transition: background-color .16s ease, border-color .16s ease, color .16s ease; cursor: pointer; }
 .button--primary { color: #fff; background: #078d91; }
