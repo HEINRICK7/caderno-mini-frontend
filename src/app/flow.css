@@ -119,12 +119,12 @@
 .template-demo-result { grid-column: 1 / -1; align-items: start; gap: 10px; margin: 4px 0 0; }
 .template-demo-result .form-notice { width: 100%; }
 .template-demo-help { grid-column: 1 / -1; margin: -5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
-.demo-public-message-shell { align-content: center; gap: 12px; }
+.demo-public-message-shell { align-content: safe center; gap: 12px; }
 .demo-public-banner { width: min(440px, 100%); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 13px; border: 1px solid #cce8e1; border-radius: 14px; background: #effaf7; color: #126d70; }
 .demo-public-banner p { margin: 0; font-size: 12px; font-weight: 700; }
 .demo-public-banner a { flex: none; color: #087f83; font-size: 12px; font-weight: 700; }
 .demo-public-banner a:hover { text-decoration: underline; text-underline-offset: 3px; }
-.public-message-shell { min-height: 100svh; display: grid; place-items: center; padding: 20px 16px; background: #fff9f0; }
+.public-message-shell { min-height: 100svh; display: grid; align-content: safe center; justify-items: center; padding: 20px 16px; background: #fff9f0; }
 .public-message-shell .message-template { width: min(440px, 100%); }
 .public-message-shell .message-template__art { min-height: clamp(240px, 72vw, 340px); }
 .public-message-shell .message-template__illustration { width: min(100%, 310px); }
