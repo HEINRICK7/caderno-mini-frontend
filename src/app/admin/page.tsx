@@ -33,14 +33,11 @@ export default function AdminPage() {
   const [selectedId, setSelectedId] = useState("");
   const [detail, setDetail] = useState<AdminUserDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [detailLoading, setDetailLoading] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
   const [forbidden, setForbidden] = useState(false);
   const [error, setError] = useState("");
 
   const loadUsers = useCallback(async (requestedOffset = 0, append = false) => {
-    setLoading(true);
-    setError("");
     try {
       const result = await api.getAdminUsers(search, requestedOffset);
       setUsers((current) => append ? [...current, ...result.users] : result.users);
@@ -66,12 +63,8 @@ export default function AdminPage() {
   useEffect(() => { void loadUsers(); }, [loadUsers]);
 
   useEffect(() => {
-    if (!selectedId || forbidden) {
-      setDetail(null);
-      return;
-    }
+    if (!selectedId || forbidden) return;
     let active = true;
-    setDetailLoading(true);
     void api.getAdminUser(selectedId).then((userDetail) => {
       if (active) setDetail(userDetail);
     }).catch((cause: unknown) => {
@@ -81,14 +74,22 @@ export default function AdminPage() {
       } else {
         setError(cause instanceof ApiError ? cause.message : "Não foi possível abrir os dados deste cliente.");
       }
-    }).finally(() => { if (active) setDetailLoading(false); });
+    });
     return () => { active = false; };
   }, [forbidden, router, selectedId]);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoading(true);
+    setError("");
     setSearch(query.trim());
     setOffset(0);
+  }
+
+  async function loadMoreUsers() {
+    setLoading(true);
+    setError("");
+    await loadUsers(offset, true);
   }
 
   async function toggleAccountStatus() {
@@ -96,6 +97,7 @@ export default function AdminPage() {
     const nextStatus = detail.user.accountStatus === "active" ? "suspended" : "active";
     if (nextStatus === "suspended" && !window.confirm(`Suspender ${detail.user.email}? As sessões ativas serão encerradas e a conta não poderá entrar até ser reativada.`)) return;
     setSavingStatus(true);
+    setLoading(true);
     setError("");
     try {
       await api.setAdminUserStatus(detail.user.id, nextStatus);
@@ -150,7 +152,7 @@ export default function AdminPage() {
               <article><UserRound aria-hidden="true" size={18} /><strong>{users.reduce((sum, user) => sum + user.activeLicenses, 0)}</strong><span>licenças ativas nesta página</span></article>
             </div>
 
-            {error ? <div className="page-message page-message--error" role="alert"><p>{error}</p><button className="text-button" onClick={() => void loadUsers()} type="button">Tentar novamente</button></div> : null}
+            {error ? <div className="page-message page-message--error" role="alert"><p>{error}</p><button className="text-button" onClick={() => { setLoading(true); setError(""); void loadUsers(); }} type="button">Tentar novamente</button></div> : null}
 
             <div className="admin-workspace">
               <section className="admin-user-list" aria-label="Clientes">
@@ -175,12 +177,13 @@ export default function AdminPage() {
                     <span className={`admin-status admin-status--${user.accountStatus}`}>{user.accountStatus === "active" ? "Ativa" : "Suspensa"}</span>
                   </button>
                 ))}
-                {!loading && offset < total ? <button className="button button--secondary admin-load-more" onClick={() => void loadUsers(offset, true)} type="button">Carregar mais clientes</button> : null}
+                {!loading && offset < total ? <button className="button button--secondary admin-load-more" onClick={() => void loadMoreUsers()} type="button">Carregar mais clientes</button> : null}
               </section>
 
               <section className="admin-user-detail" aria-label="Detalhes do cliente" aria-live="polite">
-                {detailLoading ? <p className="page-message" role="status">Carregando conta…</p> : null}
-                {!detailLoading && detail ? (
+                {selectedId && detail?.user.id !== selectedId ? <p className="page-message" role="status">Carregando conta…</p> : null}
+                {!selectedId && !loading ? <p className="admin-empty">Selecione um cliente para ver os detalhes.</p> : null}
+                {detail && detail.user.id === selectedId ? (
                   <>
                     <div className="admin-detail-heading">
                       <div><span className="admin-eyebrow">Conta do cliente</span><h2>{detail.user.email}</h2><p>Cliente desde {dateLabel(detail.user.createdAt)}</p></div>
