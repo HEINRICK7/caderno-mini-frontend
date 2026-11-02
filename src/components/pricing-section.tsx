@@ -114,11 +114,11 @@ export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: Prici
             </div>
 
             <div className="pricing-plan__price">
-              <span className="pricing-plan__price-accessible">R$ 49,90 por ano</span>
+              <span className="pricing-plan__price-accessible">R$ 33,50, pagamento único</span>
               <span aria-hidden="true" className="pricing-plan__currency">R$</span>
-              <strong aria-hidden="true">49</strong>
-              <span aria-hidden="true" className="pricing-plan__cents">,90</span>
-              <span aria-hidden="true" className="pricing-plan__period">por ano</span>
+              <strong aria-hidden="true">33</strong>
+              <span aria-hidden="true" className="pricing-plan__cents">,50</span>
+              <span aria-hidden="true" className="pricing-plan__period">pagamento único</span>
             </div>
 
             <PlanBenefits access="Acesso por 12 meses" />
@@ -149,9 +149,9 @@ export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: Prici
             </div>
 
             <div className="pricing-plan__price">
-              <span className="pricing-plan__price-accessible">R$ 97,00, pagamento único</span>
+              <span className="pricing-plan__price-accessible">R$ 67,00, pagamento único</span>
               <span aria-hidden="true" className="pricing-plan__currency">R$</span>
-              <strong aria-hidden="true">97</strong>
+              <strong aria-hidden="true">67</strong>
               <span aria-hidden="true" className="pricing-plan__cents">,00</span>
               <span aria-hidden="true" className="pricing-plan__period">pagamento único</span>
             </div>
