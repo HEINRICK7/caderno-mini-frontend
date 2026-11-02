@@ -64,5 +64,6 @@ jobs:
       contents: read
       deployments: write
     uses: ./.github/workflows/deploy-hostinger.yml
+    secrets: inherit
     with:
       deploy_environment: production
