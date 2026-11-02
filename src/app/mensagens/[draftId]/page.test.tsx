@@ -4,11 +4,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Draft, Template } from "@/lib/api-contracts";
 
-const { getDraft, getTemplate, validateTemplate, saveDraft, push } = vi.hoisted(() => ({
+const { getDraft, getTemplate, validateTemplate, saveDraft, createDemoPublication, push } = vi.hoisted(() => ({
   getDraft: vi.fn(),
   getTemplate: vi.fn(),
   validateTemplate: vi.fn(),
   saveDraft: vi.fn(),
+  createDemoPublication: vi.fn(),
   push: vi.fn(),
 }));
 
@@ -22,7 +23,7 @@ vi.mock("@/lib/api-client", () => ({
     constructor(message: string) { super(message); this.status = 400; }
     status: number;
   },
-  api: { getDraft, getTemplate, validateTemplate, saveDraft },
+  api: { getDraft, getTemplate, validateTemplate, saveDraft, createDemoPublication },
 }));
 
 import DraftPage from "./page";
@@ -34,6 +35,7 @@ const template: Template = {
   description: null,
   createdAt: "2026-10-31T00:00:00.000Z",
   definition: {
+    catalog: { segment: "both", category: "Boas-vindas", homeCategory: "relacionamento" },
     fields: [
       { id: "title", type: "text", label: "Título", required: true },
       { id: "highlightedText", type: "text", label: "Destaque" },
@@ -72,6 +74,14 @@ beforeEach(() => {
     data,
     updatedAt: "2026-11-01T00:00:00.000Z",
   }));
+  createDemoPublication.mockReset().mockResolvedValue({
+    slug: "demo-slug",
+    publicPath: "/d/demo-slug",
+    publicUrl: "https://app.example/d/demo-slug",
+    category: "relacionamento",
+    created: true,
+    expiresAt: "2026-11-08T12:00:00.000Z",
+  });
   push.mockReset();
 });
 
@@ -119,5 +129,18 @@ describe("editor de mensagem salva", () => {
     expect((await screen.findByLabelText("Título *") as HTMLInputElement).value).toBe("Um título personalizado");
     expect((screen.getByLabelText("Subtítulo") as HTMLInputElement).value).toBe("Uma segunda linha");
     expect(screen.getByRole("heading", { name: "Um título personalizado" })).toBeTruthy();
+  });
+
+  it("salva e gera um link público gratuito da categoria sem iniciar checkout", async () => {
+    render(<DraftPage />);
+    const titleInput = await screen.findByLabelText("Título *");
+    fireEvent.change(titleInput, { target: { value: "Texto para testar a mensagem" } });
+    fireEvent.click(screen.getByRole("button", { name: "Gerar link gratuito de demonstração" }));
+
+    const demoLink = await screen.findByRole("link", { name: "https://app.example/d/demo-slug" });
+    expect(demoLink.getAttribute("href")).toBe("https://app.example/d/demo-slug");
+    expect(saveDraft).toHaveBeenCalledWith("draft-1", expect.objectContaining({ title: "Texto para testar a mensagem" }));
+    expect(createDemoPublication).toHaveBeenCalledWith("draft-1");
+    expect(push).not.toHaveBeenCalled();
   });
 });

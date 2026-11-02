@@ -11,6 +11,8 @@ export function SiteHeader() {
         <Link href="/#steps">Como funciona</Link>
         <Link href="/templates">Para o seu negócio</Link>
         <Link href="/#examples">Depoimentos</Link>
+        <Link href="/#planos">Planos</Link>
+        <Link href="/conta">Minha conta</Link>
         <Link className="button button--primary button--header" href="/templates">
           Criar minha mensagem <ArrowRight aria-hidden="true" size={14} />
         </Link>
@@ -31,6 +33,8 @@ export function SiteHeader() {
               <Link href="/#steps">Como funciona</Link>
               <Link href="/templates">Para o seu negócio</Link>
               <Link href="/#examples">Depoimentos</Link>
+              <Link href="/#planos">Planos</Link>
+              <Link href="/conta">Minha conta</Link>
             </nav>
             <Link className="button button--primary site-menu__cta" href="/templates">
               Criar minha mensagem <ArrowRight aria-hidden="true" size={16} />

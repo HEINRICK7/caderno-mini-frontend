@@ -130,6 +130,7 @@ export const templateCardSchema = z.object({
 export const templateCatalogSchema = z.object({
   segment: z.enum(["product", "service", "both"]),
   category: z.enum(["Agradecimento", "Boas-vindas", "Datas especiais", "Cobrança", "Entrega", "Promoções"]),
+  homeCategory: z.enum(["relacionamento", "cobrancas", "ofertas", "servicos"]).optional(),
 }).strict();
 
 export const templateDefinitionSchema = z.object({
@@ -212,6 +213,16 @@ export const purchaseStatusResponseSchema = z.object({
   }).strict(),
 }).strict();
 
+export const accountAccessResponseSchema = z.object({
+  data: z.array(z.object({
+    purchaseId: z.string(),
+    draftId: z.string(),
+    purchaseStatus: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
+    accessStatus: z.enum(["active", "revoked"]),
+    grantedAt: z.string().datetime({ offset: true }),
+  }).strict()),
+}).strict();
+
 export const publicationResponseSchema = z.object({
   data: z.object({
     slug: z.string(),
@@ -219,6 +230,33 @@ export const publicationResponseSchema = z.object({
     publicPath: z.string(),
     publicUrl: z.string().url(),
     publishedAt: z.string().datetime({ offset: true }),
+  }).strict(),
+}).strict();
+
+export const demoPublicationResponseSchema = z.object({
+  data: z.object({
+    slug: z.string(),
+    publicPath: z.string(),
+    publicUrl: z.string().url(),
+    category: z.enum(["relacionamento", "cobrancas", "ofertas", "servicos"]),
+    created: z.boolean(),
+    expiresAt: z.string().datetime({ offset: true }),
+  }).strict(),
+}).strict();
+
+export const publicDemoPublicationResponseSchema = z.object({
+  data: z.object({
+    slug: z.string(),
+    category: z.enum(["relacionamento", "cobrancas", "ofertas", "servicos"]),
+    templateId: z.string(),
+    templateVersion: z.number().int().positive(),
+    templateName: z.string(),
+    templateDescription: z.string().nullable(),
+    templateDefinition: templateDefinitionSchema,
+    data: jsonObjectSchema,
+    publicUrl: z.string().url(),
+    createdAt: z.string().datetime({ offset: true }),
+    expiresAt: z.string().datetime({ offset: true }),
   }).strict(),
 }).strict();
 
@@ -244,4 +282,6 @@ export type TemplateCardAction = NonNullable<TemplateCard["action"]>;
 export type TemplateDefinition = z.infer<typeof templateDefinitionSchema>;
 export type Draft = z.infer<typeof draftSchema>;
 export type PurchaseStatus = z.infer<typeof purchaseStatusResponseSchema>["data"];
+export type AccountAccessItem = z.infer<typeof accountAccessResponseSchema>["data"][number];
+export type DemoPublication = z.infer<typeof publicDemoPublicationResponseSchema>["data"];
 export type PublicPublication = z.infer<typeof publicPublicationResponseSchema>["data"];

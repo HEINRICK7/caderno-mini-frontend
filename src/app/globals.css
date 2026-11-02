@@ -1,3 +1,4 @@
+/* Hallmark · genre: warm modern · tone: premium Cadernô · anchor: teal · structure: paired pricing cards, lifetime-first on mobile */
 :root {
   color-scheme: light;
   --ink: #10264f;
@@ -8,6 +9,11 @@
   --muted: #334c76;
   --mint: #e3f6f2;
   --border: #e9e8e3;
+  --pricing-action: #006b64;
+  --pricing-action-hover: #00564f;
+  --pricing-coral-soft: #fff0ed;
+  --pricing-coral-ink: #a43d36;
+  --pricing-annual-accent: #ff7d71;
   --control-radius: 8px;
   --font-heading: "Plus Jakarta Sans Variable", sans-serif;
   --font-body: "DM Sans Variable", sans-serif;
@@ -176,6 +182,53 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .step__copy p { max-width: 15ch; margin: 0 auto; color: #687895; font-size: 8px; line-height: 1.2; }
 .step__arrow { display: none; }
 
+.pricing-section {
+  width: min(100%, 1160px);
+  margin: 40px auto 0;
+  padding: 32px 16px 40px;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 24px;
+}
+.pricing-section__intro { max-width: 600px; margin: 0 auto 24px; text-align: center; }
+.pricing-section__eyebrow { display: inline-flex; min-height: 28px; align-items: center; padding: 0 12px; border-radius: 999px; background: var(--mint); color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: .035em; }
+.pricing-section__intro h2 { min-width: 0; margin: 12px 0 8px; color: var(--ink); font: 800 clamp(25px, 5.5vw, 36px)/1.08 var(--font-template-display); letter-spacing: -.045em; overflow-wrap: anywhere; }
+.pricing-section__intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.pricing-section__plans { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.pricing-plan { min-width: 0; display: flex; flex-direction: column; padding: 0 16px 16px; border: 1px solid #eeeae4; border-top: 3px solid var(--pricing-card-accent); border-radius: 24px; background: #fff; box-shadow: 0 14px 34px rgba(37, 42, 56, .06); }
+.pricing-plan--annual { --pricing-card-accent: var(--pricing-annual-accent); order: 2; }
+.pricing-plan--lifetime { --pricing-card-accent: var(--teal); order: 1; }
+.pricing-plan__art { position: relative; height: 152px; flex: none; display: block; margin-top: 16px; overflow: hidden; border-radius: 17px; background: #e3f6f2; }
+.pricing-plan__art--lifetime { background: #fff0ed; }
+.pricing-plan__art-card { position: absolute; top: 19%; height: 108%; width: auto; aspect-ratio: .66; object-fit: cover; border: 2px solid rgba(255, 255, 255, .94); border-radius: 14px; box-shadow: 0 7px 16px rgba(22, 38, 61, .16); }
+.pricing-plan__art-card--1 { left: calc(50% - 113px); transform: rotate(-8deg) scale(.87); }
+.pricing-plan__art-card--2 { z-index: 2; top: 5%; left: 50%; transform: translateX(-50%); }
+.pricing-plan__art-card--3 { right: calc(50% - 113px); transform: rotate(8deg) scale(.87); }
+.pricing-plan__surface { min-width: 0; flex: 1; display: flex; flex-direction: column; padding: 20px 4px 4px; }
+.pricing-plan__heading { min-height: 64px; display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.pricing-plan__heading > div { min-width: 0; }
+.pricing-plan__heading h3 { margin: 0; color: var(--ink); font: 800 24px/1.15 var(--font-template-display); letter-spacing: -.04em; }
+.pricing-plan__heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.pricing-plan__badge, .pricing-plan__lifetime-mark { flex: none; display: inline-flex; min-height: 28px; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; border-radius: 999px; font-size: 9px; font-weight: 800; letter-spacing: .015em; white-space: nowrap; }
+.pricing-plan__badge { background: var(--pricing-coral-soft); color: var(--pricing-coral-ink); text-transform: uppercase; }
+.pricing-plan__lifetime-mark { background: var(--mint); color: var(--teal); }
+.pricing-plan__price { position: relative; min-height: 72px; display: flex; align-items: baseline; margin: 26px 0 18px; color: var(--ink); white-space: nowrap; }
+.pricing-plan__price-accessible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
+.pricing-plan__currency { align-self: flex-start; margin: 12px 4px 0 0; color: var(--ink); font-size: 14px; font-weight: 700; }
+.pricing-plan__price strong { font: 800 clamp(43px, 12vw, 58px)/1 var(--font-template-display); letter-spacing: -.075em; }
+.pricing-plan__cents { font: 800 24px/1 var(--font-template-display); letter-spacing: -.05em; }
+.pricing-plan__period { align-self: flex-end; margin: 0 0 12px 8px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.pricing-plan__benefits { display: grid; gap: 0; margin: 0 0 24px; padding: 15px 0 0; border: 0; border-top: 1px solid #ecebe8; border-radius: 0; background: transparent; list-style: none; }
+.pricing-plan__benefits li { min-width: 0; min-height: 40px; display: flex; align-items: center; gap: 11px; padding: 3px 0; color: var(--muted); font-size: 14px; line-height: 1.35; }
+.pricing-plan__benefits li:last-child { border-bottom: 0; }
+.pricing-plan__check { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--teal); }
+.pricing-plan__action { width: 100%; min-height: 56px; margin-top: auto; padding: 0 12px; border-radius: 19px; background: linear-gradient(112deg, color-mix(in srgb, var(--pricing-action) 80%, #000), var(--pricing-action)); color: #fff; font: 700 16px/1.2 var(--font-template-display); white-space: nowrap; box-shadow: 0 5px 14px color-mix(in srgb, var(--pricing-action) 22%, transparent); }
+.pricing-plan__action:not(:disabled):hover { background: linear-gradient(112deg, color-mix(in srgb, var(--pricing-action-hover) 80%, #000), var(--pricing-action-hover)); }
+.pricing-plan__action:not(:disabled):active { background: var(--pricing-action-hover); }
+.pricing-plan__action:disabled { background: var(--pricing-action); color: #fff; opacity: 1; cursor: not-allowed; }
+.pricing-plan__action:disabled:hover, .pricing-plan__action:disabled:active { background: linear-gradient(112deg, color-mix(in srgb, var(--pricing-action) 80%, #000), var(--pricing-action)); }
+.pricing-plan__action:focus-visible { outline: 2px solid #058e91; outline-offset: 3px; }
+.pricing-section__note { max-width: 56ch; margin: 12px auto 0; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
+
 @media (min-width: 640px) {
   :root { --page-gutter: 24px; }
   .home-shell .site-header { width: 100%; margin-inline: 0; }
@@ -202,6 +255,24 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 @media (min-width: 640px) {
   .hero h1 { font-size: clamp(38px, 4.6vw, 48px); }
   .home-categories { margin-top: 10px; }
+  .pricing-section { margin-top: 48px; padding: 40px 24px 48px; }
+}
+
+@media (min-width: 720px) {
+  .pricing-section__plans { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .pricing-plan--annual { order: 1; }
+  .pricing-plan--lifetime { order: 2; }
+  .pricing-section__plans { gap: 22px; }
+  .pricing-plan { padding: 0 20px 20px; }
+  .pricing-plan__art { height: clamp(168px, 15vw, 190px); margin-top: 20px; }
+  .pricing-plan__surface { padding: 22px 8px 8px; }
+  .pricing-plan__heading { min-height: 66px; }
+  .pricing-plan__heading h3 { font-size: 26px; }
+  .pricing-plan__heading p { font-size: 13px; }
+  .pricing-plan__price { margin-block: 28px 20px; }
+  .pricing-plan__price strong { font-size: clamp(50px, 6vw, 62px); }
+  .pricing-plan__benefits li { font-size: 14px; }
+  .pricing-plan__action { font-size: 18px; }
 }
 
 @media (min-width: 900px) {

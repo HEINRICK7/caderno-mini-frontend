@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   checkoutResponseSchema,
   authMessageResponseSchema,
+  accountAccessResponseSchema,
   createDraftResponseSchema,
   draftResponseSchema,
   publicPublicationResponseSchema,
@@ -12,7 +13,11 @@ import {
   templateValidationResponseSchema,
   imageUploadResponseSchema,
   publicationResponseSchema,
+  demoPublicationResponseSchema,
+  publicDemoPublicationResponseSchema,
   type Draft,
+  type AccountAccessItem,
+  type DemoPublication,
   type PublicPublication,
   type PurchaseStatus,
   type Template,
@@ -145,11 +150,29 @@ export const api = {
     )).data;
   },
 
+  async createDemoPublication(draftId: string) {
+    return (await request("/api/v1/demo-publications", demoPublicationResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ draftId }),
+    })).data;
+  },
+
+  async getDemoPublication(slug: string): Promise<DemoPublication> {
+    return (await request(
+      `/api/v1/demo-publications/${encodeURIComponent(slug)}`,
+      publicDemoPublicationResponseSchema,
+    )).data;
+  },
+
   async getPurchase(purchaseId: string): Promise<PurchaseStatus> {
     return (await request(
       `/api/v1/purchases/${encodeURIComponent(purchaseId)}`,
       purchaseStatusResponseSchema,
     )).data;
+  },
+
+  async getAccountAccess(): Promise<AccountAccessItem[]> {
+    return (await request("/api/v1/account/access", accountAccessResponseSchema)).data;
   },
 
   async getPublicPublication(slug: string): Promise<PublicPublication> {
