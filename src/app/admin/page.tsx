@@ -60,7 +60,28 @@ export default function AdminPage() {
     }
   }, [router, search]);
 
-  useEffect(() => { void loadUsers(); }, [loadUsers]);
+  useEffect(() => {
+    let active = true;
+    void api.getAdminUsers(search).then((result) => {
+      if (!active) return;
+      setUsers(result.users);
+      setTotal(result.total);
+      setOffset(result.users.length);
+      setForbidden(false);
+      setError("");
+      setSelectedId((current) => result.users.some((user) => user.id === current) ? current : result.users[0]?.id ?? "");
+    }).catch((cause: unknown) => {
+      if (!active) return;
+      if (cause instanceof ApiError && cause.status === 401) {
+        router.replace("/entrar?returnTo=%2Fadmin");
+      } else if (cause instanceof ApiError && cause.status === 403) {
+        setForbidden(true);
+      } else {
+        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
+      }
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [router, search]);
 
   useEffect(() => {
     if (!selectedId || forbidden) return;
