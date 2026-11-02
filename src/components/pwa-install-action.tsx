@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -12,38 +12,53 @@ type PwaInstallActionProps = {
   variant: "desktop" | "menu";
 };
 
+const STANDALONE_QUERY = "(display-mode: standalone)";
+
+function subscribeToStandalone(callback: () => void) {
+  const standalone = window.matchMedia(STANDALONE_QUERY);
+  standalone.addEventListener("change", callback);
+  window.addEventListener("appinstalled", callback);
+
+  return () => {
+    standalone.removeEventListener("change", callback);
+    window.removeEventListener("appinstalled", callback);
+  };
+}
+
+function getStandaloneSnapshot() {
+  return (
+    window.matchMedia(STANDALONE_QUERY).matches ||
+    Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
+  );
+}
+
+function getServerStandaloneSnapshot() {
+  return false;
+}
+
 export function PwaInstallAction({ variant }: PwaInstallActionProps) {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [isIos, setIsIos] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const isStandalone = useSyncExternalStore(
+    subscribeToStandalone,
+    getStandaloneSnapshot,
+    getServerStandaloneSnapshot,
+  );
+  const isIos =
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   useEffect(() => {
-    const standalone = window.matchMedia("(display-mode: standalone)");
-    const updateStandalone = () =>
-      setIsStandalone(
-        standalone.matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone),
-      );
     const handleBeforeInstall = (event: Event) => {
       event.preventDefault();
       setInstallPrompt(event as InstallPromptEvent);
     };
-    const handleInstalled = () => {
-      setIsStandalone(true);
-      setInstallPrompt(null);
-    };
-    const isIpad = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
 
-    updateStandalone();
-    setIsIos(/iPad|iPhone|iPod/i.test(navigator.userAgent) || isIpad);
-    standalone.addEventListener("change", updateStandalone);
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
-    window.addEventListener("appinstalled", handleInstalled);
 
     return () => {
-      standalone.removeEventListener("change", updateStandalone);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
-      window.removeEventListener("appinstalled", handleInstalled);
     };
   }, []);
 
