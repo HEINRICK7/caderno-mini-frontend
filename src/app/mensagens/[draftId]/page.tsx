@@ -35,6 +35,9 @@ export default function DraftPage() {
   const [saving, setSaving] = useState(false);
   const [imageUploadBlocked, setImageUploadBlocked] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [creatingDemoLink, setCreatingDemoLink] = useState(false);
+  const [demoLink, setDemoLink] = useState("");
+  const [demoExpiresAt, setDemoExpiresAt] = useState("");
 
   const loadDraft = useCallback(async () => {
     try {
@@ -122,6 +125,30 @@ export default function DraftPage() {
     }
   }
 
+  async function createDemoLink() {
+    if (!draft || !template) return;
+    setCreatingDemoLink(true);
+    setError("");
+    setNotice("");
+    setDemoLink("");
+    try {
+      const data = formData();
+      await api.validateTemplate(template.id, data);
+      const updated = await api.saveDraft(draft.id, data);
+      setDraft(updated);
+      const publication = await api.createDemoPublication(draft.id);
+      setDemoLink(publication.publicUrl);
+      setDemoExpiresAt(publication.expiresAt);
+      setNotice(publication.created
+        ? "Seu link de demonstração está pronto. Ele funciona por 7 dias e não libera acesso premium."
+        : "Você já usou a demonstração gratuita desta categoria; este é o link que já tinha sido criado.");
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : "Não foi possível gerar o link de demonstração.");
+    } finally {
+      setCreatingDemoLink(false);
+    }
+  }
+
   return (
     <main className="subpage-shell">
       <SiteHeader />
@@ -157,12 +184,32 @@ export default function DraftPage() {
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 {notice ? <p className="form-notice" role="status">{notice}</p> : null}
                 <div className="template-editor-actions">
-                  <button className="button button--secondary" disabled={saving || checkingOut || imageUploadBlocked} type="submit">
+                  <button className="button button--secondary" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} type="submit">
                     {saving ? "Salvando…" : "Salvar alterações"}
                   </button>
-                  <button className="button button--primary form-submit" disabled={saving || checkingOut || imageUploadBlocked} onClick={() => void continueToCheckout()} type="button">
+                  {template.definition.catalog?.homeCategory ? (
+                    <>
+                      <button
+                        className="button button--secondary button--local-test-link"
+                        disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked}
+                        onClick={() => void createDemoLink()}
+                        type="button"
+                      >
+                        {creatingDemoLink ? "Gerando demonstração…" : "Gerar link gratuito de demonstração"}
+                      </button>
+                      <p className="template-demo-help">Um link por categoria neste navegador; válido por 7 dias e separado do acesso premium.</p>
+                    </>
+                  ) : null}
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout()} type="button">
                     {checkingOut ? "Aguarde…" : "Desbloquear link"}
                   </button>
+                  {demoLink ? (
+                    <div className="share-result template-demo-result">
+                      <p className="form-notice">Válido até {new Date(demoExpiresAt).toLocaleDateString("pt-BR")}.</p>
+                      <a className="share-result__url" href={demoLink}>{demoLink}</a>
+                      <a className="button button--secondary" href={`https://wa.me/?text=${encodeURIComponent(demoLink)}`} rel="noreferrer" target="_blank">Compartilhar demonstração</a>
+                    </div>
+                  ) : null}
                 </div>
               </form>
               <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} title={template.name} />

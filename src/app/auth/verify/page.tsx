@@ -20,7 +20,7 @@ function VerifyMagicLink() {
     }
     started.current = true;
     void api.verifyMagicLink(token).then(() => {
-      const returnTo = safeReturnTo(sessionStorage.getItem("caderno:auth:return-to"));
+      const returnTo = safeReturnTo(sessionStorage.getItem("caderno:auth:return-to"), "/conta");
       sessionStorage.removeItem("caderno:auth:return-to");
       setMessage("Acesso confirmado.");
       router.replace(returnTo);

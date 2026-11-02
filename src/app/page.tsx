@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Pencil, Share2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { HomeTemplateCarousel } from "@/components/home-template-carousel";
+import { PricingSection } from "@/components/pricing-section";
 
 const steps = [
   { number: "1", title: "Escolha um modelo", text: "Cartões para diversas ocasiões.", icon: "mark" },
@@ -37,6 +38,10 @@ export default function Home() {
         </section>
 
         <HomeTemplateCarousel />
+        <PricingSection
+          annualCheckoutUrl={process.env.NEXT_PUBLIC_CAKTO_ANNUAL_CHECKOUT_URL}
+          lifetimeCheckoutUrl={process.env.NEXT_PUBLIC_CAKTO_LIFETIME_CHECKOUT_URL}
+        />
       </main>
 
       <footer className="home-footer">

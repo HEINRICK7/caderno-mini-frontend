@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   checkoutResponseSchema,
   authMessageResponseSchema,
+  accountAccessResponseSchema,
   createDraftResponseSchema,
   draftResponseSchema,
   publicPublicationResponseSchema,
@@ -12,9 +13,19 @@ import {
   templateValidationResponseSchema,
   imageUploadResponseSchema,
   publicationResponseSchema,
+  demoPublicationResponseSchema,
+  publicDemoPublicationResponseSchema,
+  adminAccessResponseSchema,
+  adminUsersResponseSchema,
+  adminUserResponseSchema,
+  adminSetUserStatusResponseSchema,
   type Draft,
+  type AccountAccessItem,
+  type DemoPublication,
   type PublicPublication,
   type PurchaseStatus,
+  type AdminUserDetail,
+  type AdminUserSummary,
   type Template,
 } from "./api-contracts";
 
@@ -145,10 +156,54 @@ export const api = {
     )).data;
   },
 
+  async createDemoPublication(draftId: string) {
+    return (await request("/api/v1/demo-publications", demoPublicationResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ draftId }),
+    })).data;
+  },
+
+  async getDemoPublication(slug: string): Promise<DemoPublication> {
+    return (await request(
+      `/api/v1/demo-publications/${encodeURIComponent(slug)}`,
+      publicDemoPublicationResponseSchema,
+    )).data;
+  },
+
   async getPurchase(purchaseId: string): Promise<PurchaseStatus> {
     return (await request(
       `/api/v1/purchases/${encodeURIComponent(purchaseId)}`,
       purchaseStatusResponseSchema,
+    )).data;
+  },
+
+  async getAccountAccess(): Promise<AccountAccessItem[]> {
+    return (await request("/api/v1/account/access", accountAccessResponseSchema)).data;
+  },
+
+  async getAdminAccess(): Promise<boolean> {
+    return (await request("/api/v1/admin/access", adminAccessResponseSchema)).data.allowed;
+  },
+
+  async getAdminUsers(query = "", offset = 0): Promise<{ total: number; users: AdminUserSummary[] }> {
+    const params = new URLSearchParams({ limit: "50" });
+    if (query.trim()) params.set("q", query.trim());
+    if (offset > 0) params.set("offset", String(offset));
+    return (await request(`/api/v1/admin/users?${params}`, adminUsersResponseSchema)).data;
+  },
+
+  async getAdminUser(userId: string): Promise<AdminUserDetail> {
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}`,
+      adminUserResponseSchema,
+    )).data;
+  },
+
+  async setAdminUserStatus(userId: string, status: "active" | "suspended") {
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/status`,
+      adminSetUserStatusResponseSchema,
+      { method: "POST", body: JSON.stringify({ status }) },
     )).data;
   },
 

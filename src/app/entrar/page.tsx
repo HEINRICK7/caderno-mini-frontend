@@ -20,7 +20,7 @@ function SignInForm() {
     setMessage("");
     try {
       const response = await api.requestMagicLink(email);
-      sessionStorage.setItem("caderno:auth:return-to", safeReturnTo(searchParams.get("returnTo")));
+      sessionStorage.setItem("caderno:auth:return-to", safeReturnTo(searchParams.get("returnTo"), "/conta"));
       setMessage(response);
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível enviar o link.");
@@ -51,7 +51,7 @@ export default function SignInPage() {
       <section className="subpage-content subpage-content--narrow">
         <div className="page-heading page-heading--stacked">
           <h1>Entrar</h1>
-          <p>Informe seu e-mail para receber um link de acesso.</p>
+          <p>Use o mesmo e-mail da compra. Vamos enviar um link sem senha; depois, você encontra suas mensagens em Minha conta.</p>
         </div>
         <Suspense fallback={<p className="page-message">Carregando…</p>}>
           <SignInForm />
