@@ -223,6 +223,53 @@ export const accountAccessResponseSchema = z.object({
   }).strict()),
 }).strict();
 
+export const adminUserSummarySchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  accountStatus: z.enum(["active", "suspended"]),
+  createdAt: z.string().datetime({ offset: true }),
+  activeSessions: z.number().int().nonnegative(),
+  purchaseCount: z.number().int().nonnegative(),
+  activeLicenses: z.number().int().nonnegative(),
+  draftCount: z.number().int().nonnegative(),
+}).strict();
+
+export const adminUsersResponseSchema = z.object({
+  data: z.object({ total: z.number().int().nonnegative(), users: z.array(adminUserSummarySchema) }).strict(),
+}).strict();
+
+export const adminUserResponseSchema = z.object({
+  data: z.object({
+    user: adminUserSummarySchema,
+    purchases: z.array(z.object({
+      purchaseId: z.string().uuid(),
+      draftId: z.string().uuid(),
+      templateId: z.string(),
+      purchaseStatus: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
+      accessStatus: z.enum(["active", "revoked"]).nullable(),
+      createdAt: z.string().datetime({ offset: true }),
+      updatedAt: z.string().datetime({ offset: true }),
+    }).strict()),
+    recentActions: z.array(z.object({
+      action: z.enum(["account_suspended", "account_reactivated"]),
+      actorEmail: z.string().email(),
+      createdAt: z.string().datetime({ offset: true }),
+    }).strict()),
+  }).strict(),
+}).strict();
+
+export const adminAccessResponseSchema = z.object({
+  data: z.object({ allowed: z.boolean() }).strict(),
+}).strict();
+
+export const adminSetUserStatusResponseSchema = z.object({
+  data: z.object({
+    status: z.enum(["active", "suspended"]),
+    changed: z.boolean(),
+    revokedSessions: z.number().int().nonnegative(),
+  }).strict(),
+}).strict();
+
 export const publicationResponseSchema = z.object({
   data: z.object({
     slug: z.string(),
@@ -283,5 +330,7 @@ export type TemplateDefinition = z.infer<typeof templateDefinitionSchema>;
 export type Draft = z.infer<typeof draftSchema>;
 export type PurchaseStatus = z.infer<typeof purchaseStatusResponseSchema>["data"];
 export type AccountAccessItem = z.infer<typeof accountAccessResponseSchema>["data"][number];
+export type AdminUserSummary = z.infer<typeof adminUserSummarySchema>;
+export type AdminUserDetail = z.infer<typeof adminUserResponseSchema>["data"];
 export type DemoPublication = z.infer<typeof publicDemoPublicationResponseSchema>["data"];
 export type PublicPublication = z.infer<typeof publicPublicationResponseSchema>["data"];

@@ -10,6 +10,7 @@ import type { AccountAccessItem } from "@/lib/api-contracts";
 export default function AccountPage() {
   const router = useRouter();
   const [accessItems, setAccessItems] = useState<AccountAccessItem[]>([]);
+  const [canManageUsers, setCanManageUsers] = useState(false);
   const [publicLinks, setPublicLinks] = useState<Record<string, string>>({});
   const [publishingDraftId, setPublishingDraftId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,16 @@ export default function AccountPage() {
     return () => { active = false; };
   }, [router]);
 
+  useEffect(() => {
+    let active = true;
+    void api.getAdminAccess().then((allowed) => {
+      if (active) setCanManageUsers(allowed);
+    }).catch(() => {
+      if (active) setCanManageUsers(false);
+    });
+    return () => { active = false; };
+  }, []);
+
   async function createPublicLink(draftId: string) {
     setPublishingDraftId(draftId);
     setError("");
@@ -83,6 +94,7 @@ export default function AccountPage() {
         <div className="page-heading page-heading--stacked">
           <h1>Minha conta</h1>
           <p>Suas compras e os links das mensagens ficam reunidos aqui. Entre com o mesmo e-mail usado no checkout.</p>
+          {canManageUsers ? <Link className="account-admin-link" href="/admin">Abrir painel do criador <span aria-hidden="true">→</span></Link> : null}
         </div>
 
         {loading ? <p className="page-message" role="status">Carregando suas compras…</p> : null}

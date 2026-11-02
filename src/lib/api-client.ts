@@ -15,11 +15,17 @@ import {
   publicationResponseSchema,
   demoPublicationResponseSchema,
   publicDemoPublicationResponseSchema,
+  adminAccessResponseSchema,
+  adminUsersResponseSchema,
+  adminUserResponseSchema,
+  adminSetUserStatusResponseSchema,
   type Draft,
   type AccountAccessItem,
   type DemoPublication,
   type PublicPublication,
   type PurchaseStatus,
+  type AdminUserDetail,
+  type AdminUserSummary,
   type Template,
 } from "./api-contracts";
 
@@ -173,6 +179,32 @@ export const api = {
 
   async getAccountAccess(): Promise<AccountAccessItem[]> {
     return (await request("/api/v1/account/access", accountAccessResponseSchema)).data;
+  },
+
+  async getAdminAccess(): Promise<boolean> {
+    return (await request("/api/v1/admin/access", adminAccessResponseSchema)).data.allowed;
+  },
+
+  async getAdminUsers(query = "", offset = 0): Promise<{ total: number; users: AdminUserSummary[] }> {
+    const params = new URLSearchParams({ limit: "50" });
+    if (query.trim()) params.set("q", query.trim());
+    if (offset > 0) params.set("offset", String(offset));
+    return (await request(`/api/v1/admin/users?${params}`, adminUsersResponseSchema)).data;
+  },
+
+  async getAdminUser(userId: string): Promise<AdminUserDetail> {
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}`,
+      adminUserResponseSchema,
+    )).data;
+  },
+
+  async setAdminUserStatus(userId: string, status: "active" | "suspended") {
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/status`,
+      adminSetUserStatusResponseSchema,
+      { method: "POST", body: JSON.stringify({ status }) },
+    )).data;
   },
 
   async getPublicPublication(slug: string): Promise<PublicPublication> {
