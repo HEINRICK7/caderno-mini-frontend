@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicDemoPublication } from "@/lib/public-demo-publication";
-import { clientLogoAssetId } from "@/lib/share-preview";
+import { clientCompanyName, clientLogoAssetId } from "@/lib/share-preview";
 
 type PublicDemoPageProps = {
   params: Promise<{ slug: string }>;
@@ -12,26 +12,28 @@ type PublicDemoPageProps = {
 export async function generateMetadata({ params }: PublicDemoPageProps): Promise<Metadata> {
   const { slug } = await params;
   const demo = await getPublicDemoPublication(slug);
-  const title = demo ? `Demonstração: ${demo.templateName} · Cadernô Express` : "Demonstração indisponível · Cadernô Express";
-  const description = "Demonstração gratuita de uma mensagem criada no Cadernô Express.";
-  const logoId = demo ? clientLogoAssetId(demo.templateDefinition, demo.data) : null;
+  const companyName = demo ? clientCompanyName(demo.templateDefinition, demo.data) : "";
+  const title = companyName || (demo ? demo.templateName : "Demonstração indisponível");
+  const description = companyName ? `Mensagem de ${companyName}` : "Demonstração gratuita de uma mensagem criada no Cadernô Express.";
+  const hasPreview = Boolean(demo && (companyName || clientLogoAssetId(demo.templateDefinition, demo.data)));
+  const image = { url: `/d/${slug}/share-image`, width: 1200, height: 630, alt: companyName || "Empresa" };
   return {
     title,
     description,
     robots: { index: false, follow: false },
     openGraph: {
       type: "website",
-      siteName: "Cadernô Express",
+      siteName: companyName || "Cadernô Express",
       title,
       description,
       ...(demo ? { url: demo.publicUrl } : {}),
-      ...(logoId ? { images: [{ url: `/d/${slug}/share-image`, width: 1200, height: 630, alt: "Logo do cliente" }] } : {}),
+      ...(hasPreview ? { images: [image] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(logoId ? { images: [`/d/${slug}/share-image`] } : {}),
+      ...(hasPreview ? { images: [image.url] } : {}),
     },
   };
 }

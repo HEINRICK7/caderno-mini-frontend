@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clientLogoAssetId } from "./share-preview";
+import { clientCompanyName, clientLogoAssetId } from "./share-preview";
 
 const logoId = "7b7d828b-f189-496a-b59b-9fae6a9b8531";
 
@@ -9,6 +9,13 @@ describe("logo usada na prévia do WhatsApp", () => {
       { card: { brand: { logoFieldId: "businessLogo" } } },
       { businessLogo: logoId },
     )).toBe(logoId);
+  });
+
+  it("usa o nome da empresa do cartão", () => {
+    expect(clientCompanyName(
+      { card: { variables: { nome_empresa: "businessName" } } },
+      { businessName: "Padaria da Ana" },
+    )).toBe("Padaria da Ana");
   });
 
   it("ignora cartão sem logo ou com valor que não é uma imagem", () => {

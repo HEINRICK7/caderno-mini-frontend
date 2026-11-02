@@ -3,10 +3,20 @@ const assetIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]
 type ShareDefinition = {
   card?: {
     brand?: {
+      businessNameFieldId?: string;
       logoFieldId?: string;
     };
+    variables?: Record<string, string>;
   };
 };
+
+export function clientCompanyName(definition: ShareDefinition, data: Record<string, unknown>): string {
+  const fieldId = definition.card?.brand?.businessNameFieldId
+    ?? definition.card?.variables?.nome_empresa
+    ?? "businessName";
+  const value = data[fieldId];
+  return typeof value === "string" ? value.trim().slice(0, 80) : "";
+}
 
 export function clientLogoAssetId(definition: ShareDefinition, data: Record<string, unknown>): string | null {
   const fieldId = definition.card?.brand?.logoFieldId;
