@@ -208,6 +208,7 @@ describe("contratos de criação e compartilhamento", () => {
         draftId: "draft-1",
         status: "pending",
         accessStatus: "none",
+        expiresAt: null,
         updatedAt: timestamp,
       },
     };

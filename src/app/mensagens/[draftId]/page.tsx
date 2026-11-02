@@ -97,14 +97,14 @@ export default function DraftPage() {
     }
   }
 
-  async function continueToCheckout() {
+  async function continueToCheckout(plan: "annual" | "lifetime") {
     if (!draft) return;
     setCheckingOut(true);
     setError("");
     const paymentWindow = window.open("about:blank", "_blank");
     try {
       await save();
-      const checkout = await api.createCheckout(draft.id);
+      const checkout = await api.createCheckout(draft.id, plan);
       if (paymentWindow) {
         paymentWindow.opener = null;
         paymentWindow.location.href = checkout.checkoutUrl;
@@ -200,8 +200,11 @@ export default function DraftPage() {
                       <p className="template-demo-help">Um link por categoria neste navegador; válido por 7 dias e separado do acesso premium.</p>
                     </>
                   ) : null}
-                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout()} type="button">
-                    {checkingOut ? "Aguarde…" : "Desbloquear link"}
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
+                    {checkingOut ? "Aguarde…" : "Anual · R$ 33,50"}
+                  </button>
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("lifetime")} type="button">
+                    {checkingOut ? "Aguarde…" : "Vitalício · R$ 67,00"}
                   </button>
                   {demoLink ? (
                     <div className="share-result template-demo-result">

@@ -49,6 +49,7 @@ describe("Minha conta", () => {
       purchaseStatus: "paid",
       accessStatus: "active",
       grantedAt: "2026-10-31T12:00:00.000Z",
+      expiresAt: null,
     }]);
     const publicUrl = "https://app.example/p/slug-publico";
     publishDraft.mockResolvedValue({ publicUrl });
@@ -67,6 +68,7 @@ describe("Minha conta", () => {
       purchaseStatus: "refunded",
       accessStatus: "revoked",
       grantedAt: "2026-10-31T12:00:00.000Z",
+      expiresAt: null,
     }]);
 
     render(<AccountPage />);
@@ -74,6 +76,22 @@ describe("Minha conta", () => {
     expect(await screen.findByText("Acesso indisponível · compra em 31/10/2026")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Criar link da mensagem" })).toBeNull();
     expect(publishDraft).not.toHaveBeenCalled();
+  });
+
+  it("não oferece link quando o acesso anual venceu", async () => {
+    getAccountAccess.mockResolvedValue([{
+      purchaseId: "purchase-1",
+      draftId: "draft-1",
+      purchaseStatus: "paid",
+      accessStatus: "none",
+      grantedAt: "2025-10-31T12:00:00.000Z",
+      expiresAt: "2026-10-31T12:00:00.000Z",
+    }]);
+
+    render(<AccountPage />);
+
+    expect(await screen.findByText("Acesso indisponível · compra em 31/10/2025")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Criar link da mensagem" })).toBeNull();
   });
 
   it("encaminha usuários sem sessão para o login mantendo Minha conta como destino", async () => {

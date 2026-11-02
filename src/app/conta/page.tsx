@@ -111,13 +111,16 @@ export default function AccountPage() {
           <div aria-label="Mensagens da sua conta" className="account-access-list">
             {uniqueItems.map((item) => {
               const canShare = item.accessStatus === "active" && item.purchaseStatus === "paid";
+              const accessLabel = canShare
+                ? item.expiresAt ? `Acesso até ${new Date(item.expiresAt).toLocaleDateString("pt-BR")}` : "Acesso vitalício"
+                : `Acesso indisponível · compra em ${new Date(item.grantedAt).toLocaleDateString("pt-BR")}`;
               const publicUrl = publicLinks[item.draftId];
               return (
                 <article className="account-access-card" key={item.draftId}>
                   <div className="account-access-card__heading">
                     <div>
                       <h2>Mensagem personalizada</h2>
-                      <p>{canShare ? "Acesso liberado" : "Acesso indisponível"} · compra em {new Date(item.grantedAt).toLocaleDateString("pt-BR")}</p>
+                      <p>{accessLabel}</p>
                     </div>
                     <span className={canShare ? "account-access-card__status is-active" : "account-access-card__status"}>
                       {canShare ? "Ativa" : "Encerrada"}
