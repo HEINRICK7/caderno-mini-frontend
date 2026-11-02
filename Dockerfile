@@ -7,13 +7,17 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 ARG API_BASE_URL=http://api:3000
+ARG PUBLIC_APP_URL=https://caderno-express.otimizanegocio.com
 ENV API_BASE_URL=${API_BASE_URL}
+ENV PUBLIC_APP_URL=${PUBLIC_APP_URL}
 RUN npm run build && npm prune --omit=dev --no-audit
 
 FROM node:24-bookworm-slim AS runtime
 
 ARG API_BASE_URL=http://api:3000
+ARG PUBLIC_APP_URL=https://caderno-express.otimizanegocio.com
 ENV API_BASE_URL=${API_BASE_URL}
+ENV PUBLIC_APP_URL=${PUBLIC_APP_URL}
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 WORKDIR /app

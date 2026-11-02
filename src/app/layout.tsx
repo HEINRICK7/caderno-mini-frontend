@@ -20,7 +20,10 @@ import "@fontsource-variable/dm-sans";
 import "./globals.css";
 import "./flow.css";
 
+const publicAppUrl = process.env.PUBLIC_APP_URL ?? "http://localhost:3001";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(publicAppUrl),
   title: {
     default: "Cadernô Express — Pequenas mensagens. Grandes conexões.",
     template: "%s | Cadernô Express",
