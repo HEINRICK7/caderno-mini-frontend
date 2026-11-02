@@ -3,8 +3,9 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getAccountAccess, publishDraft, replace } = vi.hoisted(() => ({
+const { getAccountAccess, getAdminAccess, publishDraft, replace } = vi.hoisted(() => ({
   getAccountAccess: vi.fn(),
+  getAdminAccess: vi.fn(),
   publishDraft: vi.fn(),
   replace: vi.fn(),
 }));
@@ -16,7 +17,7 @@ vi.mock("@/lib/api-client", () => ({
     constructor(message: string, readonly status = 400) { super(message); }
     readonly code = "TEST_ERROR";
   },
-  api: { getAccountAccess, publishDraft },
+  api: { getAccountAccess, getAdminAccess, publishDraft },
 }));
 
 import AccountPage from "./page";
@@ -26,6 +27,7 @@ afterEach(() => cleanup());
 
 beforeEach(() => {
   getAccountAccess.mockReset();
+  getAdminAccess.mockReset().mockResolvedValue(false);
   publishDraft.mockReset();
   replace.mockReset();
 });
