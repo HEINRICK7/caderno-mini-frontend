@@ -17,6 +17,10 @@ function hostedCheckoutUrl(value: string | undefined): string | undefined {
   }
 }
 
+// The offer URLs are injected when the container starts, after the image build.
+// A static prerender would freeze the buttons as disabled.
+export const dynamic = "force-dynamic";
+
 const steps = [
   { number: "1", title: "Escolha um modelo", text: "Cartões para diversas ocasiões.", icon: "mark" },
   { number: "2", title: "Personalize", text: "Adicione seu toque em segundos.", icon: "pencil" },
