@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowRight, Search, ShieldCheck, UserRound, Users } from "lucide-react";
+import { ArrowRight, LogOut, Search, ShieldCheck, UserRound, Users } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { ApiError, api } from "@/lib/api-client";
 import type { AdminUserDetail, AdminUserSummary } from "@/lib/api-contracts";
@@ -23,8 +22,80 @@ function purchaseStatusLabel(status: string) {
   } as Record<string, string>)[status] ?? status;
 }
 
+function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError("");
+    try {
+      onAuthenticated(await api.signInAdmin(email, password));
+      setPassword("");
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : "Não foi possível entrar no painel.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <main className="subpage-shell">
+      <SiteHeader />
+      <section className="subpage-content subpage-content--narrow">
+        <div className="page-heading page-heading--stacked">
+          <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Área administrativa</span>
+          <h1>Entrar no painel</h1>
+          <p>Acesse com o e-mail e a senha exclusivos do administrador. Clientes continuam entrando com link por e-mail.</p>
+        </div>
+        <form className="template-form admin-login-form" onSubmit={submit}>
+          <div className="form-field">
+            <label htmlFor="admin-email">E-mail do administrador</label>
+            <input autoComplete="username" id="admin-email" name="email" required type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+          </div>
+          <div className="form-field">
+            <label htmlFor="admin-password">Senha</label>
+            <input autoComplete="current-password" id="admin-password" minLength={14} name="password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+          </div>
+          {error ? <p className="form-error" role="alert">{error}</p> : null}
+          <button className="button button--primary form-submit" disabled={submitting} type="submit">
+            {submitting ? "Entrando…" : "Entrar como administrador"}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
 export default function AdminPage() {
-  const router = useRouter();
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const handleUnauthorized = useCallback(() => setAdminEmail(null), []);
+
+  useEffect(() => {
+    let active = true;
+    void api.getAdminSession().then((email) => {
+      if (active) setAdminEmail(email);
+    }).catch(() => {
+      if (active) setAdminEmail(null);
+    }).finally(() => {
+      if (active) setCheckingSession(false);
+    });
+    return () => { active = false; };
+  }, []);
+
+  if (checkingSession) {
+    return <main className="subpage-shell"><SiteHeader /><section className="subpage-content subpage-content--narrow"><p className="page-message" role="status">Verificando acesso administrativo…</p></section></main>;
+  }
+
+  if (!adminEmail) return <AdminLogin onAuthenticated={setAdminEmail} />;
+  return <AdminDashboard adminEmail={adminEmail} onUnauthorized={handleUnauthorized} />;
+}
+
+function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; onUnauthorized: () => void }) {
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
@@ -34,7 +105,7 @@ export default function AdminPage() {
   const [detail, setDetail] = useState<AdminUserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(false);
-  const [forbidden, setForbidden] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState("");
 
   const loadUsers = useCallback(async (requestedOffset = 0, append = false) => {
@@ -43,22 +114,17 @@ export default function AdminPage() {
       setUsers((current) => append ? [...current, ...result.users] : result.users);
       setTotal(result.total);
       setOffset(requestedOffset + result.users.length);
-      setForbidden(false);
       if (!append) setSelectedId((current) => result.users.some((user) => user.id === current) ? current : result.users[0]?.id ?? "");
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) {
-        router.replace("/entrar?returnTo=%2Fadmin");
+        onUnauthorized();
         return;
       }
-      if (cause instanceof ApiError && cause.status === 403) {
-        setForbidden(true);
-      } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
-      }
+      setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
     } finally {
       setLoading(false);
     }
-  }, [router, search]);
+  }, [onUnauthorized, search]);
 
   useEffect(() => {
     let active = true;
@@ -67,37 +133,34 @@ export default function AdminPage() {
       setUsers(result.users);
       setTotal(result.total);
       setOffset(result.users.length);
-      setForbidden(false);
       setError("");
       setSelectedId((current) => result.users.some((user) => user.id === current) ? current : result.users[0]?.id ?? "");
     }).catch((cause: unknown) => {
       if (!active) return;
       if (cause instanceof ApiError && cause.status === 401) {
-        router.replace("/entrar?returnTo=%2Fadmin");
-      } else if (cause instanceof ApiError && cause.status === 403) {
-        setForbidden(true);
+        onUnauthorized();
       } else {
         setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
       }
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [router, search]);
+  }, [onUnauthorized, search]);
 
   useEffect(() => {
-    if (!selectedId || forbidden) return;
+    if (!selectedId) return;
     let active = true;
     void api.getAdminUser(selectedId).then((userDetail) => {
       if (active) setDetail(userDetail);
     }).catch((cause: unknown) => {
       if (!active) return;
       if (cause instanceof ApiError && cause.status === 401) {
-        router.replace("/entrar?returnTo=%2Fadmin");
+        onUnauthorized();
       } else {
         setError(cause instanceof ApiError ? cause.message : "Não foi possível abrir os dados deste cliente.");
       }
     });
     return () => { active = false; };
-  }, [forbidden, router, selectedId]);
+  }, [onUnauthorized, selectedId]);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,12 +189,25 @@ export default function AdminPage() {
       setDetail(await api.getAdminUser(detail.user.id));
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) {
-        router.replace("/entrar?returnTo=%2Fadmin");
+        onUnauthorized();
       } else {
         setError(cause instanceof ApiError ? cause.message : "Não foi possível alterar o estado da conta.");
       }
     } finally {
       setSavingStatus(false);
+    }
+  }
+
+  async function signOut() {
+    setSigningOut(true);
+    setError("");
+    try {
+      await api.signOutAdmin();
+      onUnauthorized();
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : "Não foi possível encerrar a sessão.");
+    } finally {
+      setSigningOut(false);
     }
   }
 
@@ -143,19 +219,15 @@ export default function AdminPage() {
           <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Painel do criador</span>
           <h1>Clientes e acesso</h1>
           <p>Consulte contas, compras e sessões. A Cakto continua sendo a autoridade sobre pagamentos e licenças.</p>
+          <div className="admin-session-control">
+            <span>Sessão de administrador: <strong>{adminEmail}</strong></span>
+            <button className="button button--secondary" disabled={signingOut} onClick={() => void signOut()} type="button">
+              <LogOut aria-hidden="true" size={15} /> {signingOut ? "Saindo…" : "Encerrar sessão"}
+            </button>
+          </div>
         </div>
 
-        {forbidden ? (
-          <div className="account-empty admin-forbidden">
-            <h2>Esta conta não tem acesso de administração</h2>
-            <p>Entre com o e-mail do criador cadastrado no servidor em <code>SUPERADMIN_EMAILS</code>.</p>
-            <Link className="button button--secondary" href="/conta">Voltar para Minha conta</Link>
-          </div>
-        ) : null}
-
-        {!forbidden ? (
-          <>
-            <section aria-label="Testar experiência do cliente" className="admin-test-panel">
+        <section aria-label="Testar experiência do cliente" className="admin-test-panel">
               <div className="admin-test-panel__copy">
                 <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Experiência do cliente</span>
                 <h2>Teste os modelos e links grátis</h2>
@@ -236,8 +308,6 @@ export default function AdminPage() {
                 ) : null}
               </section>
             </div>
-          </>
-        ) : null}
       </section>
     </main>
   );

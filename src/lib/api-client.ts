@@ -15,6 +15,7 @@ import {
   publicationResponseSchema,
   demoPublicationResponseSchema,
   publicDemoPublicationResponseSchema,
+  adminSessionResponseSchema,
   adminAccessResponseSchema,
   adminUsersResponseSchema,
   adminUserResponseSchema,
@@ -183,6 +184,21 @@ export const api = {
 
   async getAdminAccess(): Promise<boolean> {
     return (await request("/api/v1/admin/access", adminAccessResponseSchema)).data.allowed;
+  },
+
+  async signInAdmin(email: string, password: string): Promise<string> {
+    return (await request("/api/v1/admin/session", adminSessionResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    })).data.email;
+  },
+
+  async getAdminSession(): Promise<string> {
+    return (await request("/api/v1/admin/session", adminSessionResponseSchema)).data.email;
+  },
+
+  async signOutAdmin(): Promise<void> {
+    await request("/api/v1/admin/session", z.undefined(), { method: "DELETE" });
   },
 
   async getAdminUsers(query = "", offset = 0): Promise<{ total: number; users: AdminUserSummary[] }> {

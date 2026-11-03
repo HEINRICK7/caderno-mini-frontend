@@ -195,6 +195,10 @@ export const sessionResponseSchema = z.object({
   }).strict(),
 }).strict();
 
+export const adminSessionResponseSchema = z.object({
+  data: z.object({ email: z.string().email() }).strict(),
+}).strict();
+
 export const checkoutResponseSchema = z.object({
   data: z.object({
     purchaseId: z.string(),

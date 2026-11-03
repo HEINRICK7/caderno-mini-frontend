@@ -149,6 +149,10 @@
 
 .account-admin-link { width: fit-content; display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; color: #087f83; font-size: 14px; font-weight: 750; text-decoration: none; }
 .account-admin-link:hover { color: #075f63; text-decoration: underline; text-underline-offset: 3px; }
+.admin-login-form { margin-top: 22px; }
+.admin-session-control { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; color: var(--muted); font-size: 13px; }
+.admin-session-control strong { color: var(--ink); }
+.admin-session-control .button { min-height: 38px; gap: 7px; padding-inline: 12px; font-size: 12px; }
 .admin-content { display: grid; gap: 22px; padding-bottom: 48px; }
 .admin-heading { margin-bottom: 0; }
 .admin-heading h1 { margin: 8px 0 0; color: var(--ink); font: 800 clamp(30px, 6vw, 42px)/1.08 var(--font-heading); letter-spacing: -.05em; }
