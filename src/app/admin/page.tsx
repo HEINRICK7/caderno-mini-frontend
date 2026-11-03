@@ -58,7 +58,7 @@ function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => v
           </div>
           <div className="form-field">
             <label htmlFor="admin-password">Senha</label>
-            <input autoComplete="current-password" id="admin-password" minLength={14} name="password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+            <input autoComplete="current-password" id="admin-password" minLength={12} name="password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
           </div>
           {error ? <p className="form-error" role="alert">{error}</p> : null}
           <button className="button button--primary form-submit" disabled={submitting} type="submit">
