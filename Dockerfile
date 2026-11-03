@@ -8,8 +8,10 @@ RUN npm ci --no-audit --no-fund
 COPY . .
 ARG API_BASE_URL=http://api:3000
 ARG PUBLIC_APP_URL=https://caderno-express.otimizanegocio.com
+ARG NEXT_PUBLIC_META_PIXEL_ID=
 ENV API_BASE_URL=${API_BASE_URL}
 ENV PUBLIC_APP_URL=${PUBLIC_APP_URL}
+ENV NEXT_PUBLIC_META_PIXEL_ID=${NEXT_PUBLIC_META_PIXEL_ID}
 RUN npm run build && npm prune --omit=dev --no-audit
 
 FROM node:24-bookworm-slim AS runtime

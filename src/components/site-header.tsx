@@ -9,9 +9,9 @@ export function SiteHeader() {
       <BrandMark />
       <nav aria-label="Navegação principal" className="site-nav site-nav--desktop">
         <Link href="/templates">Modelos</Link>
-        <Link href="/#steps">Como funciona</Link>
-        <Link href="/templates">Para o seu negócio</Link>
-        <Link href="/#examples">Depoimentos</Link>
+        <Link href="/como-funciona">Como funciona</Link>
+        <Link href="/para-seu-negocio">Para seu negócio</Link>
+        <Link href="/depoimentos">Depoimentos</Link>
         <Link href="/#planos">Planos</Link>
         <Link href="/conta">Minha conta</Link>
         <PwaInstallAction variant="desktop" />
@@ -32,9 +32,9 @@ export function SiteHeader() {
           <div className="site-menu__panel">
             <nav aria-label="Navegação principal" className="site-menu__links">
               <Link href="/templates">Modelos</Link>
-              <Link href="/#steps">Como funciona</Link>
-              <Link href="/templates">Para o seu negócio</Link>
-              <Link href="/#examples">Depoimentos</Link>
+              <Link href="/como-funciona">Como funciona</Link>
+              <Link href="/para-seu-negocio">Para seu negócio</Link>
+              <Link href="/depoimentos">Depoimentos</Link>
               <Link href="/#planos">Planos</Link>
               <Link href="/conta">Minha conta</Link>
             </nav>

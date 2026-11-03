@@ -41,6 +41,13 @@ export default function TemplatesPage() {
   }, []);
 
   useEffect(() => {
+    const requestedSegment = new URLSearchParams(window.location.search).get("segment");
+    if (requestedSegment === "product" || requestedSegment === "service") {
+      setSegment(requestedSegment);
+    }
+  }, []);
+
+  useEffect(() => {
     let active = true;
     void api.getTemplates().then((items) => {
       if (active) setTemplates(items);

@@ -1,0 +1,33 @@
+{
+  "scannedAt": "2026-11-03",
+  "framework": "Next.js 16.4.3 App Router",
+  "fonts": {
+    "heading": "Plus Jakarta Sans Variable",
+    "body": "DM Sans Variable",
+    "templateDisplay": "Poppins",
+    "templateBody": "Manrope"
+  },
+  "palette": {
+    "ink": "#10264f",
+    "teal": "#168a80",
+    "tealAction": "#078f92",
+    "paper": "#fffdfa",
+    "surface": "#fff",
+    "coral": "#ff7d71",
+    "mint": "#e3f6f2",
+    "border": "#e9e8e3"
+  },
+  "motion": "motion-cut; existing CSS transitions only",
+  "spacing": "4px rhythm with 16px page gutter",
+  "preserve": [
+    "Cadernô Express ink, teal, cream, coral and mint palette",
+    "Plus Jakarta Sans headings and DM Sans body text",
+    "Existing shared site header and button language"
+  ],
+  "sources": [
+    "package.json",
+    "src/app/layout.tsx",
+    "src/app/globals.css",
+    "CADERNO_EXPRESS_BRANDKIT/BRANDING_FRONTEND_MASTER.md"
+  ]
+}

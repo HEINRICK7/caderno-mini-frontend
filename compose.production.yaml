@@ -5,6 +5,7 @@ services:
       args:
         API_BASE_URL: http://api:3000
         PUBLIC_APP_URL: https://caderno-express.otimizanegocio.com
+        NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
     environment:
       NODE_ENV: production
       API_BASE_URL: http://api:3000

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { PwaServiceWorker } from "@/components/pwa-service-worker";
+import { MetaPixel } from "@/components/meta-pixel";
 import "@fontsource/poppins/latin-700.css";
 import "@fontsource/poppins/latin-ext-700.css";
 import "@fontsource/poppins/latin-800.css";
@@ -51,6 +53,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="pt-BR" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {children}
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <PwaServiceWorker />
       </body>
     </html>
