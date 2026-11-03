@@ -150,6 +150,8 @@
 .account-admin-link { width: fit-content; display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; color: #087f83; font-size: 14px; font-weight: 750; text-decoration: none; }
 .account-admin-link:hover { color: #075f63; text-decoration: underline; text-underline-offset: 3px; }
 .admin-login-form { margin-top: 22px; }
+.admin-header { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #eee9df; }
+.admin-header__context { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #cce8e1; border-radius: 999px; background: #e8f8f4; color: #087f83; font-size: 12px; font-weight: 750; white-space: nowrap; }
 .admin-session-control { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; color: var(--muted); font-size: 13px; }
 .admin-session-control strong { color: var(--ink); }
 .admin-session-control .button { min-height: 38px; gap: 7px; padding-inline: 12px; font-size: 12px; }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, LogOut, Search, ShieldCheck, UserRound, Users } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
+import { AdminHeader } from "@/components/admin-header";
 import { ApiError, api } from "@/lib/api-client";
 import type { AdminUserDetail, AdminUserSummary } from "@/lib/api-contracts";
 
@@ -20,6 +20,12 @@ function purchaseStatusLabel(status: string) {
     canceled: "Cancelada",
     refused: "Recusada",
   } as Record<string, string>)[status] ?? status;
+}
+
+function adminErrorMessage(cause: unknown, fallback: string) {
+  if (!(cause instanceof ApiError)) return fallback;
+  if (cause.status >= 500) return `${fallback} O servidor retornou erro ${cause.status}. Tente novamente.`;
+  return cause.message;
 }
 
 function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => void }) {
@@ -44,7 +50,7 @@ function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => v
 
   return (
     <main className="subpage-shell">
-      <SiteHeader />
+      <AdminHeader />
       <section className="subpage-content subpage-content--narrow">
         <div className="page-heading page-heading--stacked">
           <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Área administrativa</span>
@@ -99,13 +105,13 @@ export default function AdminPage() {
   }, [sessionCheck]);
 
   if (checkingSession) {
-    return <main className="subpage-shell"><SiteHeader /><section className="subpage-content subpage-content--narrow"><p className="page-message" role="status">Verificando acesso administrativo…</p></section></main>;
+    return <main className="subpage-shell"><AdminHeader /><section className="subpage-content subpage-content--narrow"><p className="page-message" role="status">Verificando acesso administrativo…</p></section></main>;
   }
 
   if (sessionError) {
     return (
       <main className="subpage-shell">
-        <SiteHeader />
+        <AdminHeader />
         <section className="subpage-content subpage-content--narrow">
           <div className="page-message page-message--error" role="alert">
             <p>{sessionError}</p>
@@ -149,7 +155,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
         onUnauthorized();
         return;
       }
-      setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
+      setError(adminErrorMessage(cause, "Não foi possível carregar os clientes."));
     } finally {
       setLoading(false);
     }
@@ -169,7 +175,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       if (cause instanceof ApiError && cause.status === 401) {
         onUnauthorized();
       } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os clientes.");
+        setError(adminErrorMessage(cause, "Não foi possível carregar os clientes."));
       }
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -185,7 +191,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       if (cause instanceof ApiError && cause.status === 401) {
         onUnauthorized();
       } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível abrir os dados deste cliente.");
+        setError(adminErrorMessage(cause, "Não foi possível abrir os dados deste cliente."));
       }
     });
     return () => { active = false; };
@@ -225,7 +231,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       if (cause instanceof ApiError && cause.status === 401) {
         onUnauthorized();
       } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível alterar o estado da conta.");
+        setError(adminErrorMessage(cause, "Não foi possível alterar o estado da conta."));
       }
     } finally {
       setSavingStatus(false);
@@ -239,7 +245,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       await api.signOutAdmin();
       onUnauthorized();
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : "Não foi possível encerrar a sessão.");
+      setError(adminErrorMessage(cause, "Não foi possível encerrar a sessão."));
     } finally {
       setSigningOut(false);
     }
@@ -247,7 +253,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
 
   return (
     <main className="subpage-shell">
-      <SiteHeader />
+      <AdminHeader />
       <section className="subpage-content admin-content">
         <div className="page-heading page-heading--stacked admin-heading">
           <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Painel do criador</span>
