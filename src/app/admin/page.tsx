@@ -73,22 +73,50 @@ function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => v
 export default function AdminPage() {
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [sessionCheck, setSessionCheck] = useState(0);
   const handleUnauthorized = useCallback(() => setAdminEmail(null), []);
 
   useEffect(() => {
     let active = true;
     void api.getAdminSession().then((email) => {
-      if (active) setAdminEmail(email);
-    }).catch(() => {
-      if (active) setAdminEmail(null);
+      if (active) {
+        setAdminEmail(email);
+        setSessionError(null);
+      }
+    }).catch((cause: unknown) => {
+      if (!active) return;
+      if (cause instanceof ApiError && cause.status === 401) {
+        setAdminEmail(null);
+        setSessionError(null);
+      } else {
+        setSessionError(cause instanceof ApiError ? cause.message : "Não foi possível verificar sua sessão.");
+      }
     }).finally(() => {
       if (active) setCheckingSession(false);
     });
     return () => { active = false; };
-  }, []);
+  }, [sessionCheck]);
 
   if (checkingSession) {
     return <main className="subpage-shell"><SiteHeader /><section className="subpage-content subpage-content--narrow"><p className="page-message" role="status">Verificando acesso administrativo…</p></section></main>;
+  }
+
+  if (sessionError) {
+    return (
+      <main className="subpage-shell">
+        <SiteHeader />
+        <section className="subpage-content subpage-content--narrow">
+          <div className="page-message page-message--error" role="alert">
+            <p>{sessionError}</p>
+            <button className="button button--secondary" onClick={() => {
+              setCheckingSession(true);
+              setSessionCheck((current) => current + 1);
+            }} type="button">Tentar novamente</button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   if (!adminEmail) return <AdminLogin onAuthenticated={setAdminEmail} />;
@@ -98,6 +126,7 @@ export default function AdminPage() {
 function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; onUnauthorized: () => void }) {
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
+  const [searchVersion, setSearchVersion] = useState(0);
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -144,7 +173,7 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       }
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [onUnauthorized, search]);
+  }, [onUnauthorized, search, searchVersion]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -166,8 +195,13 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
     event.preventDefault();
     setLoading(true);
     setError("");
-    setSearch(query.trim());
+    setUsers([]);
+    setTotal(0);
     setOffset(0);
+    setSelectedId("");
+    setDetail(null);
+    setSearch(query.trim());
+    setSearchVersion((current) => current + 1);
   }
 
   async function loadMoreUsers() {
