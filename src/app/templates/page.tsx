@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { StatusSticker } from "../../components/status-sticker";
 import { SiteHeader } from "../../components/site-header";
 import { ApiError, api } from "../../lib/api-client";
@@ -21,9 +21,21 @@ const categories = [
 type Segment = "product" | "service";
 type CategoryFilter = typeof categories[number];
 
+function subscribeToLocation(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  return () => window.removeEventListener("popstate", onChange);
+}
+
+function getRequestedSegment(): Segment {
+  const requestedSegment = new URLSearchParams(window.location.search).get("segment");
+  return requestedSegment === "service" ? "service" : "product";
+}
+
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [segment, setSegment] = useState<Segment>("product");
+  const requestedSegment = useSyncExternalStore(subscribeToLocation, getRequestedSegment, () => "product");
+  const [segmentOverride, setSegmentOverride] = useState<Segment | null>(null);
+  const segment = segmentOverride ?? requestedSegment;
   const [category, setCategory] = useState<CategoryFilter>("Todos");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,13 +49,6 @@ export default function TemplatesPage() {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar os modelos.");
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const requestedSegment = new URLSearchParams(window.location.search).get("segment");
-    if (requestedSegment === "product" || requestedSegment === "service") {
-      setSegment(requestedSegment);
     }
   }, []);
 
@@ -83,13 +88,13 @@ export default function TemplatesPage() {
           <button
             aria-pressed={segment === "product"}
             className={segment === "product" ? "is-active" : ""}
-            onClick={() => setSegment("product")}
+            onClick={() => setSegmentOverride("product")}
             type="button"
           >Produtos</button>
           <button
             aria-pressed={segment === "service"}
             className={segment === "service" ? "is-active" : ""}
-            onClick={() => setSegment("service")}
+            onClick={() => setSegmentOverride("service")}
             type="button"
           >Serviços</button>
         </div>
