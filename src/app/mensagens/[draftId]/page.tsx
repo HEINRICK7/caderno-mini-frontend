@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { TemplateFields } from "@/components/template-fields";
 import { MessagePhonePreview } from "@/components/message-phone-preview";
 import { ApiError, api } from "@/lib/api-client";
+import { useCheckoutPlan } from "@/hooks/use-checkout-plan";
 import type { Draft, Template } from "@/lib/api-contracts";
 
 type FieldValue = string | number | boolean;
@@ -38,6 +39,7 @@ export default function DraftPage() {
   const [creatingDemoLink, setCreatingDemoLink] = useState(false);
   const [demoLink, setDemoLink] = useState("");
   const [demoExpiresAt, setDemoExpiresAt] = useState("");
+  const checkoutPlan = useCheckoutPlan();
 
   const loadDraft = useCallback(async () => {
     try {
@@ -97,14 +99,14 @@ export default function DraftPage() {
     }
   }
 
-  async function continueToCheckout() {
+  async function continueToCheckout(plan: "annual" | "lifetime") {
     if (!draft) return;
     setCheckingOut(true);
     setError("");
     const paymentWindow = window.open("about:blank", "_blank");
     try {
       await save();
-      const checkout = await api.createCheckout(draft.id);
+      const checkout = await api.createCheckout(draft.id, plan);
       if (paymentWindow) {
         paymentWindow.opener = null;
         paymentWindow.location.href = checkout.checkoutUrl;
@@ -116,7 +118,7 @@ export default function DraftPage() {
     } catch (cause) {
       paymentWindow?.close();
       if (cause instanceof ApiError && cause.status === 401) {
-        router.push(`/entrar?returnTo=${encodeURIComponent(`/mensagens/${draft.id}`)}`);
+        router.push(`/entrar?returnTo=${encodeURIComponent(`/mensagens/${draft.id}?plan=${plan}`)}`);
       } else if (!(cause instanceof ApiError && error)) {
         setError(cause instanceof ApiError ? cause.message : "Não foi possível continuar.");
       }
@@ -164,7 +166,11 @@ export default function DraftPage() {
           <>
             <div className="template-editor-heading">
               <h1>Personalize sua mensagem</h1>
-              <p>Preencha os detalhes e veja a prévia do seu cartão.</p>
+              <p>
+                {checkoutPlan
+                  ? `Você selecionou o plano ${checkoutPlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}. Continue pelo botão correspondente para abrir o checkout seguro.`
+                  : "Preencha os detalhes e veja a prévia do seu cartão."}
+              </p>
             </div>
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={(event) => { event.preventDefault(); void save().catch(() => undefined); }}>
@@ -200,8 +206,11 @@ export default function DraftPage() {
                       <p className="template-demo-help">Um link por categoria neste navegador; válido por 7 dias e separado do acesso premium.</p>
                     </>
                   ) : null}
-                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout()} type="button">
-                    {checkingOut ? "Aguarde…" : "Desbloquear link"}
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
+                    {checkingOut ? "Aguarde…" : checkoutPlan === "annual" ? "Continuar com anual · R$ 33,50" : "Anual · R$ 33,50"}
+                  </button>
+                  <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("lifetime")} type="button">
+                    {checkingOut ? "Aguarde…" : checkoutPlan === "lifetime" ? "Continuar com vitalício · R$ 67,00" : "Vitalício · R$ 67,00"}
                   </button>
                   {demoLink ? (
                     <div className="share-result template-demo-result">

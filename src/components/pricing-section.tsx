@@ -1,16 +1,12 @@
 import { ArrowRight, Check, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
 import birthdayPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/11-aniversario.png";
 import productPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/12-produto-em-destaque.png";
 import offerPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/13-oferta-especial.png";
 import collectionPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/14-novidades-colecao.png";
-
-type PricingSectionProps = {
-  annualCheckoutUrl?: string;
-  lifetimeCheckoutUrl?: string;
-};
 
 const benefits = [
   "16 modelos premium",
@@ -41,28 +37,16 @@ function PlanArtwork({
 }
 
 function PlanAction({
-  checkoutUrl,
+  href,
   label,
-  describedBy,
 }: {
-  checkoutUrl?: string;
+  href: string;
   label: string;
-  describedBy: string;
 }) {
-  const normalizedUrl = checkoutUrl?.trim();
-
-  if (normalizedUrl) {
-    return (
-      <a className="button pricing-plan__action" href={normalizedUrl}>
-        {label} <ArrowRight aria-hidden="true" size={17} />
-      </a>
-    );
-  }
-
   return (
-    <button aria-describedby={describedBy} className="button pricing-plan__action" disabled type="button">
+    <Link className="button pricing-plan__action" href={href}>
       {label} <ArrowRight aria-hidden="true" size={17} />
-    </button>
+    </Link>
   );
 }
 
@@ -83,7 +67,7 @@ function PlanBenefits({ access }: { access: string }) {
   );
 }
 
-export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: PricingSectionProps) {
+export function PricingSection() {
   return (
     <section aria-labelledby="pricing-title" className="pricing-section" id="planos">
       <div className="pricing-section__intro">
@@ -123,8 +107,7 @@ export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: Prici
 
             <PlanBenefits access="Acesso por 12 meses" />
             <PlanAction
-              checkoutUrl={annualCheckoutUrl}
-              describedBy="pricing-checkout-note"
+              href="/templates?plan=annual"
               label="Escolher anual"
             />
           </div>
@@ -158,19 +141,13 @@ export function PricingSection({ annualCheckoutUrl, lifetimeCheckoutUrl }: Prici
 
             <PlanBenefits access="Acesso vitalício" />
             <PlanAction
-              checkoutUrl={lifetimeCheckoutUrl}
-              describedBy="pricing-checkout-note"
+              href="/templates?plan=lifetime"
               label="Quero acesso vitalício"
             />
           </div>
         </article>
       </div>
 
-      {annualCheckoutUrl && lifetimeCheckoutUrl ? null : (
-        <p className="pricing-section__note" id="pricing-checkout-note">
-          A compra dos planos estará disponível em breve.
-        </p>
-      )}
     </section>
   );
 }

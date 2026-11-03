@@ -7,6 +7,7 @@ import { SiteHeader } from "../../../components/site-header";
 import { TemplateFields } from "../../../components/template-fields";
 import { MessagePhonePreview } from "../../../components/message-phone-preview";
 import { ApiError, api } from "../../../lib/api-client";
+import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
 import type { Template } from "../../../lib/api-contracts";
 
 type FieldValue = string | number | boolean;
@@ -28,6 +29,7 @@ export default function TemplatePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const checkoutPlan = useCheckoutPlan();
 
   const loadTemplate = useCallback(async () => {
     try {
@@ -60,15 +62,35 @@ export default function TemplatePage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!template) return;
+    const paymentWindow = checkoutPlan ? window.open("about:blank", "_blank") : null;
+    let createdDraftId: string | undefined;
     setSaving(true);
     setError("");
     const data = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== ""));
     try {
       await api.validateTemplate(template.id, data);
       const draft = await api.createDraft(template.id, data);
+      createdDraftId = draft.id;
+      if (checkoutPlan) {
+        const checkout = await api.createCheckout(draft.id, checkoutPlan);
+        if (paymentWindow) {
+          paymentWindow.opener = null;
+          paymentWindow.location.href = checkout.checkoutUrl;
+        } else {
+          window.location.assign(checkout.checkoutUrl);
+          return;
+        }
+        router.push(`/compras/${encodeURIComponent(checkout.purchaseId)}`);
+        return;
+      }
       router.push(`/mensagens/${encodeURIComponent(draft.id)}`);
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : "Não foi possível criar a mensagem.");
+      paymentWindow?.close();
+      if (checkoutPlan && createdDraftId && cause instanceof ApiError && cause.status === 401) {
+        router.push(`/entrar?returnTo=${encodeURIComponent(`/mensagens/${createdDraftId}?plan=${checkoutPlan}`)}`);
+      } else {
+        setError(cause instanceof ApiError ? cause.message : "Não foi possível criar a mensagem.");
+      }
     } finally {
       setSaving(false);
     }
@@ -89,7 +111,11 @@ export default function TemplatePage() {
           <>
             <div className="template-editor-heading">
               <h1>Personalize sua mensagem</h1>
-              <p>Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real.</p>
+              <p>
+                {checkoutPlan
+                  ? `Edite os campos e continue para o checkout do plano ${checkoutPlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}.`
+                  : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real."}
+              </p>
             </div>
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
@@ -109,7 +135,11 @@ export default function TemplatePage() {
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 <div className="template-editor-actions">
                   <button className="button button--primary form-submit" disabled={saving || uploadingImage} type="submit">
-                    {saving ? "Salvando…" : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
+                    {saving
+                      ? "Salvando…"
+                      : checkoutPlan
+                        ? <>Continuar para o checkout <ArrowRight aria-hidden="true" size={17} /></>
+                        : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
                   </button>
                   <button
                     aria-label="Compartilhar (disponível após a publicação)"

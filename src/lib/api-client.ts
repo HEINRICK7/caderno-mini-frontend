@@ -214,10 +214,10 @@ export const api = {
     )).data;
   },
 
-  async createCheckout(draftId: string): Promise<{ purchaseId: string; checkoutUrl: string }> {
+  async createCheckout(draftId: string, plan: "annual" | "lifetime"): Promise<{ purchaseId: string; checkoutUrl: string }> {
     const result = await request("/api/v1/checkout", checkoutResponseSchema, {
       method: "POST",
-      body: JSON.stringify({ draftId }),
+      body: JSON.stringify({ draftId, plan }),
     });
     return result.data;
   },

@@ -209,6 +209,7 @@ export const purchaseStatusResponseSchema = z.object({
     draftId: z.string(),
     status: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
     accessStatus: z.enum(["active", "revoked", "none"]),
+    expiresAt: z.string().datetime({ offset: true }).nullable(),
     updatedAt: z.string().datetime({ offset: true }),
   }).strict(),
 }).strict();
@@ -218,8 +219,9 @@ export const accountAccessResponseSchema = z.object({
     purchaseId: z.string(),
     draftId: z.string(),
     purchaseStatus: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
-    accessStatus: z.enum(["active", "revoked"]),
+    accessStatus: z.enum(["active", "revoked", "none"]),
     grantedAt: z.string().datetime({ offset: true }),
+    expiresAt: z.string().datetime({ offset: true }).nullable(),
   }).strict()),
 }).strict();
 
