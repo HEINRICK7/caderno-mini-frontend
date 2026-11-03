@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { StatusSticker } from "../../components/status-sticker";
 import { SiteHeader } from "../../components/site-header";
 import { ApiError, api } from "../../lib/api-client";
+import { useCheckoutPlan } from "../../hooks/use-checkout-plan";
 import type { Template } from "../../lib/api-contracts";
 
 const categories = [
@@ -26,6 +27,7 @@ export default function TemplatesPage() {
   const [category, setCategory] = useState<CategoryFilter>("Todos");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const checkoutPlan = useCheckoutPlan();
 
   const loadTemplates = useCallback(async () => {
     try {
@@ -63,7 +65,11 @@ export default function TemplatesPage() {
       <section className="subpage-content templates-content">
         <div className="templates-heading">
           <h1>Escolha um modelo</h1>
-          <p>Cartões para o seu negócio. Personalize e compartilhe em segundos.</p>
+          <p>
+            {checkoutPlan
+              ? `Escolha um modelo para personalizar e continuar com o plano ${checkoutPlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}.`
+              : "Cartões para o seu negócio. Personalize e compartilhe em segundos."}
+          </p>
         </div>
 
         <div aria-label="Tipo de negócio" className="template-segment" role="group">
@@ -111,7 +117,7 @@ export default function TemplatesPage() {
                 <Link
                   aria-label={`${template.name}. ${template.description ?? ""} Abrir modelo`}
                   className="template-card__link"
-                  href={`/templates/${encodeURIComponent(template.id)}`}
+                  href={`/templates/${encodeURIComponent(template.id)}${checkoutPlan ? `?plan=${checkoutPlan}` : ""}`}
                 >
                   <div
                     className="template-card__art"

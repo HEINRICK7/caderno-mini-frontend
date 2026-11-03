@@ -4,23 +4,6 @@ import { SiteHeader } from "@/components/site-header";
 import { HomeTemplateCarousel } from "@/components/home-template-carousel";
 import { PricingSection } from "@/components/pricing-section";
 
-function hostedCheckoutUrl(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.hostname !== "pay.cakto.com.br" || url.username || url.password || url.searchParams.has("callback")) {
-      return undefined;
-    }
-    return url.toString();
-  } catch {
-    return undefined;
-  }
-}
-
-// The offer URLs are injected when the container starts, after the image build.
-// A static prerender would freeze the buttons as disabled.
-export const dynamic = "force-dynamic";
-
 const steps = [
   { number: "1", title: "Escolha um modelo", text: "Cartões para diversas ocasiões.", icon: "mark" },
   { number: "2", title: "Personalize", text: "Adicione seu toque em segundos.", icon: "pencil" },
@@ -55,10 +38,7 @@ export default function Home() {
         </section>
 
         <HomeTemplateCarousel />
-        <PricingSection
-          annualCheckoutUrl={hostedCheckoutUrl(process.env.CAKTO_CHECKOUT_ANNUAL_URL)}
-          lifetimeCheckoutUrl={hostedCheckoutUrl(process.env.CAKTO_CHECKOUT_LIFETIME_URL)}
-        />
+        <PricingSection />
       </main>
 
       <footer className="home-footer">
