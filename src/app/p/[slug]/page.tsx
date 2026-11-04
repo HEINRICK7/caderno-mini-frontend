@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
   }
 
   const companyName = clientCompanyName(publication.templateDefinition, publication.data);
-  const title = companyName ? `Uma mensagem especial de ${companyName}` : publication.templateName;
+  const title = companyName ? "Uma mensagem especial" : publication.templateName;
   const description = companyName
     ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
     : publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
     openGraph: {
       type: "website",
       locale: "pt_BR",
-      siteName: "Cadernô Express",
+      siteName: companyName || "Cartão digital",
       title,
       description,
       url: publication.publicUrl,
