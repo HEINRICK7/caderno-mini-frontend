@@ -215,6 +215,12 @@ describe("contratos de criação e compartilhamento", () => {
       },
     };
     expect(purchaseStatusResponseSchema.parse(purchase)).toEqual(purchase);
+    const { amountMinor, currency, ...legacyData } = purchase.data;
+    expect(amountMinor).toBeNull();
+    expect(currency).toBeNull();
+    expect(purchaseStatusResponseSchema.parse({ data: legacyData })).toEqual({
+      data: { ...legacyData, amountMinor: null, currency: null },
+    });
     expect(() => purchaseStatusResponseSchema.parse({
       data: { ...purchase.data, status: "success" },
     })).toThrow();
