@@ -40,6 +40,7 @@ type MessageTemplateCardProps = {
   mode?: "preview" | "published";
   imagePreviews?: Record<string, string>;
   showBusinessNamePlaceholder?: boolean;
+  requireActionDestinationInPreview?: boolean;
 };
 
 const detailIcons = {
@@ -71,6 +72,7 @@ export function MessageTemplateCard({
   mode = "preview",
   imagePreviews,
   showBusinessNamePlaceholder = true,
+  requireActionDestinationInPreview = false,
 }: MessageTemplateCardProps) {
   const card = definition.card;
   const visual = definition.visual;
@@ -166,7 +168,10 @@ export function MessageTemplateCard({
 
   const configuredActions = card.actions ?? (card.action ? [card.action] : []);
   const actions = configuredActions.map((action, index) => resolveAction(action, index, data, mode));
-  const visibleActions = actions.filter((action) => mode === "preview" ? action.label !== "" : action.enabled && action.label !== "");
+  const visibleActions = actions.filter((action) => (
+    action.label !== "" && (mode === "preview" && !requireActionDestinationInPreview || action.enabled)
+  ));
+  const actionSetupHint = requireActionDestinationInPreview && mode === "preview" && actions.some((action) => action.label !== "" && !action.enabled);
   const socialLinks = (card.socialLinks ?? []).flatMap(({ platform, hrefFieldId }) => {
     const href = safeSocialUrl(readField(data, hrefFieldId), platform);
     return href ? [{ platform, href, label: socialLabels[platform] }] : [];
@@ -337,6 +342,7 @@ export function MessageTemplateCard({
           {actionsSection}
         </div>
       )}
+      {actionSetupHint ? <p className="message-template__action-setup-hint" role="note">O botão só aparece no link compartilhado quando há um destino válido.</p> : null}
       {socialLinksSection}
     </article>
   );
