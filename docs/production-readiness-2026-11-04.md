@@ -2,9 +2,9 @@
 
 ## Estado
 
-Frontend e backend estão publicados em `main`. A política de reembolso foi confirmada na documentação da Cakto, os produtos e checkouts foram comparados com a configuração de produção, e os fluxos de pagamento foram revisados. A integração ainda tem três verificações externas pendentes: garantia explícita nos produtos, entrega de teste do webhook e configuração do Meta Pixel.
+Frontend e backend estão publicados em `main`. A política de reembolso foi confirmada na documentação da Cakto, os produtos e checkouts foram comparados com a configuração de produção, e os fluxos de pagamento foram revisados. Restam quatro itens externos: garantia explícita nos produtos, página de vendas do produto anual, entrega de teste do webhook e configuração do Meta Pixel.
 
-Revalidação em 2026-11-04 às 13:12 UTC: o frontend, a API de saúde e os dois links de checkout responderam HTTP 200; as leituras MCP de produção confirmaram os dois produtos, ofertas, checkouts padrão e o webhook abaixo. O histórico de eventos da Cakto continuava vazio.
+Revalidação em 2026-11-04 às 13:20 UTC: homepage, rotas `/como-funciona`, `/para-seu-negocio`, `/depoimentos`, `/templates`, `/entrar`, `/conta` e `/admin`, API de saúde e os dois links de checkout responderam HTTP 200. As leituras MCP de produção confirmaram os dois produtos, ofertas, checkouts padrão e o webhook abaixo. O histórico de eventos da Cakto continuava vazio.
 
 ## Política da Cakto
 
@@ -22,6 +22,8 @@ Dados conferidos via MCP oficial da Cakto em produção em 2026-11-04 às 13:11�
 | Vitalício | `d74e1d7c-3200-4ff5-b074-4789940fb621`, ativo, BRL 67,00, pagamento único | `34d9gvc`, ativa e padrão, intervalo `lifetime`, 1 | `1271612`, padrão, contém `34d9gvc` | `https://pay.cakto.com.br/34d9gvc_1271612` | HTTP 200; produto, oferta, checkout e variável do backend correspondem |
 
 O schema da [API de produtos da Cakto](https://docs.cakto.com.br/api-reference/products/retrieve.md) define o campo `guarantee` como o número de dias aceitos para reembolso. As leituras atuais dos dois produtos não retornaram esse campo. Há um preview MCP pronto para definir `guarantee: 7` nos dois produtos; a alteração não foi executada e aguarda aprovação explícita.
+
+O campo `salesPage` do produto Vitalício aponta para a homepage, mas está vazio no produto Anual. A API o descreve como a página de vendas do produto. Foi preparado um preview PATCH para usar no Anual a mesma homepage do Vitalício; aguarda aprovação e não alterou dados.
 
 ## Webhook e estado do acesso
 
@@ -44,13 +46,14 @@ O endpoint autenticado de listagem de clientes tinha um erro 500 reportado anter
 
 ## Validação e deploys
 
-- Frontend: 57 testes, lint, typecheck e build passaram. O código da política está em `660b58a`; o último commit de documentação `4f9f356` também passou verificação e deploy no [CI de produção](https://github.com/HEINRICK7/caderno-mini-frontend/actions/runs/41834885070). Frontend revalidado com HTTP 200.
+- Frontend: 57 testes, lint, typecheck e build passaram. O código da política está em `660b58a`; o relatório anterior `3494289` também passou verificação e deploy no [CI de produção](https://github.com/HEINRICK7/caderno-mini-frontend/actions/runs/41836123052). Frontend revalidado com HTTP 200.
 - Backend: 70 testes unitários, 53 de integração, 1 end-to-end, lint e build passaram. [PR #23](https://github.com/HEINRICK7/caderno-mini-backend/pull/23) foi mesclado; [CI e deploy de produção](https://github.com/HEINRICK7/caderno-mini-backend/actions/runs/41834076343) concluídos com sucesso; commit `21f9cf1`.
-- Frontend público, API de saúde e os dois checkouts responderam HTTP 200 na revalidação de 13:12 UTC.
+- Rotas públicas principais, rota `/admin`, API de saúde e os dois checkouts responderam HTTP 200 na revalidação de 13:20 UTC. A resposta HTTP 200 da rota `/admin` não comprova a listagem autenticada de clientes, que não foi consultada em produção.
 
 ## Pendências para a próxima fase
 
 1. Aprovar ou recusar a configuração `guarantee: 7` nos dois produtos Cakto.
 2. Aprovar ou recusar o envio do evento de teste `refund_requested` ao webhook de produção.
 3. Fornecer o ID numérico do Meta Pixel ou disponibilizar acesso autorizado ao Events Manager.
-4. Se necessário confirmar o erro anterior com dados reais, abrir o painel `/admin` autenticado e validar a listagem contra a base de produção.
+4. Aprovar ou recusar a atualização do campo `salesPage` do produto Anual.
+5. Se necessário confirmar o erro anterior com dados reais, abrir o painel `/admin` autenticado e validar a listagem contra a base de produção.
