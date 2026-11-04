@@ -600,6 +600,7 @@
 }
 .message-template__action-arrow { flex: none; width: 22px; height: 22px; }
 .message-template__action--secondary { border: 1px solid #dedbd6; background: #fff; color: var(--template-muted); }
+.message-template__action-setup-hint { margin: 8px 2px 0; color: var(--template-muted); font-size: 12px; line-height: 1.35; text-align: center; }
 .message-template--welcome .message-template__surface { gap: 8px; }
 .message-template--pix-qr .message-template__surface { gap: 8px; padding-top: 16px; }
 .message-template--pix-qr .message-template__highlight { font-size: clamp(30px, 8.1vw, 35px); }

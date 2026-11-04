@@ -42,6 +42,7 @@ export function MessagePhonePreview({
             definition={definition}
             imagePreviews={imagePreviews}
             showBusinessNamePlaceholder={false}
+            requireActionDestinationInPreview
             title={title}
           />
         </div>
