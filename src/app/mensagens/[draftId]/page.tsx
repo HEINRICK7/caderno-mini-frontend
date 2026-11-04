@@ -322,7 +322,7 @@ export default function DraftPage() {
                   </section>
                 </div>
               </form>
-              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} title={template.name} />
+              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} requireActionDestinationInPreview title={template.name} />
             </div>
           </>
         ) : null}

@@ -7,6 +7,7 @@ type MessagePhonePreviewProps = {
   data: Record<string, unknown>;
   title: string;
   imagePreviews?: Record<string, string>;
+  requireActionDestinationInPreview?: boolean;
 };
 
 export function MessagePhonePreview({
@@ -14,6 +15,7 @@ export function MessagePhonePreview({
   data,
   title,
   imagePreviews,
+  requireActionDestinationInPreview = false,
 }: MessagePhonePreviewProps) {
   return (
     <section aria-label="Prévia no celular" className="template-editor-preview">
@@ -42,7 +44,7 @@ export function MessagePhonePreview({
             definition={definition}
             imagePreviews={imagePreviews}
             showBusinessNamePlaceholder={false}
-            requireActionDestinationInPreview
+            requireActionDestinationInPreview={requireActionDestinationInPreview}
             title={title}
           />
         </div>
