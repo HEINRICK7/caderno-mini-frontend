@@ -13,16 +13,16 @@ export async function generateMetadata({ params }: PublicDemoPageProps): Promise
   const { slug } = await params;
   const demo = await getPublicDemoPublication(slug);
   const companyName = demo ? clientCompanyName(demo.templateDefinition, demo.data) : "";
-  const title = companyName ? `Uma mensagem especial de ${companyName}` : (demo ? demo.templateName : "Demonstração indisponível");
+  const title = companyName ? "Uma mensagem especial" : (demo ? demo.templateName : "Demonstração indisponível");
   const description = companyName
     ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
-    : "Veja um cartão digital personalizado criado no Cadernô Express.";
+    : "Veja um cartão digital personalizado.";
   const image = {
     url: `/d/${slug}/share-image`,
     type: "image/png",
     width: 1200,
     height: 630,
-    alt: companyName ? `Cartão digital de ${companyName}` : "Cartão digital do Cadernô Express",
+    alt: companyName ? `Cartão digital de ${companyName}` : "Cartão digital personalizado",
   };
   return {
     title,
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PublicDemoPageProps): Promise
     openGraph: {
       type: "website",
       locale: "pt_BR",
-      siteName: "Cadernô Express",
+      siteName: companyName || "Cartão digital",
       title,
       description,
       ...(demo ? { url: demo.publicUrl } : {}),
