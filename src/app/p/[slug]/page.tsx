@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicPublication } from "@/lib/public-publication";
-import { clientCompanyName, clientLogoAssetId } from "@/lib/share-preview";
+import { clientCompanyName } from "@/lib/share-preview";
 
 type PublicMessagePageProps = {
   params: Promise<{ slug: string }>;
@@ -19,29 +19,35 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
   }
 
   const companyName = clientCompanyName(publication.templateDefinition, publication.data);
-  const title = companyName || publication.templateName;
+  const title = companyName ? `Uma mensagem especial de ${companyName}` : publication.templateName;
   const description = companyName
-    ? `Mensagem de ${companyName}`
+    ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
     : publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
-  const hasPreview = Boolean(companyName || clientLogoAssetId(publication.templateDefinition, publication.data));
-  const image = { url: `/p/${slug}/share-image`, width: 1200, height: 630, alt: companyName || publication.templateName };
+  const image = {
+    url: `/p/${slug}/share-image`,
+    type: "image/png",
+    width: 1200,
+    height: 630,
+    alt: companyName ? `Cartão digital de ${companyName}` : `Cartão digital: ${publication.templateName}`,
+  };
 
   return {
     title,
     description,
     openGraph: {
       type: "website",
-      siteName: companyName || "Cadernô Express",
+      locale: "pt_BR",
+      siteName: "Cadernô Express",
       title,
       description,
       url: publication.publicUrl,
-      ...(hasPreview ? { images: [image] } : {}),
+      images: [image],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(hasPreview ? { images: [image.url] } : {}),
+      images: [image.url],
     },
   };
 }

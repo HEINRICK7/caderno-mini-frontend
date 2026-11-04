@@ -9,7 +9,7 @@ export async function getPublicPublication(slug: string): Promise<PublicPublicat
     redirect: "error",
   });
 
-  if (response.status === 404) return null;
+  if (response.status === 400 || response.status === 404) return null;
   if (!response.ok) throw new Error("Não foi possível abrir esta mensagem.");
 
   const body: unknown = await response.json();

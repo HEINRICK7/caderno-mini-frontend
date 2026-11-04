@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicDemoPublication } from "@/lib/public-demo-publication";
-import { clientCompanyName, clientLogoAssetId } from "@/lib/share-preview";
+import { clientCompanyName } from "@/lib/share-preview";
 
 type PublicDemoPageProps = {
   params: Promise<{ slug: string }>;
@@ -13,27 +13,35 @@ export async function generateMetadata({ params }: PublicDemoPageProps): Promise
   const { slug } = await params;
   const demo = await getPublicDemoPublication(slug);
   const companyName = demo ? clientCompanyName(demo.templateDefinition, demo.data) : "";
-  const title = companyName || (demo ? demo.templateName : "Demonstração indisponível");
-  const description = companyName ? `Mensagem de ${companyName}` : "Demonstração gratuita de uma mensagem criada no Cadernô Express.";
-  const hasPreview = Boolean(demo && (companyName || clientLogoAssetId(demo.templateDefinition, demo.data)));
-  const image = { url: `/d/${slug}/share-image`, width: 1200, height: 630, alt: companyName || "Empresa" };
+  const title = companyName ? `Uma mensagem especial de ${companyName}` : (demo ? demo.templateName : "Demonstração indisponível");
+  const description = companyName
+    ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
+    : "Veja um cartão digital personalizado criado no Cadernô Express.";
+  const image = {
+    url: `/d/${slug}/share-image`,
+    type: "image/png",
+    width: 1200,
+    height: 630,
+    alt: companyName ? `Cartão digital de ${companyName}` : "Cartão digital do Cadernô Express",
+  };
   return {
     title,
     description,
     robots: { index: false, follow: false },
     openGraph: {
       type: "website",
-      siteName: companyName || "Cadernô Express",
+      locale: "pt_BR",
+      siteName: "Cadernô Express",
       title,
       description,
       ...(demo ? { url: demo.publicUrl } : {}),
-      ...(hasPreview ? { images: [image] } : {}),
+      ...(demo ? { images: [image] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(hasPreview ? { images: [image.url] } : {}),
+      ...(demo ? { images: [image.url] } : {}),
     },
   };
 }
