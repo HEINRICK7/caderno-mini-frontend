@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
+import { QRCodeSVG } from "qrcode.react";
 import {
   BadgeCheck,
   Cake,
@@ -9,10 +10,14 @@ import {
   ChevronRight,
   Clock3,
   CreditCard,
+  Facebook,
   FileText,
   Gift,
   Heart,
   Link2,
+  Instagram,
+  MessageCircle,
+  Music2,
   MessageSquareMore,
   Package,
   QrCode,
@@ -20,6 +25,7 @@ import {
   ShoppingBag,
   Sparkles,
   Star,
+  Youtube,
 } from "lucide-react";
 import type { TemplateCardAction, TemplateDefinition } from "@/lib/api-contracts";
 import { calculateDiscountPercentage, formatCurrency } from "@/domain/offer-pricing";
@@ -161,8 +167,13 @@ export function MessageTemplateCard({
   const configuredActions = card.actions ?? (card.action ? [card.action] : []);
   const actions = configuredActions.map((action, index) => resolveAction(action, index, data, mode));
   const visibleActions = actions.filter((action) => mode === "preview" ? action.label !== "" : action.enabled && action.label !== "");
+  const socialLinks = (card.socialLinks ?? []).flatMap(({ platform, hrefFieldId }) => {
+    const href = safeSocialUrl(readField(data, hrefFieldId), platform);
+    return href ? [{ platform, href, label: socialLabels[platform] }] : [];
+  });
   const pixQr = pixDetail?.imageSrc ?? null;
-  const pixInstruction = pixDetail?.label.trim() ?? "";
+  const pixInstruction = pixDetail?.value.trim() ?? "";
+  const pixCopyValue = readField(data, "pixCopyPaste");
   const pixSecurityNote = card.pixNoteFieldId ? readField(data, card.pixNoteFieldId) : "";
   const articleClassName = `message-template message-template--${layout} message-template--${card.illustration}`;
   const brandSection = card.brand && (brandName || brandLogo) ? (
@@ -215,15 +226,37 @@ export function MessageTemplateCard({
       {gallery.map(({ fieldId, src }) => <Image alt="Imagem de produto da coleção" className="message-template__gallery-image" height={220} key={fieldId} src={src} unoptimized width={220} />)}
     </div>
   ) : null;
-  const pixSection = layout === "pix" && (pixQr || pixInstruction || pixSecurityNote) ? (
+  const pixSection = layout === "pix" && (mode === "preview" || pixQr || pixCopyValue) ? (
     <section aria-label="Dados do Pix" className="message-template__pix">
-      {pixQr ? <Image alt="QR Code Pix fornecido pela aplicação" className="message-template__pix-qr" height={180} src={pixQr} unoptimized width={180} /> : null}
-      {pixQr || pixInstruction || pixSecurityNote ? (
-        <div className="message-template__pix-copy">
-          {pixInstruction ? <strong>{pixInstruction}</strong> : pixQr ? <strong>QR Code Pix</strong> : null}
-          {pixSecurityNote ? <span className="message-template__pix-note">{pixSecurityNote}</span> : null}
+      <div className="message-template__pix-qr-card">
+        <div className="message-template__pix-qr-frame">
+          {pixQr ? (
+            <Image alt="QR Code Pix" className="message-template__pix-qr" height={180} src={pixQr} unoptimized width={180} />
+          ) : pixCopyValue ? (
+            <QRCodeSVG aria-label="QR Code gerado com o código Pix copia e cola" className="message-template__pix-qr" value={pixCopyValue} level="M" marginSize={4} size={180} title="QR Code Pix" />
+          ) : (
+            <QrCode aria-hidden="true" className="message-template__pix-qr-placeholder" size={44} strokeWidth={1.5} />
+          )}
         </div>
-      ) : null}
+        <div className="message-template__pix-qr-caption">
+          <strong>{pixCopyValue ? "Pague com Pix" : "QR Code Pix"}</strong>
+          <span>{pixInstruction || "Escaneie com o aplicativo do seu banco."}</span>
+        </div>
+      </div>
+      <div className="message-template__pix-code-card">
+        <div className="message-template__pix-code-heading">
+          <strong>Pix copia e cola</strong>
+          <span>Use no aplicativo do seu banco</span>
+        </div>
+        {pixCopyValue ? (
+          <code aria-label="Código Pix copia e cola" className="message-template__pix-code">{pixCopyValue}</code>
+        ) : (
+          <div className="message-template__pix-code-empty">Cole o código gerado pelo banco para criar o QR Code.</div>
+        )}
+        <span className="message-template__pix-note">
+          {pixSecurityNote || "Confirme o nome do recebedor no app do banco antes de pagar."}
+        </span>
+      </div>
     </section>
   ) : null;
   const detailsSection = details.length ? (
@@ -265,6 +298,19 @@ export function MessageTemplateCard({
       })}
     </div>
   ) : null;
+  const socialLinksSection = socialLinks.length ? (
+    <nav aria-label="Redes sociais do negócio" className="message-template__socials">
+      {socialLinks.map(({ platform, href, label }) => {
+        const Icon = socialIcons[platform];
+        return (
+          <a aria-label={`Abrir ${label}`} className={`message-template__social-link message-template__social-link--${platform}`} href={href} key={platform} rel="noreferrer" target="_blank" title={label}>
+            <Icon aria-hidden="true" size={18} strokeWidth={2} />
+            <span>{label}</span>
+          </a>
+        );
+      })}
+    </nav>
+  ) : null;
   const splitHeaderLayout = layout === "product" || layout === "offer" || layout === "collection" || layout === "settled" || layout === "approval" || card.illustration === "reactivation-heart";
 
   return (
@@ -291,11 +337,29 @@ export function MessageTemplateCard({
           {actionsSection}
         </div>
       )}
+      {socialLinksSection}
     </article>
   );
 }
 
 type ResolvedAction = { label: string; href: string | null; copyValue: string | null; enabled: boolean };
+type SocialPlatform = "instagram" | "whatsapp" | "facebook" | "tiktok" | "youtube";
+
+const socialLabels: Record<SocialPlatform, string> = {
+  instagram: "Instagram",
+  whatsapp: "WhatsApp",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+};
+
+const socialIcons = {
+  instagram: Instagram,
+  whatsapp: MessageCircle,
+  facebook: Facebook,
+  tiktok: Music2,
+  youtube: Youtube,
+};
 
 function resolveAction(action: TemplateCardAction, index: number, data: Record<string, unknown>, mode: "preview" | "published"): ResolvedAction {
   const configuredLabel = action.labelFieldId ? readField(data, action.labelFieldId) : action.label ?? "";
@@ -353,6 +417,25 @@ function safeHttpUrl(value: string): string | null {
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSocialUrl(value: string, platform: SocialPlatform): string | null {
+  const allowedHosts: Record<SocialPlatform, string[]> = {
+    instagram: ["instagram.com"],
+    whatsapp: ["wa.me", "whatsapp.com", "api.whatsapp.com"],
+    facebook: ["facebook.com", "m.facebook.com", "fb.com"],
+    tiktok: ["tiktok.com", "vm.tiktok.com"],
+    youtube: ["youtube.com", "youtu.be"],
+  };
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    return url.protocol === "https:" && url.username === "" && url.password === "" && allowedHosts[platform].includes(host)
+      ? url.toString()
+      : null;
   } catch {
     return null;
   }

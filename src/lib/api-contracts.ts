@@ -124,6 +124,10 @@ export const templateCardSchema = z.object({
     businessNameFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
     logoFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/).optional(),
   }).strict().optional(),
+  socialLinks: z.array(z.object({
+    platform: z.enum(["instagram", "whatsapp", "facebook", "tiktok", "youtube"]),
+    hrefFieldId: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
+  }).strict()).min(1).max(5).optional(),
   footer: z.enum(["heart", "none"]),
 }).strict();
 
