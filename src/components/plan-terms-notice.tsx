@@ -15,7 +15,9 @@ export function PlanTermsNotice({ plan }: { plan?: CheckoutPlan }) {
       ) : (
         <p><strong>Pagamento único, sem renovação automática.</strong> Escolha um plano e confira o resumo antes de pagar.</p>
       )}
-      <p>Você pode solicitar reembolso à Cakto em até 7 dias corridos após a compra. O estorno é processado em até 24 horas; durante esse período, o acesso continua ativo e você pode cancelar a solicitação. O acesso termina quando o reembolso é concluído.</p>
+      <p>Você pode solicitar reembolso em até 7 dias corridos após a compra pelo portal da Cakto. Conforme o fluxo disponível para a compra, a Cakto pode processar o pedido ou direcionar você ao produtor.</p>
+      <p>Quando o pedido segue o fluxo automático da Cakto, o estorno é processado em até 24 horas. Durante esse período, o acesso continua ativo e você pode cancelar a solicitação. O acesso termina quando o reembolso é concluído.</p>
+      <p>Se a Cakto direcionar o pedido ao produtor, siga as instruções e o contato exibidos no portal.</p>
       <a href="https://reembolso.cakto.com.br/" rel="noreferrer" target="_blank">
         Acessar o portal de reembolso da Cakto <span aria-hidden="true">↗</span>
       </a>
