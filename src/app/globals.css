@@ -235,6 +235,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .pricing-plan__action:disabled:hover, .pricing-plan__action:disabled:active { background: linear-gradient(112deg, color-mix(in srgb, var(--pricing-action) 80%, #000), var(--pricing-action)); }
 .pricing-plan__action:focus-visible { outline: 2px solid #058e91; outline-offset: 3px; }
 .pricing-section__note { max-width: 56ch; margin: 12px auto 0; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
+.plan-terms-notice { display: grid; gap: 7px; padding: 14px 16px; border: 1px solid #cbe5dc; border-radius: 14px; background: linear-gradient(135deg, #f0faf7, #fffdfa); color: var(--muted); font-size: 13px; line-height: 1.5; }
+.plan-terms-notice p { margin: 0; }
+.plan-terms-notice strong { color: var(--ink); }
+.plan-terms-notice h3 { margin: 0; color: var(--ink); font: 750 16px/1.35 var(--font-heading); letter-spacing: -.02em; }
+.plan-terms-notice__eyebrow { color: var(--teal); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.plan-terms-notice a { width: fit-content; display: inline-flex; align-items: center; gap: 5px; margin-top: 1px; color: #087f83; font-size: 12px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.plan-terms-notice--selected { border-color: #aad8ca; background: linear-gradient(135deg, #eaf8f4, #fffdfa); }
 
 @media (min-width: 640px) {
   :root { --page-gutter: 24px; }

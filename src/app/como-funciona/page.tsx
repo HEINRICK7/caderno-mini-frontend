@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { PlanTermsNotice } from "@/components/plan-terms-notice";
 
 export const metadata: Metadata = {
   title: "Como funciona",
@@ -45,6 +46,10 @@ const faqs = [
   {
     question: "O pagamento é mensal?",
     answer: "Não. O Plano Anual custa R$ 33,50 em pagamento único e dá acesso por 12 meses. O Plano Vitalício custa R$ 67,00 em pagamento único e dá acesso vitalício.",
+  },
+  {
+    question: "Posso pedir reembolso?",
+    answer: "Sim. A Cakto permite solicitar reembolso em até 7 dias corridos após a compra. Como os planos são de pagamento único, não há cobrança recorrente para cancelar. O reembolso encerra o acesso.",
   },
   {
     question: "O Cadernô envia a mensagem pelo WhatsApp?",
@@ -115,6 +120,7 @@ export default function HowItWorksPage() {
             </article>
           </div>
           <p className="how-plans__note">O checkout abre na Cakto: use o mesmo e-mail do seu acesso. A publicação e o link público premium são liberados após a confirmação do pagamento. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
+          <PlanTermsNotice />
         </section>
 
         <section aria-labelledby="how-faq-title" className="marketing-faq">

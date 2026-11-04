@@ -3,10 +3,11 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getPurchase, publishDraft, replace } = vi.hoisted(() => ({
+const { getPurchase, publishDraft, replace, trackMetaEvent } = vi.hoisted(() => ({
   getPurchase: vi.fn(),
   publishDraft: vi.fn(),
   replace: vi.fn(),
+  trackMetaEvent: vi.fn(),
 }));
 let pollPurchase: (() => void) | undefined;
 
@@ -15,6 +16,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace }),
 }));
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header /> }));
+vi.mock("@/components/meta-pixel", () => ({ trackMetaEvent }));
 vi.mock("@/lib/api-client", () => ({
   ApiError: class ApiError extends Error {
     constructor(message: string, readonly status = 400) { super(message); }
@@ -34,6 +36,8 @@ beforeEach(() => {
   getPurchase.mockReset();
   publishDraft.mockReset();
   replace.mockReset();
+  trackMetaEvent.mockReset().mockReturnValue(true);
+  window.localStorage.clear();
   pollPurchase = undefined;
   vi.spyOn(window, "setInterval").mockImplementation((handler) => {
     pollPurchase = handler as () => void;
@@ -43,6 +47,33 @@ beforeEach(() => {
 });
 
 describe("acompanhamento da compra", () => {
+  it("registra Purchase uma vez com o valor confirmado pelo webhook da Cakto", async () => {
+    getPurchase.mockResolvedValue({
+      purchaseId: "purchase-1",
+      draftId: "draft-1",
+      status: "paid",
+      accessStatus: "active",
+      amountMinor: 3350,
+      currency: "BRL",
+      updatedAt: "2026-10-31T12:00:00.000Z",
+    });
+    publishDraft.mockResolvedValue({
+      slug: "slug-publico",
+      status: "published",
+      publicPath: "/p/slug-publico",
+      publicUrl: "https://app.example/p/slug-publico",
+      publishedAt: "2026-10-31T12:01:00.000Z",
+    });
+
+    render(<PurchasePage />);
+    expect(await screen.findByRole("link", { name: "Compartilhar no WhatsApp" })).toBeTruthy();
+    expect(trackMetaEvent).toHaveBeenCalledTimes(1);
+    expect(trackMetaEvent).toHaveBeenCalledWith("Purchase", { value: 33.5, currency: "BRL" });
+
+    await act(async () => { pollPurchase?.(); });
+    expect(trackMetaEvent).toHaveBeenCalledTimes(1);
+  });
+
   it("publica após a confirmação do backend e prepara o link do WhatsApp", async () => {
     const publicUrl = "https://app.example/p/slug-publico";
     getPurchase.mockResolvedValue({
@@ -50,6 +81,8 @@ describe("acompanhamento da compra", () => {
       draftId: "draft-1",
       status: "paid",
       accessStatus: "active",
+      amountMinor: null,
+      currency: null,
       updatedAt: "2026-10-31T12:00:00.000Z",
     });
     publishDraft.mockResolvedValue({
@@ -77,6 +110,8 @@ describe("acompanhamento da compra", () => {
       draftId: "draft-1",
       status: "pending",
       accessStatus: "none",
+      amountMinor: null,
+      currency: null,
       updatedAt: "2026-10-31T12:00:00.000Z",
     });
 
@@ -94,6 +129,8 @@ describe("acompanhamento da compra", () => {
       draftId: "draft-1",
       status: "paid",
       accessStatus: "active",
+      amountMinor: null,
+      currency: null,
       updatedAt: "2026-10-31T12:00:00.000Z",
     });
     publishDraft.mockResolvedValue({
@@ -112,6 +149,8 @@ describe("acompanhamento da compra", () => {
       draftId: "draft-1",
       status: "refunded",
       accessStatus: "revoked",
+      amountMinor: 499,
+      currency: "BRL",
       updatedAt: "2026-10-31T12:02:00.000Z",
     });
 

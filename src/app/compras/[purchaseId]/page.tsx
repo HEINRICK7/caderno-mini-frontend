@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
+import { trackMetaEvent } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
 import type { PurchaseStatus } from "@/lib/api-contracts";
 
@@ -16,11 +17,36 @@ const statusLabels: Record<PurchaseStatus["status"], string> = {
   refused: "Pagamento não aprovado",
 };
 
+function trackPurchaseConversion(status: PurchaseStatus, trackedPurchaseIds: Set<string>) {
+  if (status.status !== "paid" || status.accessStatus !== "active" || !status.amountMinor || status.currency !== "BRL") return;
+  if (trackedPurchaseIds.has(status.purchaseId)) return;
+
+  const storageKey = `meta-purchase:${status.purchaseId}`;
+  try {
+    if (window.localStorage.getItem(storageKey) === "1") {
+      trackedPurchaseIds.add(status.purchaseId);
+      return;
+    }
+  } catch {
+    // Keep an in-memory guard when browser storage is unavailable.
+  }
+
+  if (!trackMetaEvent("Purchase", { value: status.amountMinor / 100, currency: status.currency })) return;
+
+  trackedPurchaseIds.add(status.purchaseId);
+  try {
+    window.localStorage.setItem(storageKey, "1");
+  } catch {
+    // The in-memory guard still prevents duplicates during this page session.
+  }
+}
+
 export default function PurchasePage() {
   const { purchaseId } = useParams<{ purchaseId: string }>();
   const router = useRouter();
   const publishing = useRef(false);
   const publishedUrl = useRef("");
+  const trackedPurchaseIds = useRef(new Set<string>());
   const [purchase, setPurchase] = useState<PurchaseStatus | null>(null);
   const [publicUrl, setPublicUrl] = useState("");
   const [error, setError] = useState("");
@@ -31,6 +57,7 @@ export default function PurchasePage() {
       const status = await api.getPurchase(purchaseId);
       setPurchase(status);
       setError("");
+      trackPurchaseConversion(status, trackedPurchaseIds.current);
       if (status.accessStatus === "active" && !publishing.current && !publishedUrl.current) {
         publishing.current = true;
         try {
@@ -59,6 +86,7 @@ export default function PurchasePage() {
         if (!active) return;
         setPurchase(status);
         setError("");
+        trackPurchaseConversion(status, trackedPurchaseIds.current);
         if (status.accessStatus === "active" && !publishing.current && !publishedUrl.current) {
           publishing.current = true;
           try {

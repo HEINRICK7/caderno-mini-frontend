@@ -307,6 +307,8 @@
 .template-plan-card__description { color: var(--muted); font-size: 12px; line-height: 1.4; }
 .template-plan-card__cta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid #dce9e5; color: #087f83; font-size: 12px; font-weight: 750; line-height: 1.35; }
 .template-premium-security { display: inline-flex; align-items: center; gap: 7px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.template-premium-continue { width: 100%; min-height: 50px; gap: 8px; }
+.template-editor-actions > .plan-terms-notice { grid-column: 1 / -1; }
 .template-editor-actions .form-submit { margin: 0; }
 .button--share { border: 1px solid #d6e7e2; background: #f3f8f6; color: #54706c; box-shadow: none; }
 .button--share:disabled { opacity: 1; cursor: not-allowed; }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import purchasePreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/02-agradecimento-compra.png";
 import servicePreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/09-servico-contratado.png";
 
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
 };
 
 const faqs = [
+  {
+    question: "Posso pedir reembolso?",
+    answer: "Sim. A Cakto permite solicitar reembolso em até 7 dias corridos após a compra. Os planos têm pagamento único, sem renovação automática; o reembolso encerra o acesso.",
+  },
   {
     question: "É para quem vende produtos ou presta serviços?",
     answer: "Para os dois. Há modelos de agradecimento, novidades e ofertas para produtos, além de mensagens para contratação, conclusão e aprovação de serviços.",
@@ -109,6 +114,7 @@ export default function ForYourBusinessPage() {
             </article>
           </div>
           <p className="how-plans__note">O checkout é feito na Cakto; use o mesmo e-mail do seu acesso. A publicação premium é liberada depois da confirmação do pagamento. Alguns modelos oferecem um link de demonstração grátis, válido por 7 dias e sem acesso premium.</p>
+          <PlanTermsNotice />
         </section>
 
         <section aria-labelledby="business-faq-title" className="marketing-faq business-faq">

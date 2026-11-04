@@ -26,6 +26,7 @@ jobs:
       HOSTINGER_SSH_PORT: ${{ vars.HOSTINGER_SSH_PORT }}
       HOSTINGER_APP_PATH: ${{ vars.HOSTINGER_APP_PATH }}
       HOSTINGER_WEB_PORT: ${{ vars.HOSTINGER_WEB_PORT }}
+      HOSTINGER_META_PIXEL_ID: ${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
       HOSTINGER_DEPLOY_NETWORK: caderno-mini-production
       HOSTINGER_SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
       HOSTINGER_KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
@@ -43,6 +44,11 @@ jobs:
           : "${HOSTINGER_WEB_PORT:?Set HOSTINGER_WEB_PORT to a free, loopback-only port in the selected GitHub environment}"
           : "${HOSTINGER_SSH_PRIVATE_KEY:?Set HOSTINGER_SSH_PRIVATE_KEY in the selected GitHub environment}"
           : "${HOSTINGER_KNOWN_HOSTS:?Set HOSTINGER_KNOWN_HOSTS in the selected GitHub environment}"
+          if [ -n "${HOSTINGER_META_PIXEL_ID:-}" ]; then
+            case "$HOSTINGER_META_PIXEL_ID" in
+              *[!0-9]*) echo "NEXT_PUBLIC_META_PIXEL_ID must contain only digits" >&2; exit 1 ;;
+            esac
+          fi
           HOSTINGER_SSH_PORT="${HOSTINGER_SSH_PORT:-22}"
           case "$HOSTINGER_SSH_PORT" in
             *[!0-9]*|'') echo "HOSTINGER_SSH_PORT must be numeric" >&2; exit 1 ;;
@@ -143,6 +149,7 @@ jobs:
             "set -eu
             cd '$HOSTINGER_APP_PATH'
             export WEB_PORT='$HOSTINGER_WEB_PORT'
+            export NEXT_PUBLIC_META_PIXEL_ID='$HOSTINGER_META_PIXEL_ID'
             docker compose -f compose.production.yaml --project-name caderno-mini-production-frontend up -d --build
             for attempt in \$(seq 1 30); do
               container=\$(docker compose -f compose.production.yaml --project-name caderno-mini-production-frontend ps -q web)

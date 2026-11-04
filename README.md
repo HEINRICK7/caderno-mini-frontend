@@ -18,7 +18,7 @@ npm run dev
 
 Abra [http://localhost:3001](http://localhost:3001). O Next encaminha chamadas `/api/v1/*` para `API_BASE_URL`.
 O link público de cada cartão vem do backend pela configuração `PUBLIC_APP_URL`; configure esse valor com a origem do frontend em cada ambiente.
-O Pixel da Meta é opcional e fica desativado sem `NEXT_PUBLIC_META_PIXEL_ID`. Configure o ID numérico no `.env.local` para desenvolvimento e no `.env` do diretório de produção antes de reconstruir o container. O site registra visualizações apenas na página inicial e em `/templates`.
+O Pixel da Meta é opcional e fica desativado sem `NEXT_PUBLIC_META_PIXEL_ID`. Use o ID numérico no `.env.local` durante o desenvolvimento e na variável `NEXT_PUBLIC_META_PIXEL_ID` do ambiente GitHub usado pelo deploy de produção. O workflow valida o formato e o injeta no build do container. O site registra PageView nas páginas institucionais e de modelos, `InitiateCheckout` ao iniciar um checkout e `Purchase` somente depois que a API confirma o pagamento e o webhook validado da Cakto fornece valor e moeda.
 
 As prévias no editor e na página pública são montadas em HTML/SVG a partir da composição e da paleta versionadas pelo backend. O frontend não exibe o PNG do endpoint de preview; o backend mantém a renderização PNG para exportação e para a prévia automática do link no WhatsApp.
 

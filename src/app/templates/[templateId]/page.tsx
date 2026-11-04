@@ -6,6 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { TemplateFields } from "../../../components/template-fields";
 import { MessagePhonePreview } from "../../../components/message-phone-preview";
+import { PlanTermsNotice } from "../../../components/plan-terms-notice";
+import { trackInitiateCheckout } from "../../../components/meta-pixel";
 import { ApiError, api } from "../../../lib/api-client";
 import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
 import type { Template } from "../../../lib/api-contracts";
@@ -73,6 +75,7 @@ export default function TemplatePage() {
       createdDraftId = draft.id;
       if (checkoutPlan) {
         const checkout = await api.createCheckout(draft.id, checkoutPlan);
+        trackInitiateCheckout(checkoutPlan);
         if (paymentWindow) {
           paymentWindow.opener = null;
           paymentWindow.location.href = checkout.checkoutUrl;
@@ -134,6 +137,7 @@ export default function TemplatePage() {
                 />
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 <div className="template-editor-actions">
+                  {checkoutPlan ? <PlanTermsNotice plan={checkoutPlan} /> : null}
                   <button className="button button--primary form-submit" disabled={saving || uploadingImage} type="submit">
                     {saving
                       ? "Salvando…"

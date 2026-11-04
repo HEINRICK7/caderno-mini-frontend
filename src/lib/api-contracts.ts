@@ -217,6 +217,8 @@ export const purchaseStatusResponseSchema = z.object({
     draftId: z.string(),
     status: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
     accessStatus: z.enum(["active", "revoked", "none"]),
+    amountMinor: z.number().int().positive().nullable(),
+    currency: z.string().length(3).nullable(),
     expiresAt: z.string().datetime({ offset: true }).nullable(),
     updatedAt: z.string().datetime({ offset: true }),
   }).strict(),

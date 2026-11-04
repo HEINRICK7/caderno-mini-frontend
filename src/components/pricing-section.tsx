@@ -1,6 +1,7 @@
 import { ArrowRight, Check, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
 import birthdayPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/11-aniversario.png";
@@ -147,6 +148,7 @@ export function PricingSection() {
           </div>
         </article>
       </div>
+      <PlanTermsNotice />
 
     </section>
   );
