@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Check, Clock3, Copy, Link2, Mail, MessageCircle, Save, Share2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Clock3, Copy, Link2, LockKeyhole, Mail, MessageCircle, Save, Share2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TemplateFields } from "@/components/template-fields";
 import { MessagePhonePreview } from "@/components/message-phone-preview";
@@ -295,17 +295,30 @@ export default function DraftPage() {
                   <section className="template-premium-panel" aria-labelledby="template-premium-title">
                     <div className="template-action-heading">
                       <span className="template-action-heading__eyebrow">Acesso premium</span>
-                      <h2 id="template-premium-title">Publique e compartilhe o link definitivo</h2>
-                      <p>Escolha seu plano para liberar a versão completa da mensagem.</p>
+                      <h2 id="template-premium-title">Escolha como quer manter sua mensagem</h2>
+                      <p>Os dois planos liberam a publicação e o compartilhamento do link definitivo.</p>
                     </div>
                     <div className="template-premium-options">
-                      <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
-                        {checkingOut ? "Aguarde…" : checkoutPlan === "annual" ? "Continuar com anual · R$ 33,50" : "Anual · R$ 33,50"}
+                      <button className={`template-plan-card template-plan-card--annual${checkoutPlan === "annual" ? " is-selected" : ""}`} disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
+                        <span className="template-plan-card__topline">
+                          <span className="template-plan-card__name">Plano anual</span>
+                          {checkoutPlan === "annual" ? <span className="template-plan-card__badge">Selecionado</span> : <span className="template-plan-card__term">12 meses</span>}
+                        </span>
+                        <span className="template-plan-card__price"><span>R$</span> 33,50</span>
+                        <span className="template-plan-card__description">Acesso premium por 12 meses.</span>
+                        <span className="template-plan-card__cta">{checkingOut ? "Aguarde…" : checkoutPlan === "annual" ? "Continuar com plano anual" : "Escolher plano anual"}<ArrowRight aria-hidden="true" size={17} /></span>
                       </button>
-                      <button className="button button--primary form-submit" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("lifetime")} type="button">
-                        {checkingOut ? "Aguarde…" : checkoutPlan === "lifetime" ? "Continuar com vitalício · R$ 67,00" : "Vitalício · R$ 67,00"}
+                      <button className={`template-plan-card template-plan-card--lifetime${checkoutPlan === "lifetime" ? " is-selected" : ""}`} disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("lifetime")} type="button">
+                        <span className="template-plan-card__topline">
+                          <span className="template-plan-card__name">Acesso vitalício</span>
+                          {checkoutPlan === "lifetime" ? <span className="template-plan-card__badge">Selecionado</span> : <span className="template-plan-card__term">Sem vencimento</span>}
+                        </span>
+                        <span className="template-plan-card__price"><span>R$</span> 67,00</span>
+                        <span className="template-plan-card__description">Acesso premium sem prazo de expiração.</span>
+                        <span className="template-plan-card__cta">{checkingOut ? "Aguarde…" : checkoutPlan === "lifetime" ? "Continuar com vitalício" : "Escolher acesso vitalício"}<ArrowRight aria-hidden="true" size={17} /></span>
                       </button>
                     </div>
+                    <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela Cakto.</p>
                   </section>
                 </div>
               </form>
