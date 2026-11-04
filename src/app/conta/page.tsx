@@ -95,16 +95,23 @@ export default function AccountPage() {
           <h1>Minha conta</h1>
           <p>Suas compras e os links das mensagens ficam reunidos aqui. Entre com o mesmo e-mail usado no checkout.</p>
           {canManageUsers ? <Link className="account-admin-link" href="/admin">Abrir painel do criador <span aria-hidden="true">→</span></Link> : null}
+          {canManageUsers ? <p className="account-admin-test-notice" role="status">Acesso premium de teste ativo nesta sessão administrativa. Esse acesso não cria compra nem licença.</p> : null}
         </div>
 
         {loading ? <p className="page-message" role="status">Carregando suas compras…</p> : null}
         {error ? <div className="page-message page-message--error" role="alert"><p>{error}</p><button className="text-button" onClick={() => void loadAccount()} type="button">Tentar novamente</button></div> : null}
         {!loading && !error && uniqueItems.length === 0 ? (
           <div className="account-empty">
-            <h2>Ainda não há mensagens na sua conta</h2>
-            <p>Se você já comprou, entre usando o mesmo e-mail informado no checkout. Após a confirmação, a compra aparece aqui.</p>
-            <Link className="button button--primary" href="/entrar?returnTo=%2Fconta">Entrar com meu e-mail</Link>
-            <Link className="text-link" href="/templates">Conhecer os modelos <span aria-hidden="true">→</span></Link>
+            <h2>{canManageUsers ? "Acesso de teste pronto" : "Ainda não há mensagens na sua conta"}</h2>
+            <p>{canManageUsers ? "Você pode testar todos os recursos premium pela sua sessão administrativa. Compras e licenças reais continuam sendo exibidas somente após confirmação da Cakto." : "Se você já comprou, entre usando o mesmo e-mail informado no checkout. Após a confirmação, a compra aparece aqui."}</p>
+            {canManageUsers ? (
+              <Link className="button button--primary" href="/templates">Testar os modelos</Link>
+            ) : (
+              <>
+                <Link className="button button--primary" href="/entrar?returnTo=%2Fconta">Entrar com meu e-mail</Link>
+                <Link className="text-link" href="/templates">Conhecer os modelos <span aria-hidden="true">→</span></Link>
+              </>
+            )}
           </div>
         ) : null}
         {uniqueItems.length > 0 ? (

@@ -109,6 +109,7 @@
 .account-empty p, .account-access-card__heading p, .account-access-card__notice { color: var(--muted); font-size: 14px; line-height: 1.5; }
 .account-empty .button, .account-access-card .button { width: fit-content; max-width: 100%; padding-inline: 18px; }
 .account-empty .text-link { width: fit-content; }
+.account-admin-test-notice { margin: 0; padding: 12px 14px; border: 1px solid #b6e2d7; border-radius: 12px; background: #ecfaf6; color: #087f83; font-size: 14px; line-height: 1.5; }
 .account-access-list { display: grid; gap: 14px; }
 .account-access-card__heading { min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .account-access-card__heading > div { min-width: 0; display: grid; gap: 5px; }
