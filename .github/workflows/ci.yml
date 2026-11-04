@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: HEINRICK7/caderno-mini-backend
-          ref: feature/sprint-1-backend-foundation
+          ref: main
           path: mini-backend
           sparse-checkout: catalog/templates.json
           sparse-checkout-cone-mode: false
