@@ -270,8 +270,8 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
         <section aria-label="Testar experiência do cliente" className="admin-test-panel">
               <div className="admin-test-panel__copy">
                 <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Experiência do cliente</span>
-                <h2>Teste os modelos e links grátis</h2>
-                <p>Abra um modelo, personalize a mensagem e gere um link de teste. Para validar uma compra paga, use uma venda de teste configurada na Cakto; este painel nunca cria licença fictícia.</p>
+                <h2>Teste os modelos com acesso premium</h2>
+                <p>Use sua sessão administrativa para criar, publicar e exportar mensagens sem uma compra. Isso não registra transações nem cria licenças; valide pagamentos com uma venda de teste configurada na Cakto.</p>
               </div>
               <div className="admin-test-panel__actions">
                 <Link className="button button--primary" href="/templates">Testar os 16 modelos <ArrowRight aria-hidden="true" size={16} /></Link>
