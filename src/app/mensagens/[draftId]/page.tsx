@@ -149,8 +149,8 @@ export default function DraftPage() {
       setDemoLink(publication.publicUrl);
       setDemoExpiresAt(publication.expiresAt);
       setDemoNotice(publication.created
-        ? "Demonstração criada. Escolha um canal para enviar o link."
-        : "Este é o link de demonstração já criado para esta categoria.");
+        ? "Demonstração criada com os dados salvos. Escolha um canal para enviar o link."
+        : "Link atualizado com os dados salvos. Compartilhe o endereço abaixo para exibir esta versão.");
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível gerar o link de demonstração.");
     } finally {
@@ -249,7 +249,7 @@ export default function DraftPage() {
                       <div className="template-action-heading">
                         <span className="template-action-heading__eyebrow">Prévia gratuita</span>
                         <h2 id="template-demo-title">Mostre sua mensagem antes de publicar</h2>
-                        <p>Gere um link temporário para conferir e compartilhar esta versão. A demonstração não libera recursos premium.</p>
+                        <p>Gere ou atualize o link temporário para conferir e compartilhar esta versão. A demonstração não libera recursos premium.</p>
                       </div>
                       <button
                         className="button button--secondary template-demo-generate"
@@ -288,7 +288,7 @@ export default function DraftPage() {
                           {copyFeedback ? <p className="template-demo-result__feedback" role="status">{copyFeedback}</p> : null}
                         </section>
                       ) : (
-                        <p className="template-demo-footnote"><ShieldCheck aria-hidden="true" size={15} /> Um link por categoria neste navegador, válido por 7 dias.</p>
+                        <p className="template-demo-footnote"><ShieldCheck aria-hidden="true" size={15} /> Um link por categoria neste navegador. Gere novamente após editar para atualizar a versão compartilhada; cada atualização renova a validade por 7 dias.</p>
                       )}
                     </section>
                   ) : null}

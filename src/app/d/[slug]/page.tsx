@@ -13,12 +13,13 @@ export async function generateMetadata({ params }: PublicDemoPageProps): Promise
   const { slug } = await params;
   const demo = await getPublicDemoPublication(slug);
   const companyName = demo ? clientCompanyName(demo.templateDefinition, demo.data) : "";
+  const imageVersion = demo ? Date.parse(demo.createdAt) : 0;
   const title = companyName ? "Uma mensagem especial" : (demo ? demo.templateName : "Demonstração indisponível");
   const description = companyName
     ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
     : "Veja um cartão digital personalizado.";
   const image = {
-    url: `/d/${slug}/share-image`,
+    url: `/d/${slug}/share-image?v=${imageVersion}`,
     type: "image/png",
     width: 1200,
     height: 630,
