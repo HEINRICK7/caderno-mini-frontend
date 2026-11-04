@@ -76,6 +76,8 @@ export async function renderClientSharePreview(input: {
               }}
             >
               {input.logoSrc ? (
+                // ImageResponse rasterizes this logo for social previews; next/image is not supported here.
+                // eslint-disable-next-line @next/next/no-img-element -- Required by the ImageResponse renderer.
                 <img alt="" height={196} src={input.logoSrc} style={{ objectFit: "contain" }} width={196} />
               ) : (
                 <span style={{ color: "#168A80", fontFamily: "Poppins", fontSize: 100 }}>{cardTitle.slice(0, 1).toLocaleUpperCase("pt-BR")}</span>
