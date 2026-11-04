@@ -290,8 +290,23 @@
 .template-demo-channel:last-child { grid-column: 1 / -1; }
 .template-demo-footnote { margin: -3px 0 0; }
 .template-demo-result__feedback { margin: -5px 0 0; color: #087452; font-size: 12px; line-height: 1.4; }
-.template-premium-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: 9px; }
-.template-premium-options .form-submit { width: 100%; min-height: 48px; padding: 0 14px; font-size: 14px; white-space: normal; }
+.template-premium-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.template-plan-card { min-width: 0; min-height: 184px; display: grid; grid-template-rows: auto auto 1fr auto; align-content: start; gap: 10px; padding: 17px; border: 1px solid #d2e2de; border-radius: 14px; appearance: none; background: #fff; color: var(--ink); font: 14px/1.4 var(--font-body); text-align: left; cursor: pointer; transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.template-plan-card--annual { background: linear-gradient(145deg, #f4fbf8, #fff 78%); }
+.template-plan-card--lifetime { background: linear-gradient(145deg, #fffaf2, #fff 78%); }
+.template-plan-card:hover:not(:disabled) { transform: translateY(-2px); border-color: #078d91; box-shadow: 0 9px 22px #123c3512; }
+.template-plan-card:focus-visible { outline: 3px solid #078d9140; outline-offset: 2px; }
+.template-plan-card:disabled { opacity: .65; cursor: wait; }
+.template-plan-card.is-selected { border-color: #078d91; background: #edf9f5; box-shadow: inset 0 0 0 1px #078d9140; }
+.template-plan-card__topline { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.template-plan-card__name { color: #126d70; font-size: 13px; font-weight: 750; }
+.template-plan-card__term, .template-plan-card__badge { flex: none; padding: 4px 8px; border-radius: 999px; background: #e7f3ef; color: #54706c; font-size: 10px; font-weight: 700; }
+.template-plan-card__badge { background: #d7f0e6; color: #087452; }
+.template-plan-card__price { display: flex; align-items: baseline; gap: 5px; color: var(--ink); font: 800 30px/1.05 var(--font-heading); letter-spacing: -.045em; }
+.template-plan-card__price > span { color: #54706c; font: 650 14px/1 var(--font-body); letter-spacing: 0; }
+.template-plan-card__description { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.template-plan-card__cta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid #dce9e5; color: #087f83; font-size: 12px; font-weight: 750; line-height: 1.35; }
+.template-premium-security { display: inline-flex; align-items: center; gap: 7px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .template-editor-actions .form-submit { margin: 0; }
 .button--share { border: 1px solid #d6e7e2; background: #f3f8f6; color: #54706c; box-shadow: none; }
 .button--share:disabled { opacity: 1; cursor: not-allowed; }
@@ -385,6 +400,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .status-sticker, .template-editor-preview .message-template__illustration { animation: none !important; }
+  .template-plan-card { transition: none; }
+  .template-plan-card:hover:not(:disabled) { transform: none; }
 }
 
 /* Premium message templates */
