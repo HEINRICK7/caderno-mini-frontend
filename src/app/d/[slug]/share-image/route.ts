@@ -9,9 +9,9 @@ type ShareImageRouteProps = {
 export async function GET(_request: Request, { params }: ShareImageRouteProps): Promise<Response> {
   const { slug } = await params;
   const demo = await getPublicDemoPublication(slug);
-  const companyName = demo ? clientCompanyName(demo.templateDefinition, demo.data) : "";
-  const logoId = demo ? clientLogoAssetId(demo.templateDefinition, demo.data) : null;
+  if (!demo) return new Response(null, { status: 404 });
+  const companyName = clientCompanyName(demo.templateDefinition, demo.data);
+  const logoId = clientLogoAssetId(demo.templateDefinition, demo.data);
   const logo = logoId ? await loadClientLogo(logoId) : null;
-  if (!companyName && !logo) return new Response(null, { status: 404 });
-  return renderClientSharePreview({ companyName, logoSrc: logo });
+  return renderClientSharePreview({ companyName, templateName: demo.templateName, logoSrc: logo });
 }

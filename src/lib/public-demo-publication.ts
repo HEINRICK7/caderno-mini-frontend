@@ -9,7 +9,7 @@ export async function getPublicDemoPublication(slug: string): Promise<DemoPublic
     redirect: "error",
   });
 
-  if (response.status === 404 || response.status === 422) return null;
+  if (response.status === 400 || response.status === 404 || response.status === 422) return null;
   if (!response.ok) throw new Error("Não foi possível abrir esta demonstração.");
   const body: unknown = await response.json();
   return publicDemoPublicationResponseSchema.parse(body).data;
