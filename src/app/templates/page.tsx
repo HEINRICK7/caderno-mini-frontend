@@ -79,7 +79,7 @@ export default function TemplatesPage() {
           <h1>Escolha um modelo</h1>
           <p>
             {checkoutPlan
-              ? `Escolha um modelo para personalizar e continuar com o plano ${checkoutPlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}.`
+              ? "Escolha um modelo para personalizar e continuar com o plano anual (R$ 47,00)."
               : "Cartões para o seu negócio. Personalize e compartilhe em segundos."}
           </p>
         </div>

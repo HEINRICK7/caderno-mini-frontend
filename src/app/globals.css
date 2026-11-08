@@ -200,10 +200,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .pricing-section__eyebrow { display: inline-flex; min-height: 28px; align-items: center; padding: 0 12px; border-radius: 999px; background: var(--mint); color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: .035em; }
 .pricing-section__intro h2 { min-width: 0; margin: 12px 0 8px; color: var(--ink); font: 800 clamp(25px, 5.5vw, 36px)/1.08 var(--font-template-display); letter-spacing: -.045em; overflow-wrap: anywhere; }
 .pricing-section__intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-.pricing-section__plans { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.pricing-section__plans { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 520px; margin-inline: auto; gap: 18px; }
 .pricing-plan { min-width: 0; display: flex; flex-direction: column; padding: 0 16px 16px; border: 1px solid #eeeae4; border-top: 3px solid var(--pricing-card-accent); border-radius: 24px; background: #fff; box-shadow: 0 14px 34px rgba(37, 42, 56, .06); }
-.pricing-plan--annual { --pricing-card-accent: var(--pricing-annual-accent); order: 2; }
-.pricing-plan--lifetime { --pricing-card-accent: var(--teal); order: 1; }
+.pricing-plan--annual { --pricing-card-accent: var(--pricing-annual-accent); }
 .pricing-plan__art { position: relative; height: 152px; flex: none; display: block; margin-top: 16px; overflow: hidden; border-radius: 17px; background: #e3f6f2; }
 .pricing-plan__art--lifetime { background: #fff0ed; }
 .pricing-plan__art-card { position: absolute; top: 19%; height: 108%; width: auto; aspect-ratio: .66; object-fit: cover; border: 2px solid rgba(255, 255, 255, .94); border-radius: 14px; box-shadow: 0 7px 16px rgba(22, 38, 61, .16); }
@@ -272,10 +271,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 }
 
 @media (min-width: 720px) {
-  .pricing-section__plans { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .pricing-section__plans { grid-template-columns: minmax(0, 1fr); max-width: 540px; margin-inline: auto; gap: 22px; }
   .pricing-plan--annual { order: 1; }
-  .pricing-plan--lifetime { order: 2; }
-  .pricing-section__plans { gap: 22px; }
   .pricing-plan { padding: 0 20px 20px; }
   .pricing-plan__art { height: clamp(168px, 15vw, 190px); margin-top: 20px; }
   .pricing-plan__surface { padding: 22px 8px 8px; }
@@ -342,7 +339,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .workflow-step__note { grid-column: 2; display: flex; align-items: center; gap: 7px; margin: 0; color: var(--teal); font-size: 13px; font-weight: 600; line-height: 1.4; }
 .workflow-step__note svg { flex: none; }
 .how-plans, .business-access, .marketing-faq { margin-top: 54px; }
-.how-plan-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.how-plan-grid { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 480px; margin-inline: auto; gap: 12px; }
 .how-plan { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 22px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
 .how-plan--lifetime { background: var(--mint); border-color: var(--mint); }
 .how-plan h3 { margin: 0; color: var(--ink); font: 750 18px/1.3 var(--font-heading); }
@@ -386,7 +383,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   .workflow-step { grid-template-columns: 52px minmax(0, 1fr) minmax(180px, .42fr); align-items: start; gap: 20px; padding: 27px 0; }
   .workflow-step__number { width: 46px; height: 46px; }
   .workflow-step__note { grid-column: auto; justify-self: end; max-width: 230px; padding-top: 4px; }
-  .how-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .how-plan-grid { grid-template-columns: minmax(0, 1fr); max-width: 500px; margin-inline: auto; gap: 16px; }
   .how-plan { min-height: 220px; padding: 24px; }
   .business-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .business-tile { min-height: 292px; padding: 24px; }

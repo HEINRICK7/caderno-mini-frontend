@@ -5,9 +5,6 @@ import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
 import birthdayPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/11-aniversario.png";
-import productPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/12-produto-em-destaque.png";
-import offerPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/13-oferta-especial.png";
-import collectionPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/14-novidades-colecao.png";
 
 const benefits = [
   "16 modelos premium",
@@ -17,20 +14,18 @@ const benefits = [
 
 function PlanArtwork({
   images,
-  variant,
 }: {
   images: readonly { src: typeof paymentPreview; alt: string }[];
-  variant: "annual" | "lifetime";
 }) {
   return (
-    <div aria-label={variant === "annual" ? "Prévia de modelos de relacionamento e cobrança" : "Prévia de modelos de ofertas e produtos"} className={`pricing-plan__art pricing-plan__art--${variant}`} role="group">
+    <div aria-label="Prévia de modelos de relacionamento e cobrança" className="pricing-plan__art pricing-plan__art--annual" role="group">
       {images.map((image, index) => (
         <Image
           alt={image.alt}
           className={`pricing-plan__art-card pricing-plan__art-card--${index + 1}`}
           key={image.alt}
           src={image.src}
-          priority={variant === "annual" && index === 1}
+          priority={index === 1}
         />
       ))}
     </div>
@@ -72,9 +67,9 @@ export function PricingSection() {
   return (
     <section aria-labelledby="pricing-title" className="pricing-section" id="planos">
       <div className="pricing-section__intro">
-        <span className="pricing-section__eyebrow">Planos Cadernô Express</span>
-        <h2 id="pricing-title">Escolha como quer acessar</h2>
-        <p>Os 16 modelos premium, com toda a liberdade para personalizar e compartilhar.</p>
+        <span className="pricing-section__eyebrow">Plano Cadernô Express</span>
+        <h2 id="pricing-title">Acesso completo para o seu negócio</h2>
+        <p>Os 16 modelos premium, com toda a liberdade para personalizar e compartilhar o ano todo.</p>
       </div>
 
       <div className="pricing-section__plans">
@@ -85,7 +80,6 @@ export function PricingSection() {
               { src: paymentPreview, alt: "Modelo de pagamento confirmado" },
               { src: birthdayPreview, alt: "Modelo de aniversário" },
             ]}
-            variant="annual"
           />
           <div className="pricing-plan__surface">
             <div className="pricing-plan__heading">
@@ -94,61 +88,27 @@ export function PricingSection() {
                 <p>Para criar e compartilhar o ano todo.</p>
               </div>
               <span className="pricing-plan__badge">
-                <Star aria-hidden="true" fill="currentColor" size={13} /> Melhor opção
+                <Star aria-hidden="true" fill="currentColor" size={13} /> 12 meses de acesso
               </span>
             </div>
 
             <div className="pricing-plan__price">
-              <span className="pricing-plan__price-accessible">R$ 33,50, pagamento único</span>
+              <span className="pricing-plan__price-accessible">R$ 47,00, pagamento único</span>
               <span aria-hidden="true" className="pricing-plan__currency">R$</span>
-              <strong aria-hidden="true">33</strong>
-              <span aria-hidden="true" className="pricing-plan__cents">,50</span>
+              <strong aria-hidden="true">47</strong>
+              <span aria-hidden="true" className="pricing-plan__cents">,00</span>
               <span aria-hidden="true" className="pricing-plan__period">pagamento único</span>
             </div>
 
             <PlanBenefits access="Acesso por 12 meses" />
             <PlanAction
               href="/templates?plan=annual"
-              label="Escolher anual"
-            />
-          </div>
-        </article>
-
-        <article className="pricing-plan pricing-plan--lifetime">
-          <PlanArtwork
-            images={[
-              { src: productPreview, alt: "Modelo de produto em destaque" },
-              { src: offerPreview, alt: "Modelo de oferta especial" },
-              { src: collectionPreview, alt: "Modelo de novidades e coleção" },
-            ]}
-            variant="lifetime"
-          />
-          <div className="pricing-plan__surface">
-            <div className="pricing-plan__heading">
-              <div>
-                <h3>Plano Vitalício</h3>
-                <p>Uma compra. Acesso sem prazo para acabar.</p>
-              </div>
-              <span aria-hidden="true" className="pricing-plan__lifetime-mark">Para sempre</span>
-            </div>
-
-            <div className="pricing-plan__price">
-              <span className="pricing-plan__price-accessible">R$ 67,00, pagamento único</span>
-              <span aria-hidden="true" className="pricing-plan__currency">R$</span>
-              <strong aria-hidden="true">67</strong>
-              <span aria-hidden="true" className="pricing-plan__cents">,00</span>
-              <span aria-hidden="true" className="pricing-plan__period">pagamento único</span>
-            </div>
-
-            <PlanBenefits access="Acesso vitalício" />
-            <PlanAction
-              href="/templates?plan=lifetime"
-              label="Quero acesso vitalício"
+              label="Escolher plano anual"
             />
           </div>
         </article>
       </div>
-      <PlanTermsNotice />
+      <PlanTermsNotice plan="annual" />
 
     </section>
   );

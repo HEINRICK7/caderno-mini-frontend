@@ -116,7 +116,7 @@ export default function TemplatePage() {
               <h1>Personalize sua mensagem</h1>
               <p>
                 {checkoutPlan
-                  ? `Edite os campos e continue para o checkout do plano ${checkoutPlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}.`
+                  ? "Edite os campos e continue para o checkout do plano anual (R$ 47,00)."
                   : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real."}
               </p>
             </div>

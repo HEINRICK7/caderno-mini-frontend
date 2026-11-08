@@ -356,7 +356,7 @@
   .template-editor-actions { gap: 18px; }
   .template-demo-channels { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .template-demo-channel:last-child { grid-column: auto; }
-  .template-premium-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .template-premium-options { grid-template-columns: minmax(0, 1fr); }
   .template-editor-form { gap: 14px 16px; }
   .template-editor-preview { padding: 0; }
 }

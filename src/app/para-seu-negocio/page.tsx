@@ -95,26 +95,16 @@ export default function ForYourBusinessPage() {
             <article className="how-plan">
               <div>
                 <h3>Plano Anual</h3>
-                <p className="how-plan__price">R$ 33,50</p>
+                <p className="how-plan__price">R$ 47,00</p>
                 <p>Pagamento único · acesso por 12 meses</p>
               </div>
               <Link className="button button--primary" href="/templates?plan=annual">
-                Escolher o anual <ArrowRight aria-hidden="true" size={16} />
-              </Link>
-            </article>
-            <article className="how-plan how-plan--lifetime">
-              <div>
-                <h3>Plano Vitalício</h3>
-                <p className="how-plan__price">R$ 67,00</p>
-                <p>Pagamento único · acesso vitalício</p>
-              </div>
-              <Link className="button button--primary" href="/templates?plan=lifetime">
-                Escolher o vitalício <ArrowRight aria-hidden="true" size={16} />
+                Escolher o plano anual <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </article>
           </div>
           <p className="how-plans__note">O checkout é feito na Cakto; use o mesmo e-mail do seu acesso. A publicação premium é liberada depois da confirmação do pagamento. Alguns modelos oferecem um link de demonstração grátis, válido por 7 dias e sem acesso premium.</p>
-          <PlanTermsNotice />
+          <PlanTermsNotice plan="annual" />
         </section>
 
         <section aria-labelledby="business-faq-title" className="marketing-faq business-faq">

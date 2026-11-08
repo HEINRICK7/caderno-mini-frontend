@@ -9,8 +9,6 @@ import { MessagePhonePreview } from "@/components/message-phone-preview";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import { trackInitiateCheckout } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
-import { useCheckoutPlan } from "@/hooks/use-checkout-plan";
-import type { CheckoutPlan } from "@/domain/checkout-plan";
 import type { Draft, Template } from "@/lib/api-contracts";
 
 type FieldValue = string | number | boolean;
@@ -47,9 +45,6 @@ export default function DraftPage() {
   const [demoCopied, setDemoCopied] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState("");
   const demoLinkAnchorRef = useRef<HTMLAnchorElement>(null);
-  const checkoutPlan = useCheckoutPlan();
-  const [selectedPlan, setSelectedPlan] = useState<CheckoutPlan | null>(null);
-  const activePlan = selectedPlan ?? checkoutPlan ?? null;
 
   const loadDraft = useCallback(async () => {
     try {
@@ -223,9 +218,7 @@ export default function DraftPage() {
             <div className="template-editor-heading">
               <h1>Personalize sua mensagem</h1>
               <p>
-                {activePlan
-                  ? `Você selecionou o plano ${activePlan === "annual" ? "anual (R$ 33,50)" : "vitalício (R$ 67,00)"}. Confira o resumo e continue para o checkout seguro.`
-                  : "Preencha os detalhes e veja a prévia do seu cartão."}
+                Confira o resumo do plano anual (R$ 47,00) e continue para o checkout seguro.
               </p>
             </div>
             <div className="template-editor-layout">
@@ -301,38 +294,29 @@ export default function DraftPage() {
                   <section className="template-premium-panel" aria-labelledby="template-premium-title">
                     <div className="template-action-heading">
                       <span className="template-action-heading__eyebrow">Acesso premium</span>
-                      <h2 id="template-premium-title">Escolha como quer manter sua mensagem</h2>
-                      <p>Os dois planos liberam a publicação e o compartilhamento do link definitivo.</p>
+                      <h2 id="template-premium-title">Mantenha sua mensagem no ar</h2>
+                      <p>Libera a publicação e o compartilhamento do link definitivo por 12 meses.</p>
                     </div>
-                    <div aria-label="Escolha um plano" className="template-premium-options" role="group">
-                      <button aria-pressed={activePlan === "annual"} className={`template-plan-card template-plan-card--annual${activePlan === "annual" ? " is-selected" : ""}`} disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => setSelectedPlan("annual")} type="button">
+                    <div aria-label="Plano de acesso" className="template-premium-options" role="group">
+                      <button aria-pressed={true} className="template-plan-card template-plan-card--annual is-selected" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
                         <span className="template-plan-card__topline">
-                          <span className="template-plan-card__name">Plano anual</span>
-                          {activePlan === "annual" ? <span className="template-plan-card__badge">Selecionado</span> : <span className="template-plan-card__term">12 meses</span>}
+                          <span className="template-plan-card__name">Plano Anual</span>
+                          <span className="template-plan-card__badge">12 meses</span>
                         </span>
-                        <span className="template-plan-card__price"><span>R$</span> 33,50</span>
+                        <span className="template-plan-card__price"><span>R$</span> 47,00</span>
                         <span className="template-plan-card__description">Acesso premium por 12 meses.</span>
-                        <span className="template-plan-card__cta">{activePlan === "annual" ? "Plano selecionado" : "Selecionar plano anual"}</span>
-                      </button>
-                      <button aria-pressed={activePlan === "lifetime"} className={`template-plan-card template-plan-card--lifetime${activePlan === "lifetime" ? " is-selected" : ""}`} disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => setSelectedPlan("lifetime")} type="button">
-                        <span className="template-plan-card__topline">
-                          <span className="template-plan-card__name">Acesso vitalício</span>
-                          {activePlan === "lifetime" ? <span className="template-plan-card__badge">Selecionado</span> : <span className="template-plan-card__term">Sem vencimento</span>}
-                        </span>
-                        <span className="template-plan-card__price"><span>R$</span> 67,00</span>
-                        <span className="template-plan-card__description">Acesso premium sem prazo de expiração.</span>
-                        <span className="template-plan-card__cta">{activePlan === "lifetime" ? "Plano selecionado" : "Selecionar acesso vitalício"}</span>
+                        <span className="template-plan-card__cta">Plano anual selecionado</span>
                       </button>
                     </div>
-                    <PlanTermsNotice plan={activePlan ?? undefined} />
+                    <PlanTermsNotice plan="annual" />
                     <button
                       className="button button--primary template-premium-continue"
-                      disabled={!activePlan || saving || checkingOut || creatingDemoLink || imageUploadBlocked}
-                      onClick={() => { if (activePlan) void continueToCheckout(activePlan); }}
+                      disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked}
+                      onClick={() => void continueToCheckout("annual")}
                       type="button"
                     >
-                      {checkingOut ? "Abrindo checkout…" : activePlan ? "Continuar para o pagamento" : "Selecione um plano para continuar"}
-                      {activePlan && !checkingOut ? <ArrowRight aria-hidden="true" size={17} /> : null}
+                      {checkingOut ? "Abrindo checkout…" : "Continuar para o pagamento"}
+                      {!checkingOut ? <ArrowRight aria-hidden="true" size={17} /> : null}
                     </button>
                     <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela Cakto.</p>
                   </section>

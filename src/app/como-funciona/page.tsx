@@ -45,7 +45,7 @@ const faqs = [
   },
   {
     question: "O pagamento é mensal?",
-    answer: "Não. O Plano Anual custa R$ 33,50 em pagamento único e dá acesso por 12 meses. O Plano Vitalício custa R$ 67,00 em pagamento único e dá acesso vitalício.",
+    answer: "Não. O Plano Anual custa R$ 47,00 em pagamento único e dá acesso por 12 meses.",
   },
   {
     question: "Posso pedir reembolso?",
@@ -95,32 +95,22 @@ export default function HowItWorksPage() {
         <section aria-labelledby="how-plans-title" className="how-plans">
           <div className="marketing-section-heading">
             <h2 id="how-plans-title">Quanto custa publicar?</h2>
-            <p>Os dois planos têm pagamento único. Escolha o período de acesso que faz sentido para você.</p>
+            <p>Pagamento único, sem assinatura ou renovação automática. Acesso completo por 12 meses.</p>
           </div>
           <div className="how-plan-grid">
             <article className="how-plan">
               <div>
                 <h3>Plano Anual</h3>
-                <p className="how-plan__price">R$ 33,50</p>
+                <p className="how-plan__price">R$ 47,00</p>
                 <p>Pagamento único · acesso por 12 meses</p>
               </div>
               <Link className="button button--primary" href="/templates?plan=annual">
-                Escolher o anual <ArrowRight aria-hidden="true" size={16} />
-              </Link>
-            </article>
-            <article className="how-plan how-plan--lifetime">
-              <div>
-                <h3>Plano Vitalício</h3>
-                <p className="how-plan__price">R$ 67,00</p>
-                <p>Pagamento único · acesso vitalício</p>
-              </div>
-              <Link className="button button--primary" href="/templates?plan=lifetime">
-                Escolher o vitalício <ArrowRight aria-hidden="true" size={16} />
+                Escolher o plano anual <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </article>
           </div>
           <p className="how-plans__note">O checkout abre na Cakto: use o mesmo e-mail do seu acesso. A publicação e o link público premium são liberados após a confirmação do pagamento. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
-          <PlanTermsNotice />
+          <PlanTermsNotice plan="annual" />
         </section>
 
         <section aria-labelledby="how-faq-title" className="marketing-faq">
