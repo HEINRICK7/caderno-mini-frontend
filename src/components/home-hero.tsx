@@ -50,11 +50,11 @@ export function HomeHero() {
       <div aria-hidden="true" className="hero-art">
         <div className="hero-art__halo" />
         <div className="hero-art__mini hero-art__mini--thanks">
-          <Image alt="" className="hero-art__image" src={thanksPreview} />
+          <Image alt="" className="hero-art__image" height={1672} src={thanksPreview} width={941} />
           <span className="hero-art__label">Agradecimento</span>
         </div>
         <div className="hero-art__mini hero-art__mini--payment">
-          <Image alt="" className="hero-art__image" src={paymentPreview} />
+          <Image alt="" className="hero-art__image" height={1672} src={paymentPreview} width={941} />
           <span className="hero-art__label">Pagamento confirmado</span>
         </div>
         <div className="hero-art__main">

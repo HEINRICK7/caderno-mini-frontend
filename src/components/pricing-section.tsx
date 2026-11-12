@@ -32,9 +32,11 @@ function PlanArtwork({
         <Image
           alt={image.alt}
           className={`pricing-plan__art-card pricing-plan__art-card--${index + 1}`}
+          height={1672}
           key={image.alt}
           src={image.src}
           priority={index === 1}
+          width={941}
         />
       ))}
     </AnimatedContent>

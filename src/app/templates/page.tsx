@@ -229,7 +229,7 @@ export default function TemplatesPage() {
                 >
                   <div className="template-card__art" style={{ "--template-art-bg": template.definition.visual?.background ?? "#e8f5ef" } as CSSProperties}>
                     {preview ? (
-                      <Image alt="" className="template-card__preview-image" src={preview} sizes="(max-width: 520px) 40vw, (max-width: 920px) 30vw, 20vw" priority={index < 4} />
+                      <Image alt="" className="template-card__preview-image" height={1672} src={preview} sizes="(max-width: 520px) 40vw, (max-width: 920px) 30vw, 20vw" priority={index < 4} width={941} />
                     ) : (
                       <StatusSticker
                         className="status-sticker--catalog"

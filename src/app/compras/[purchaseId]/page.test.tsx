@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 describe("acompanhamento da compra", () => {
-  it("registra Purchase uma vez com o valor confirmado pelo webhook da Cakto", async () => {
+  it("registra Purchase uma vez com o valor confirmado pelo webhook da AbacatePay", async () => {
     getPurchase.mockResolvedValue({
       purchaseId: "purchase-1",
       draftId: "draft-1",
@@ -95,7 +95,7 @@ describe("acompanhamento da compra", () => {
 
     render(<PurchasePage />);
 
-    expect(await screen.findByRole("heading", { name: "Link pronto" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Seu cartão está pronto." })).toBeTruthy();
     expect(screen.getByText("Pagamento confirmado")).toBeTruthy();
     expect(publishDraft).toHaveBeenCalledWith("draft-1");
     expect(screen.getByRole("link", { name: publicUrl }).getAttribute("href")).toBe(publicUrl);

@@ -30,15 +30,15 @@ describe("catálogo de modelos", () => {
     getTemplates.mockResolvedValue(models);
     render(<TemplatesPage />);
 
-    expect(await screen.findByRole("heading", { name: "Escolha um modelo" })).toBeTruthy();
-    expect(screen.getByText("Cartões para o seu negócio. Personalize e compartilhe em segundos.")).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Escolha o próximo recado." })).toBeTruthy();
+    expect(screen.getByText("Comece com uma ideia pronta, personalize do seu jeito e compartilhe no momento certo.")).toBeTruthy();
     expect(await screen.findByRole("heading", { name: "Boas-vindas" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Agradecimento pela compra" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Parcela próxima do vencimento" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Produtos" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: "Boas-vindas" })).toBeTruthy();
     expect(document.querySelectorAll(".template-card")).toHaveLength(3);
-    expect(document.querySelectorAll(".template-card img")).toHaveLength(0);
+    expect(document.querySelectorAll(".template-card img")).toHaveLength(2);
   });
 
   it("filtra pelo segmento e pela categoria declarados pelo backend", async () => {

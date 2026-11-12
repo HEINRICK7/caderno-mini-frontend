@@ -84,8 +84,8 @@ export default function HowItWorksPage() {
           </div>
           <div aria-hidden="true" className="how-hero__visual">
             <div className="how-hero__halo" />
-            <Image alt="" className="how-hero__card how-hero__card--back" src={welcomePreview} />
-            <Image alt="" className="how-hero__card how-hero__card--front" src={paymentPreview} />
+            <Image alt="" className="how-hero__card how-hero__card--back" height={1672} src={welcomePreview} width={941} />
+            <Image alt="" className="how-hero__card how-hero__card--front" height={1672} src={paymentPreview} width={941} />
             <span className="how-hero__caption"><Check aria-hidden="true" size={14} /> Pronto para compartilhar</span>
           </div>
         </header>
