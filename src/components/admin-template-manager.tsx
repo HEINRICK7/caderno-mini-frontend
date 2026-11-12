@@ -107,7 +107,8 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
   }, [onUnauthorized]);
 
   useEffect(() => {
-    void loadTemplates();
+    const loadTimer = window.setTimeout(() => void loadTemplates(), 0);
+    return () => window.clearTimeout(loadTimer);
   }, [loadTemplates]);
 
   const currentSignature = formSignature({ id: templateId, name, description, definition });

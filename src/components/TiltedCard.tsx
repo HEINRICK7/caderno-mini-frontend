@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {
   useEffect,
   useRef,
@@ -192,7 +193,10 @@ const TiltedCard = ({
     tooltip: showTooltip && Boolean(captionText)
   };
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  });
 
   useEffect(() => {
     wakeRef.current?.();
@@ -596,11 +600,14 @@ const TiltedCard = ({
       >
         <div className="tilted-card__face tilted-card__front">
           {imageSrc && (
-            <img
+            <Image
               className="tilted-card__img"
               src={imageSrc}
               alt={altText}
               draggable={false}
+              height={1}
+              unoptimized
+              width={1}
               style={
                 {
                   '--tc-depth': -24,
