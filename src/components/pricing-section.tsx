@@ -1,6 +1,7 @@
 import { ArrowRight, Check, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import AnimatedContent from "@/components/AnimatedContent";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
@@ -18,7 +19,15 @@ function PlanArtwork({
   images: readonly { src: typeof paymentPreview; alt: string }[];
 }) {
   return (
-    <div aria-label="Prévia de modelos de relacionamento e cobrança" className="pricing-plan__art pricing-plan__art--annual" role="group">
+    <AnimatedContent
+      aria-label="Prévia de modelos de relacionamento e cobrança"
+      className="pricing-plan__art pricing-plan__art--annual"
+      distance={12}
+      duration={0.55}
+      role="group"
+      stagger={0.09}
+      threshold={0.14}
+    >
       {images.map((image, index) => (
         <Image
           alt={image.alt}
@@ -28,7 +37,7 @@ function PlanArtwork({
           priority={index === 1}
         />
       ))}
-    </div>
+    </AnimatedContent>
   );
 }
 
@@ -66,13 +75,15 @@ function PlanBenefits({ access }: { access: string }) {
 export function PricingSection() {
   return (
     <section aria-labelledby="pricing-title" className="pricing-section" id="planos">
-      <div className="pricing-section__intro">
-        <span className="pricing-section__eyebrow">Plano Cadernô Express</span>
-        <h2 id="pricing-title">Acesso completo para o seu negócio</h2>
-        <p>Os 16 modelos premium, com toda a liberdade para personalizar e compartilhar o ano todo.</p>
-      </div>
+      <AnimatedContent className="pricing-section__intro-reveal" distance={18} duration={0.65} threshold={0.1}>
+        <div className="pricing-section__intro">
+          <span className="pricing-section__eyebrow">Plano Cadernô Express</span>
+          <h2 id="pricing-title">Acesso completo para o seu negócio</h2>
+          <p>Os 16 modelos premium, com toda a liberdade para personalizar e compartilhar o ano todo.</p>
+        </div>
+      </AnimatedContent>
 
-      <div className="pricing-section__plans">
+      <AnimatedContent className="pricing-section__plans" distance={22} duration={0.7} threshold={0.08}>
         <article className="pricing-plan pricing-plan--annual">
           <PlanArtwork
             images={[
@@ -81,7 +92,13 @@ export function PricingSection() {
               { src: birthdayPreview, alt: "Modelo de aniversário" },
             ]}
           />
-          <div className="pricing-plan__surface">
+          <AnimatedContent
+            className="pricing-plan__surface"
+            distance={14}
+            duration={0.55}
+            stagger={0.08}
+            threshold={0.14}
+          >
             <div className="pricing-plan__heading">
               <div>
                 <h3>Plano Anual</h3>
@@ -101,14 +118,13 @@ export function PricingSection() {
             </div>
 
             <PlanBenefits access="Acesso por 12 meses" />
-            <PlanAction
-              href="/templates?plan=annual"
-              label="Escolher plano anual"
-            />
-          </div>
+            <PlanAction href="/templates?plan=annual" label="Escolher plano anual" />
+          </AnimatedContent>
         </article>
-      </div>
-      <PlanTermsNotice plan="annual" />
+      </AnimatedContent>
+      <AnimatedContent className="pricing-section__terms-reveal" delay={0.08} distance={12} duration={0.55} threshold={0.08}>
+        <PlanTermsNotice plan="annual" />
+      </AnimatedContent>
 
     </section>
   );

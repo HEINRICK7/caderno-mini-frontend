@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 const faqs = [
   {
     question: "Posso pedir reembolso?",
-    answer: "Sim. A Cakto permite solicitar reembolso em até 7 dias corridos após a compra. Os planos têm pagamento único, sem renovação automática; o reembolso encerra o acesso.",
+    answer: "Os planos são de pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
   },
   {
     question: "É para quem vende produtos ou presta serviços?",
@@ -103,7 +103,7 @@ export default function ForYourBusinessPage() {
               </Link>
             </article>
           </div>
-          <p className="how-plans__note">O checkout é feito na Cakto; use o mesmo e-mail do seu acesso. A publicação premium é liberada depois da confirmação do pagamento. Alguns modelos oferecem um link de demonstração grátis, válido por 7 dias e sem acesso premium.</p>
+          <p className="how-plans__note">O pagamento é concluído no checkout seguro da AbacatePay; use o mesmo e-mail do seu acesso. A publicação premium é liberada depois da confirmação. Alguns modelos oferecem um link de demonstração grátis, válido por 7 dias e sem acesso premium.</p>
           <PlanTermsNotice plan="annual" />
         </section>
 

@@ -21,6 +21,7 @@ import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource-variable/dm-sans";
 import "./globals.css";
 import "./flow.css";
+import "./premium.css";
 
 const publicAppUrl = process.env.PUBLIC_APP_URL ?? "http://localhost:3001";
 
@@ -30,7 +31,8 @@ export const metadata: Metadata = {
     default: "Cadernô Express — Pequenas mensagens. Grandes conexões.",
     template: "%s | Cadernô Express",
   },
-  description: "Crie cartões digitais personalizados para se conectar com seus clientes.",
+  description:
+    "Cartões personalizáveis para pequenos negócios: agradeça, lembre pagamentos e divulgue novidades sem criar cada mensagem do zero.",
   applicationName: "Cadernô Express",
   appleWebApp: {
     capable: true,
@@ -42,7 +44,8 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     siteName: "Cadernô Express",
     title: "Cadernô Express — Pequenas mensagens. Grandes conexões.",
-    description: "Crie cartões digitais personalizados para se conectar com seus clientes.",
+    description:
+      "Cartões personalizáveis para pequenos negócios: agradeça, lembre pagamentos e divulgue novidades sem criar cada mensagem do zero.",
   },
 };
 

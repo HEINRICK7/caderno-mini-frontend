@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, LogOut, Search, ShieldCheck, UserRound, Users } from "lucide-react";
+import { ArrowRight, CircleAlert, LoaderCircle, LogOut, Search, ShieldCheck, UserRound, Users } from "lucide-react";
 import { AdminHeader } from "@/components/admin-header";
+import { AdminTemplateManager } from "@/components/admin-template-manager";
 import { ApiError, api } from "@/lib/api-client";
 import type { AdminUserDetail, AdminUserSummary } from "@/lib/api-contracts";
 
@@ -51,26 +52,34 @@ function AdminLogin({ onAuthenticated }: { onAuthenticated: (email: string) => v
   return (
     <main className="subpage-shell">
       <AdminHeader />
-      <section className="subpage-content subpage-content--narrow">
-        <div className="page-heading page-heading--stacked">
-          <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Área administrativa</span>
-          <h1>Entrar no painel</h1>
-          <p>Acesse com o e-mail e a senha exclusivos do administrador. Clientes continuam entrando com link por e-mail.</p>
+      <section className="subpage-content admin-auth-content">
+        <div className="admin-auth-layout">
+          <header className="admin-auth-intro">
+            <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Área administrativa</span>
+            <h1>Seu espaço de gestão.</h1>
+            <p>Acompanhe clientes e publique os modelos do Cadernô Express em um painel protegido.</p>
+            <div className="admin-auth-note"><ShieldCheck aria-hidden="true" size={17} /><span>Esta entrada é exclusiva para quem administra o Cadernô. Clientes acessam seus cartões pela Minha conta.</span></div>
+          </header>
+          <section aria-labelledby="admin-login-title" className="admin-auth-card">
+            <div className="admin-auth-card__icon"><ShieldCheck aria-hidden="true" size={20} /></div>
+            <h2 id="admin-login-title">Entrar no painel</h2>
+            <p>Use suas credenciais administrativas para continuar.</p>
+            <form className="template-form admin-login-form" onSubmit={submit}>
+              <div className="form-field">
+                <label htmlFor="admin-email">E-mail do administrador</label>
+                <input autoComplete="username" id="admin-email" name="email" required type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              </div>
+              <div className="form-field">
+                <label htmlFor="admin-password">Senha</label>
+                <input autoComplete="current-password" id="admin-password" minLength={12} name="password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+              </div>
+              {error ? <p className="form-error" role="alert">{error}</p> : null}
+              <button className="button button--primary form-submit" disabled={submitting} type="submit">
+                {submitting ? "Entrando…" : "Entrar como administrador"}
+              </button>
+            </form>
+          </section>
         </div>
-        <form className="template-form admin-login-form" onSubmit={submit}>
-          <div className="form-field">
-            <label htmlFor="admin-email">E-mail do administrador</label>
-            <input autoComplete="username" id="admin-email" name="email" required type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          </div>
-          <div className="form-field">
-            <label htmlFor="admin-password">Senha</label>
-            <input autoComplete="current-password" id="admin-password" minLength={12} name="password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-          </div>
-          {error ? <p className="form-error" role="alert">{error}</p> : null}
-          <button className="button button--primary form-submit" disabled={submitting} type="submit">
-            {submitting ? "Entrando…" : "Entrar como administrador"}
-          </button>
-        </form>
       </section>
     </main>
   );
@@ -105,16 +114,27 @@ export default function AdminPage() {
   }, [sessionCheck]);
 
   if (checkingSession) {
-    return <main className="subpage-shell"><AdminHeader /><section className="subpage-content subpage-content--narrow"><p className="page-message" role="status">Verificando acesso administrativo…</p></section></main>;
+    return (
+      <main className="subpage-shell">
+        <AdminHeader />
+        <section className="subpage-content subpage-content--narrow admin-auth-content">
+          <div className="admin-checking" role="status">
+            <span className="admin-checking__icon"><LoaderCircle aria-hidden="true" size={22} /></span>
+            <div><span className="admin-eyebrow">Acesso protegido</span><h1>Verificando seu acesso</h1><p>Estamos confirmando sua sessão administrativa.</p></div>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   if (sessionError) {
     return (
       <main className="subpage-shell">
         <AdminHeader />
-        <section className="subpage-content subpage-content--narrow">
-          <div className="page-message page-message--error" role="alert">
-            <p>{sessionError}</p>
+        <section className="subpage-content subpage-content--narrow admin-auth-content">
+          <div className="admin-session-error" role="alert">
+            <span className="admin-session-error__icon"><CircleAlert aria-hidden="true" size={23} /></span>
+            <div className="admin-session-error__copy"><span className="admin-eyebrow">Acesso administrativo</span><h1>Não foi possível abrir o painel.</h1><p>{sessionError}</p></div>
             <button className="button button--secondary" onClick={() => {
               setCheckingSession(true);
               setSessionCheck((current) => current + 1);
@@ -257,8 +277,8 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
       <section className="subpage-content admin-content">
         <div className="page-heading page-heading--stacked admin-heading">
           <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Painel do criador</span>
-          <h1>Clientes e acesso</h1>
-          <p>Consulte contas, compras e sessões. A Cakto continua sendo a autoridade sobre pagamentos e licenças.</p>
+          <h1>Clientes, acesso e catálogo</h1>
+          <p>Gerencie clientes e publique os templates do Cadernô Express. A AbacatePay confirma pagamentos; o Cadernô controla as licenças.</p>
           <div className="admin-session-control">
             <span>Sessão de administrador: <strong>{adminEmail}</strong></span>
             <button className="button button--secondary" disabled={signingOut} onClick={() => void signOut()} type="button">
@@ -271,13 +291,15 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
               <div className="admin-test-panel__copy">
                 <span className="admin-eyebrow"><ShieldCheck aria-hidden="true" size={15} /> Experiência do cliente</span>
                 <h2>Teste os modelos com acesso premium</h2>
-                <p>Use sua sessão administrativa para criar, publicar e exportar mensagens sem uma compra. Isso não registra transações nem cria licenças; valide pagamentos com uma venda de teste configurada na Cakto.</p>
+                <p>Use sua sessão administrativa para criar, publicar e exportar mensagens sem uma compra. Isso não registra transações nem cria licenças; valide pagamentos com uma venda de teste configurada na AbacatePay.</p>
               </div>
               <div className="admin-test-panel__actions">
-                <Link className="button button--primary" href="/templates">Testar os 16 modelos <ArrowRight aria-hidden="true" size={16} /></Link>
+                <Link className="button button--primary" href="/templates">Abrir catálogo de modelos <ArrowRight aria-hidden="true" size={16} /></Link>
                 <Link className="button button--secondary" href="/conta">Ver minha conta</Link>
               </div>
             </section>
+
+            <AdminTemplateManager onUnauthorized={onUnauthorized} />
 
             <div className="admin-metrics" aria-label="Resumo de contas">
               <article><Users aria-hidden="true" size={18} /><strong>{loading ? "—" : total}</strong><span>clientes encontrados</span></article>

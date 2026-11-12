@@ -18,7 +18,7 @@ npm run dev
 
 Abra [http://localhost:3001](http://localhost:3001). O Next encaminha chamadas `/api/v1/*` para `API_BASE_URL`.
 O link público de cada cartão vem do backend pela configuração `PUBLIC_APP_URL`; configure esse valor com a origem do frontend em cada ambiente.
-O Pixel da Meta é opcional e fica desativado sem `NEXT_PUBLIC_META_PIXEL_ID`. Use o ID numérico no `.env.local` durante o desenvolvimento e na variável `NEXT_PUBLIC_META_PIXEL_ID` do ambiente GitHub usado pelo deploy de produção. O workflow valida o formato e o injeta no build do container. Com o Pixel configurado, a medição fica desativada até o visitante permitir; o banner oferece rejeição e personalização e mantém um atalho para alterar ou revogar a escolha. O site registra PageView nas páginas institucionais e de modelos, `InitiateCheckout` ao iniciar um checkout e `Purchase` somente depois que a API confirma o pagamento e o webhook validado da Cakto fornece valor e moeda. Todos esses eventos dependem da permissão de medição salva neste navegador.
+O Pixel da Meta é opcional e fica desativado sem `NEXT_PUBLIC_META_PIXEL_ID`. Use o ID numérico no `.env.local` durante o desenvolvimento e na variável `NEXT_PUBLIC_META_PIXEL_ID` do ambiente GitHub usado pelo deploy de produção. O workflow valida o formato e o injeta no build do container. Com o Pixel configurado, a medição fica desativada até o visitante permitir; o banner oferece rejeição e personalização e mantém um atalho para alterar ou revogar a escolha. O site registra PageView nas páginas institucionais e de modelos, `InitiateCheckout` ao iniciar um checkout e `Purchase` somente depois que a API confirma o pagamento pelo webhook validado da AbacatePay. Todos esses eventos dependem da permissão de medição salva neste navegador.
 
 As prévias no editor e na página pública são montadas em HTML/SVG a partir da composição e da paleta versionadas pelo backend. O frontend não exibe o PNG do endpoint de preview; o backend mantém a renderização PNG para exportação e para a prévia automática do link no WhatsApp.
 
@@ -39,7 +39,7 @@ O GitHub Actions executa essas etapas em pushes e pull requests para `dev`, `sta
 - [ADR 0001: Next.js App Router](docs/adr/0001-next-app-router.md)
 - [Brand kit aprovado](CADERNO_EXPRESS_BRANDKIT/BRANDING_FRONTEND_MASTER.md)
 
-O navegador usa apenas os campos retornados por `/api/v1`. A API atual não fornece categorias ou tags no catálogo. Links públicos usam o caminho `/p/:slug` retornado pelo backend. Segredos e configuração da Cakto permanecem no backend.
+O navegador usa apenas os campos retornados por `/api/v1`. A API atual não fornece categorias ou tags no catálogo. Links públicos usam o caminho `/p/:slug` retornado pelo backend. Credenciais e configuração da AbacatePay permanecem no backend.
 
 ## Deploy na Hostinger
 

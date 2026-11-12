@@ -12,6 +12,7 @@ type TemplateFieldsProps = {
   onUploadStateChange?: (uploading: boolean) => void;
   imagePreviews?: Record<string, string>;
   onImagePreviewChange?: (id: string, preview: string | null) => void;
+  localOnlyImages?: boolean;
 };
 
 export function TemplateFields({
@@ -21,6 +22,7 @@ export function TemplateFields({
   onUploadStateChange,
   imagePreviews,
   onImagePreviewChange,
+  localOnlyImages = false,
 }: TemplateFieldsProps) {
   const [currencyInputs, setCurrencyInputs] = useState<Record<string, string>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
@@ -153,6 +155,10 @@ export function TemplateFields({
                     return;
                   }
                   onImagePreviewChange?.(field.id, reader.result);
+                  if (localOnlyImages) {
+                    setFieldUploading(field.id, false);
+                    return;
+                  }
                   try {
                     const uploaded = await api.uploadImage(reader.result);
                     setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });

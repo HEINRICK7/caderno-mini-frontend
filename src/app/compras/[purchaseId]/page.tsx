@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { CircleAlert, Clock3, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { trackMetaEvent } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
@@ -123,24 +124,30 @@ export default function PurchasePage() {
   return (
     <main className="subpage-shell">
       <SiteHeader />
-      <section className="subpage-content subpage-content--narrow">
-        <div className="page-heading page-heading--stacked">
-          <h1>{shareablePublicUrl ? "Link pronto" : "Acompanhar compra"}</h1>
-          {purchase ? <p>{statusLabels[purchase.status]}</p> : null}
+      <section className="subpage-content subpage-content--narrow purchase-content">
+        <div className="page-heading page-heading--stacked purchase-heading">
+          <span className="purchase-eyebrow">
+            {shareablePublicUrl ? <ShieldCheck aria-hidden="true" size={15} /> : <Clock3 aria-hidden="true" size={15} />}
+            {shareablePublicUrl ? "Tudo pronto para compartilhar" : "Acompanhamento seguro"}
+          </span>
+          <h1>{shareablePublicUrl ? "Seu cartão está pronto." : "Acompanhe sua compra."}</h1>
+          {purchase ? <p aria-live="polite" className={`purchase-status purchase-status--${purchase.status}`}>{statusLabels[purchase.status]}</p> : null}
+          {purchase?.status === "pending" ? <span className="purchase-hint">A confirmação pode levar alguns instantes. Atualizamos esta tela automaticamente.</span> : null}
         </div>
-        {loading && !purchase ? <p className="page-message" role="status">Consultando compra…</p> : null}
-        {error ? <p className="form-error" role="alert">{error}</p> : null}
+        {loading && !purchase ? <div className="purchase-state purchase-state--loading" role="status"><span className="purchase-state__icon"><Clock3 aria-hidden="true" size={20} /></span><div><h2>Consultando sua compra</h2><p>Estamos verificando a confirmação com segurança.</p></div></div> : null}
+        {error ? <div className="purchase-state purchase-state--error" role="alert"><span className="purchase-state__icon"><CircleAlert aria-hidden="true" size={20} /></span><div><h2>Não conseguimos atualizar agora</h2><p>{error}</p></div></div> : null}
         {shareablePublicUrl ? (
-          <div className="share-result">
+          <div className="share-result purchase-share-result">
+            <div className="purchase-share-result__copy"><strong>Compartilhe com seu cliente</strong><span>O link abre o cartão personalizado em qualquer celular.</span></div>
             <a className="share-result__url" href={shareablePublicUrl}>{shareablePublicUrl}</a>
             <a className="button button--primary form-submit" href={whatsappUrl} rel="noreferrer" target="_blank">Compartilhar no WhatsApp</a>
           </div>
         ) : null}
         {purchase && purchase.accessStatus !== "active" ? (
-          <button className="button button--secondary form-submit" onClick={() => { setLoading(true); void refresh(); }} type="button">Verificar situação</button>
+          <button className="button button--secondary purchase-refresh" disabled={loading} onClick={() => { setLoading(true); void refresh(); }} type="button">{loading ? "Verificando…" : "Verificar situação"}</button>
         ) : null}
-        {error ? <button className="text-button" onClick={() => { setLoading(true); void refresh(); }} type="button">Tentar novamente</button> : null}
-        <Link className="back-link" href="/templates">Voltar aos modelos</Link>
+        {error ? <button className="text-button purchase-retry" disabled={loading} onClick={() => { setLoading(true); void refresh(); }} type="button">Tentar novamente</button> : null}
+        <Link className="back-link purchase-back-link" href="/templates">Voltar aos modelos <span aria-hidden="true">→</span></Link>
       </section>
     </main>
   );

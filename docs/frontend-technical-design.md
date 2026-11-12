@@ -32,12 +32,12 @@ Construir a experiência de criação e compartilhamento de mensagens do Cadern�
 - Campos suportados pelo domínio hoje: `text`, `textarea`, `number`, `boolean`, `select`, `url`, `color` e `date`. Os campos do editor vêm da definição retornada pelo backend.
 - O rascunho é identificado por UUID e não há `editToken` no contrato. Não criar esse campo no frontend.
 - Criar e editar rascunhos aceita usuário anônimo; checkout, consulta de compra e publicação exigem sessão. O frontend autentica por magic link ao receber `AUTH_REQUIRED` e solicita o checkout novamente. A confirmação por webhook associa o rascunho quando o e-mail da compra corresponde a um usuário existente.
-- O contrato de checkout não permite ao frontend definir ou conferir o e-mail preenchido no checkout da Cakto. O cliente precisa usar o mesmo e-mail da sessão para que a associação prevista pelo backend funcione; esse vínculo não será simulado no frontend.
+- O contrato de checkout não permite ao frontend definir ou conferir o e-mail preenchido no checkout da AbacatePay. O cliente precisa usar o mesmo e-mail da sessão para que a associação prevista pelo backend funcione; esse vínculo não será simulado no frontend.
 - O endpoint de status existe apenas para uma sessão proprietária. Retorno do checkout, query string ou aba de obrigado não substituem essa consulta.
 
 ## Segurança e dados
 
-- Cookies de sessão são HTTP-only; nenhum token de sessão ou segredo Cakto é armazenado em `localStorage` ou enviado ao JavaScript.
+- Cookies de sessão são HTTP-only; nenhum token de sessão ou segredo AbacatePay é armazenado em `localStorage` ou enviado ao JavaScript.
 - Requisições mutáveis preservam a origem do frontend e tratam erros estruturados `{ error: { code, message, details? } }`.
 - Dados de rascunho e publicações são carregados sem cache para que atualizações, revogações e ausência de licença apareçam imediatamente.
 - Links de compartilhamento são derivados de `publicUrl`/`publicPath` retornados pelo servidor. `navigator.share` e WhatsApp apenas abrem o compartilhamento no dispositivo do usuário.
@@ -45,4 +45,4 @@ Construir a experiência de criação e compartilhamento de mensagens do Cadern�
 
 ## Implantação
 
-O host do frontend precisa encaminhar `/api/v1/*` ao backend. O backend deve configurar `PUBLIC_API_URL` com a origem pública do frontend para que `publicUrl` aponte à rota `/p/:slug`; o proxy do frontend deve encaminhar os caminhos `/api/v1/*` usados pelos metadados e pelas imagens ao backend. Credenciais de Cakto continuam exclusivamente no backend.
+O host do frontend precisa encaminhar `/api/v1/*` ao backend. O backend deve configurar `PUBLIC_API_URL` com a origem pública do frontend para que `publicUrl` aponte à rota `/p/:slug`; o proxy do frontend deve encaminhar os caminhos `/api/v1/*` usados pelos metadados e pelas imagens ao backend. Credenciais da AbacatePay continuam exclusivamente no backend.

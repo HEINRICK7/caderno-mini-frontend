@@ -318,7 +318,7 @@ export default function DraftPage() {
                       {checkingOut ? "Abrindo checkout…" : "Continuar para o pagamento"}
                       {!checkingOut ? <ArrowRight aria-hidden="true" size={17} /> : null}
                     </button>
-                    <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela Cakto.</p>
+                    <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela AbacatePay.</p>
                   </section>
                 </div>
               </form>

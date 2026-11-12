@@ -20,6 +20,10 @@ import {
   adminUsersResponseSchema,
   adminUserResponseSchema,
   adminSetUserStatusResponseSchema,
+  adminTemplateListResponseSchema,
+  adminTemplateResponseSchema,
+  adminTemplateArchiveResponseSchema,
+  adminTemplateValidationResponseSchema,
   type Draft,
   type AccountAccessItem,
   type DemoPublication,
@@ -27,6 +31,7 @@ import {
   type PurchaseStatus,
   type AdminUserDetail,
   type AdminUserSummary,
+  type AdminTemplate,
   type Template,
 } from "./api-contracts";
 
@@ -221,6 +226,49 @@ export const api = {
       adminSetUserStatusResponseSchema,
       { method: "POST", body: JSON.stringify({ status }) },
     )).data;
+  },
+
+  async getAdminTemplates(): Promise<AdminTemplate[]> {
+    return (await request("/api/v1/admin/templates", adminTemplateListResponseSchema)).data;
+  },
+
+  async createAdminTemplateDraft(input: { id: string; name: string; description: string | null; definition: Record<string, unknown> }): Promise<AdminTemplate> {
+    return (await request("/api/v1/admin/templates", adminTemplateResponseSchema, {
+      method: "POST",
+      body: JSON.stringify(input),
+    })).data;
+  },
+
+  async updateAdminTemplateDraft(input: { id: string; version: number; name: string; description: string | null; definition: Record<string, unknown> }): Promise<AdminTemplate> {
+    const path = `/api/v1/admin/templates/${encodeURIComponent(input.id)}/versions/${input.version}`;
+    const body = { name: input.name, description: input.description, definition: input.definition };
+    return (await request(path, adminTemplateResponseSchema, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    })).data;
+  },
+
+  async validateAdminTemplateDefinition(definition: Record<string, unknown>): Promise<void> {
+    await request("/api/v1/admin/templates/validate", adminTemplateValidationResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ definition }),
+    });
+  },
+
+  async publishAdminTemplateDraft(templateId: string, version: number): Promise<AdminTemplate> {
+    return (await request(
+      `/api/v1/admin/templates/${encodeURIComponent(templateId)}/versions/${version}/publish`,
+      adminTemplateResponseSchema,
+      { method: "POST" },
+    )).data;
+  },
+
+  async archiveAdminTemplate(templateId: string): Promise<void> {
+    await request(
+      `/api/v1/admin/templates/${encodeURIComponent(templateId)}/archive`,
+      adminTemplateArchiveResponseSchema,
+      { method: "POST" },
+    );
   },
 
   async getPublicPublication(slug: string): Promise<PublicPublication> {

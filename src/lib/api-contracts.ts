@@ -154,6 +154,15 @@ export const templateSchema = z.object({
   createdAt: z.string().datetime({ offset: true }),
 }).strict();
 
+export const adminTemplateSchema = templateSchema.extend({
+  isActive: z.boolean(),
+  publicationStatus: z.enum(["draft", "published", "archived"]),
+}).strict();
+export const adminTemplateListResponseSchema = z.object({ data: z.array(adminTemplateSchema) }).strict();
+export const adminTemplateResponseSchema = z.object({ data: adminTemplateSchema }).strict();
+export const adminTemplateArchiveResponseSchema = z.object({ data: z.object({ changed: z.boolean() }).strict() }).strict();
+export const adminTemplateValidationResponseSchema = z.object({ data: z.object({ valid: z.literal(true) }).strict() }).strict();
+
 export const templateListResponseSchema = z.object({
   data: z.array(templateSchema),
 }).strict();
@@ -334,6 +343,7 @@ export const publicPublicationResponseSchema = z.object({
 
 
 export type Template = z.infer<typeof templateSchema>;
+export type AdminTemplate = z.infer<typeof adminTemplateSchema>;
 export type TemplateField = z.infer<typeof templateFieldSchema>;
 export type TemplateVisual = z.infer<typeof templateVisualSchema>;
 export type TemplateCard = z.infer<typeof templateCardSchema>;

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { CircleAlert, PackageOpen, RotateCcw, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { ApiError, api } from "@/lib/api-client";
@@ -91,19 +92,31 @@ export default function AccountPage() {
     <main className="subpage-shell">
       <SiteHeader />
       <section className="subpage-content subpage-content--narrow account-content">
-        <div className="page-heading page-heading--stacked">
+        <div className="page-heading page-heading--stacked account-heading">
+          <span className="account-eyebrow"><UserRound aria-hidden="true" size={14} /> Espaço do cliente</span>
           <h1>Minha conta</h1>
           <p>Suas compras e os links das mensagens ficam reunidos aqui. Entre com o mesmo e-mail usado no checkout.</p>
           {canManageUsers ? <Link className="account-admin-link" href="/admin">Abrir painel do criador <span aria-hidden="true">→</span></Link> : null}
           {canManageUsers ? <p className="account-admin-test-notice" role="status">Acesso premium de teste ativo nesta sessão administrativa. Esse acesso não cria compra nem licença.</p> : null}
         </div>
 
-        {loading ? <p className="page-message" role="status">Carregando suas compras…</p> : null}
-        {error ? <div className="page-message page-message--error" role="alert"><p>{error}</p><button className="text-button" onClick={() => void loadAccount()} type="button">Tentar novamente</button></div> : null}
+        {loading ? (
+          <div aria-label="Carregando sua conta" aria-live="polite" className="account-skeleton" role="status">
+            <span /><i /><i />
+          </div>
+        ) : null}
+        {error ? (
+          <div className="account-state account-state--error" role="alert">
+            <span className="account-state__icon"><CircleAlert aria-hidden="true" size={21} /></span>
+            <div><h2>Não conseguimos abrir sua conta</h2><p>{error}</p></div>
+            <button className="button button--secondary" onClick={() => void loadAccount()} type="button"><RotateCcw aria-hidden="true" size={16} /> Tentar novamente</button>
+          </div>
+        ) : null}
         {!loading && !error && uniqueItems.length === 0 ? (
           <div className="account-empty">
+            <span className="account-empty__icon"><PackageOpen aria-hidden="true" size={24} /></span>
             <h2>{canManageUsers ? "Acesso de teste pronto" : "Ainda não há mensagens na sua conta"}</h2>
-            <p>{canManageUsers ? "Você pode testar todos os recursos premium pela sua sessão administrativa. Compras e licenças reais continuam sendo exibidas somente após confirmação da Cakto." : "Se você já comprou, entre usando o mesmo e-mail informado no checkout. Após a confirmação, a compra aparece aqui."}</p>
+            <p>{canManageUsers ? "Você pode testar todos os recursos premium pela sua sessão administrativa. Compras e licenças reais continuam sendo exibidas somente após confirmação da AbacatePay." : "Se você já comprou, entre usando o mesmo e-mail informado no checkout. Após a confirmação, a compra aparece aqui."}</p>
             {canManageUsers ? (
               <Link className="button button--primary" href="/templates">Testar os modelos</Link>
             ) : (

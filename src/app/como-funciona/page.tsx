@@ -1,10 +1,13 @@
 /* Hallmark · pre-emit critique: Philosophy 5 · Hierarchy 5 · Execution 4 · Specificity 5 · Restraint 5 · Variety 4 */
 /* Hallmark · macrostructure: Narrative Workflow · theme: Cadernô Express · nav: shared SaaS header · close: statement · motion: none */
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
+import welcomePreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/01-boas-vindas.png";
+import paymentPreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 
 export const metadata: Metadata = {
   title: "Como funciona",
@@ -33,7 +36,7 @@ const steps = [
   {
     number: "04",
     title: "Publique e compartilhe",
-    description: "Escolha um plano e conclua a compra no checkout da Cakto. Depois que o pagamento for confirmado, você recebe um link público para compartilhar.",
+    description: "Escolha um plano e conclua a compra no checkout da AbacatePay. Depois que o pagamento for confirmado, você recebe um link público para compartilhar.",
     note: "Seu cliente abre o link sem conta; você escolhe quando compartilhar.",
   },
 ];
@@ -49,7 +52,7 @@ const faqs = [
   },
   {
     question: "Posso pedir reembolso?",
-    answer: "Sim. A Cakto permite solicitar reembolso em até 7 dias corridos após a compra. Como os planos são de pagamento único, não há cobrança recorrente para cancelar. O reembolso encerra o acesso.",
+    answer: "Os planos são de pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
   },
   {
     question: "O Cadernô envia a mensagem pelo WhatsApp?",
@@ -57,7 +60,7 @@ const faqs = [
   },
   {
     question: "Preciso entrar em uma conta?",
-    answer: "Você pode criar e visualizar a prévia sem entrar. Para concluir a compra e publicar, acesse pelo link enviado ao seu e-mail e use esse mesmo endereço no checkout da Cakto.",
+    answer: "Você pode criar e visualizar a prévia sem entrar. Para concluir a compra e publicar, acesse pelo link enviado ao seu e-mail e use esse mesmo endereço no checkout da AbacatePay.",
   },
   {
     question: "Existe uma demonstração gratuita por link?",
@@ -71,12 +74,20 @@ export default function HowItWorksPage() {
       <SiteHeader />
       <div className="marketing-page how-page">
         <header className="marketing-hero how-hero">
-          <p className="marketing-eyebrow">Do primeiro modelo ao link</p>
-          <h1>Uma mensagem especial, em quatro passos.</h1>
-          <p>Escolha, personalize e revise seu cartão sem custo. Você só paga quando decidir publicá-lo.</p>
-          <Link className="button button--primary marketing-hero__action" href="/templates">
-            Ver modelos <ArrowRight aria-hidden="true" size={17} />
-          </Link>
+          <div className="how-hero__copy">
+            <p className="marketing-eyebrow">Do primeiro modelo ao link</p>
+            <h1>Uma mensagem especial, em quatro passos.</h1>
+            <p>Escolha, personalize e revise seu cartão sem custo. Você só paga quando decidir publicá-lo.</p>
+            <Link className="button button--primary marketing-hero__action" href="/templates">
+              Ver modelos <ArrowRight aria-hidden="true" size={17} />
+            </Link>
+          </div>
+          <div aria-hidden="true" className="how-hero__visual">
+            <div className="how-hero__halo" />
+            <Image alt="" className="how-hero__card how-hero__card--back" src={welcomePreview} />
+            <Image alt="" className="how-hero__card how-hero__card--front" src={paymentPreview} />
+            <span className="how-hero__caption"><Check aria-hidden="true" size={14} /> Pronto para compartilhar</span>
+          </div>
         </header>
 
         <ol aria-label="Etapas para criar e publicar um cartão" className="workflow-list">
@@ -109,7 +120,7 @@ export default function HowItWorksPage() {
               </Link>
             </article>
           </div>
-          <p className="how-plans__note">O checkout abre na Cakto: use o mesmo e-mail do seu acesso. A publicação e o link público premium são liberados após a confirmação do pagamento. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
+          <p className="how-plans__note">O checkout abre na AbacatePay: use o mesmo e-mail do seu acesso. A publicação e o link público premium são liberados após a confirmação do pagamento. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
           <PlanTermsNotice plan="annual" />
         </section>
 

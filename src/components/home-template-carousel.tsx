@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, CreditCard, Heart, Settings, Tag } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import AnimatedContent from "@/components/AnimatedContent";
 import welcomePreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/01-boas-vindas.png";
 import thanksPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/02-agradecimento-compra.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
@@ -178,6 +179,10 @@ export function HomeTemplateCarousel() {
   const visibleCards = cards.filter((card) => card.category === selectedCategory);
   const selectedInitialId = initialCardId(selectedCategory);
 
+  useEffect(() => {
+    trackRef.current = document.getElementById("examples");
+  }, []);
+
   const scrollToCard = useCallback((id: string, behavior: ScrollBehavior = "smooth") => {
     const track = trackRef.current;
     const card = track?.querySelector<HTMLElement>(`[data-card-id="${id}"]`);
@@ -227,32 +232,45 @@ export function HomeTemplateCarousel() {
 
   return (
     <div className="home-carousel">
-      <div aria-label="Categorias de mensagens" className="home-categories" role="group">
-        <ul>
-          {categories.map(({ id, label, Icon }) => (
-            <li key={id}>
-              <button
-                aria-label={`${label}: ${cards.filter((card) => card.category === id).length} modelos`}
-                aria-pressed={selectedCategory === id}
-                className={selectedCategory === id ? "is-active" : ""}
-                onClick={() => selectCategory(id)}
-                type="button"
-              >
-                <Icon aria-hidden="true" size={14} strokeWidth={1.8} />
-                <span>{label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <AnimatedContent className="home-carousel__intro-reveal" distance={18} duration={0.65} threshold={0.1}>
+        <div className="home-carousel__intro">
+          <p className="home-section-eyebrow">Modelos para situações reais</p>
+          <h2>O que você precisa dizer hoje?</h2>
+          <p>Encontre um ponto de partida para agradecer, cobrar com cuidado ou divulgar uma novidade.</p>
+        </div>
+      </AnimatedContent>
 
-      <section
+      <AnimatedContent className="home-categories-reveal" delay={0.08} distance={12} duration={0.55} threshold={0.1}>
+        <div aria-label="Categorias de mensagens" className="home-categories" role="group">
+          <ul>
+            {categories.map(({ id, label, Icon }) => (
+              <li key={id}>
+                <button
+                  aria-label={`${label}: ${cards.filter((card) => card.category === id).length} modelos`}
+                  aria-pressed={selectedCategory === id}
+                  className={selectedCategory === id ? "is-active" : ""}
+                  onClick={() => selectCategory(id)}
+                  type="button"
+                >
+                  <Icon aria-hidden="true" size={14} strokeWidth={1.8} />
+                  <span>{label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </AnimatedContent>
+
+      <AnimatedContent
         aria-label={`Modelos de ${categories.find((category) => category.id === selectedCategory)!.label.toLowerCase()}`}
         className="cards-showcase"
+        duration={0.7}
         id="examples"
         onScroll={updateActiveCard}
-        ref={trackRef}
+        role="region"
+        stagger={0.09}
         tabIndex={0}
+        threshold={0.08}
       >
         {visibleCards.map((card, index) => (
           <Link
@@ -275,7 +293,7 @@ export function HomeTemplateCarousel() {
             />
           </Link>
         ))}
-      </section>
+      </AnimatedContent>
 
       <button
         aria-label="Modelo anterior"
