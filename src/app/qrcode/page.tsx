@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Copy, Download, QrCode, ShieldCheck } from "lucide-react";
+import { ArrowRight, Copy, Download, QrCode, ShieldCheck } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { ApiError, api } from "@/lib/api-client";
 import type { CustomerPortalSummary } from "@/lib/api-contracts";
 import { buildPixStaticPayload, formatPixAmount, formatPixCnpj, formatPixCpf } from "@/lib/pix-static-qr";
+import { PIX_QR_SUPPORTED_TEMPLATE_IDS, savePixQrHandoff } from "@/lib/pix-qr-handoff";
 
 type Workspace = {
   email: string;
@@ -169,6 +170,31 @@ export default function QrCodeCreatorPage() {
     setFeedback("QR Code Pix baixado como imagem PNG.");
   }
 
+  function useQrInCatalog() {
+    if (!qrPayload) return;
+
+    const normalizedAmount = formatPixAmount(amount).replaceAll(".", "").replace(",", ".");
+    const numericAmount = normalizedAmount ? Number(normalizedAmount) : null;
+    const saved = savePixQrHandoff({
+      payload: qrPayload,
+      amount: numericAmount !== null && Number.isFinite(numericAmount) && numericAmount > 0 ? numericAmount : null,
+    });
+
+    if (!saved) {
+      setFeedback("Não foi possível preparar este QR Pix para o catálogo. Tente gerar novamente.");
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const checkoutPlan = params.get("plan") === "annual" ? "&plan=annual" : "";
+    const returnTemplate = params.get("returnTemplate");
+    if (returnTemplate && PIX_QR_SUPPORTED_TEMPLATE_IDS.some((templateId) => templateId === returnTemplate)) {
+      router.push(`/templates/${encodeURIComponent(returnTemplate)}?usePixQr=1${checkoutPlan}`);
+      return;
+    }
+    router.push(`/templates?usePixQr=1${checkoutPlan}`);
+  }
+
   function clearQr() {
     setKey("");
     setIdentifier(identifierFromName(recipientName));
@@ -321,7 +347,7 @@ export default function QrCodeCreatorPage() {
                 <button className="button button--primary" type="submit"><QrCode aria-hidden="true" size={17} /> Gerar QR Code Pix</button>
                 <button className="button button--secondary" onClick={clearQr} type="button">Limpar chave e valor</button>
               </div>
-              <p className="qr-code-form__privacy"><ShieldCheck aria-hidden="true" size={16} /> Chave e valor ficam neste navegador; nada é salvo no servidor.</p>
+              <p className="qr-code-form__privacy"><ShieldCheck aria-hidden="true" size={16} /> A chave fica neste navegador; o código só vai ao servidor quando você valida e salva a Cobrança Pix.</p>
             </form>
 
             <section aria-labelledby="qr-code-preview-title" className="qr-code-preview">
@@ -341,6 +367,9 @@ export default function QrCodeCreatorPage() {
                     </button>
                     <button className="button button--secondary" onClick={downloadQr} type="button">
                       <Download aria-hidden="true" size={16} /> Baixar QR Code
+                    </button>
+                    <button className="button button--secondary qr-code-preview__use" onClick={useQrInCatalog} type="button">
+                      <ArrowRight aria-hidden="true" size={16} /> Usar no catálogo
                     </button>
                   </div>
                   {feedback ? <p className="qr-code-preview__feedback" role="status">{feedback}</p> : null}

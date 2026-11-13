@@ -12,6 +12,7 @@ import { trackInitiateCheckout } from "../../../components/meta-pixel";
 import { ApiError, api } from "../../../lib/api-client";
 import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
 import { useCustomerWorkspace } from "../../../hooks/use-customer-workspace";
+import { consumePixQrHandoff } from "../../../lib/pix-qr-handoff";
 import type { Template } from "../../../lib/api-contracts";
 import {
   SINGLE_PIX_CHARGE_MODE,
@@ -45,28 +46,55 @@ export default function TemplatePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [pixQrImportMessage, setPixQrImportMessage] = useState("");
+  const [pixQrImportFailed, setPixQrImportFailed] = useState(false);
   const requestedCheckoutPlan = useCheckoutPlan();
   const checkoutPlan = workspace.access?.active ? null : requestedCheckoutPlan;
+
+  const initializeTemplate = useCallback((loadedTemplate: Template) => {
+    const nextValues = editableExampleValues(loadedTemplate);
+    const supportsPixQr = loadedTemplate.definition.fields.some((field) => field.id === "pixCopyPaste");
+    const importRequested = supportsPixQr
+      && new URLSearchParams(window.location.search).get("usePixQr") === "1";
+    const handoff = importRequested ? consumePixQrHandoff() : null;
+
+    if (handoff) {
+      nextValues.pixCopyPaste = handoff.payload;
+      if (loadedTemplate.definition.fields.some((field) => field.id === "amount")) {
+        nextValues.amount = handoff.amount ?? "";
+      }
+      setPixQrImportMessage(handoff.amount === null
+        ? "QR Pix inserido. Confira o recebedor antes de criar a mensagem; o pagador informa o valor no banco."
+        : "QR Pix e valor inseridos. Confira o recebedor e o valor antes de criar a mensagem.");
+      setPixQrImportFailed(false);
+    } else {
+      setPixQrImportMessage(importRequested
+        ? "Este QR Pix não está disponível nesta aba. Gere outro QR ou cole o código no campo abaixo."
+        : "");
+      setPixQrImportFailed(importRequested);
+    }
+
+    setTemplate(loadedTemplate);
+    setValues(nextValues);
+  }, []);
 
   const loadTemplate = useCallback(async () => {
     try {
       const loadedTemplate = await api.getTemplate(templateId);
-      setTemplate(loadedTemplate);
-      setValues(editableExampleValues(loadedTemplate));
+      initializeTemplate(loadedTemplate);
       setError("");
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
     } finally {
       setLoading(false);
     }
-  }, [templateId]);
+  }, [initializeTemplate, templateId]);
 
   useEffect(() => {
     let active = true;
     void api.getTemplate(templateId).then((loadedTemplate) => {
       if (active) {
-        setTemplate(loadedTemplate);
-        setValues(editableExampleValues(loadedTemplate));
+        initializeTemplate(loadedTemplate);
       }
     }).catch((cause: unknown) => {
       if (active) setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
@@ -74,7 +102,7 @@ export default function TemplatePage() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [templateId]);
+  }, [initializeTemplate, templateId]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -140,6 +168,9 @@ export default function TemplatePage() {
                 <TemplateFields
                   fields={templateEditorFields(template, values)}
                   values={values}
+                  pixQrGeneratorHref={template.definition.fields.some((field) => field.id === "pixCopyPaste")
+                    ? `/qrcode?returnTemplate=${encodeURIComponent(template.id)}${checkoutPlan ? `&plan=${checkoutPlan}` : ""}`
+                    : undefined}
                   onUploadStateChange={setUploadingImage}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
                   imagePreviews={imagePreviews}
@@ -150,6 +181,7 @@ export default function TemplatePage() {
                     return next;
                   })}
                 />
+                {pixQrImportMessage ? <p className={`pix-qr-import-notice${pixQrImportFailed ? " is-error" : ""}`} role={pixQrImportFailed ? "alert" : "status"}>{pixQrImportMessage}</p> : null}
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 <div className="template-editor-actions">
                   {checkoutPlan ? <PlanTermsNotice plan={checkoutPlan} /> : null}

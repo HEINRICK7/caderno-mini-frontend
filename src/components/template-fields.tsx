@@ -1,5 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { QrCode } from "lucide-react";
 import { api } from "../lib/api-client";
 import { MAX_TEMPLATE_IMAGE_BYTES, type TemplateField } from "@/lib/api-contracts";
 
@@ -13,6 +15,7 @@ type TemplateFieldsProps = {
   imagePreviews?: Record<string, string>;
   onImagePreviewChange?: (id: string, preview: string | null) => void;
   localOnlyImages?: boolean;
+  pixQrGeneratorHref?: string;
 };
 
 export function TemplateFields({
@@ -23,6 +26,7 @@ export function TemplateFields({
   imagePreviews,
   onImagePreviewChange,
   localOnlyImages = false,
+  pixQrGeneratorHref,
 }: TemplateFieldsProps) {
   const [currencyInputs, setCurrencyInputs] = useState<Record<string, string>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
@@ -216,6 +220,9 @@ export function TemplateFields({
           </>
         )}
         {field.helpText && <p className="form-field__help" id={describedBy}>{field.helpText}</p>}
+        {field.id === "pixCopyPaste" && pixQrGeneratorHref ? (
+          <Link className="pix-qr-generator-link" href={pixQrGeneratorHref}><QrCode aria-hidden="true" size={16} /> Gerar QR Code Pix para este modelo</Link>
+        ) : null}
         {field.id === "pixCopyPaste" && value ? <p className="form-field__help" role="status">QR Code atualizado na prévia. O botão do cartão copia este mesmo código.</p> : null}
       </div>
       </Fragment>
