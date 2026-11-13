@@ -126,6 +126,7 @@ export default function CustomerDashboardPage() {
             <div className="customer-dashboard-panel__heading">
               <div><h2>Suas mensagens</h2><p>Links e compras vinculados a esta conta.</p></div>
               <span className="customer-panel-count">{messageAccess.length}</span>
+              <Link className="text-button" href="/mensagens">Ver mensagens salvas</Link>
             </div>
             {messageAccess.length === 0 ? (
               <div className="customer-empty-state">

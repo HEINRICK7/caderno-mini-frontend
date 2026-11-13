@@ -264,6 +264,12 @@ export const customerPortalResponseSchema = z.object({
     user: sessionResponseSchema.shape.data.shape.user,
     platformAccess: platformAccessResponseSchema.shape.data,
     accountAccess: accountAccessResponseSchema.shape.data,
+    drafts: z.array(z.object({
+      id: z.string().uuid(),
+      templateId: z.string(),
+      templateName: z.string(),
+      updatedAt: z.string().datetime({ offset: true }),
+    }).strict()),
   }).strict(),
 }).strict();
 export const authSessionResponseSchema = sessionResponseSchema;

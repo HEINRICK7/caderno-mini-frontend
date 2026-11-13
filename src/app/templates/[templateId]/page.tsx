@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Share2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "../../../components/site-header";
@@ -198,16 +198,7 @@ export default function TemplatePage() {
                         ? <>Continuar para o checkout <ArrowRight aria-hidden="true" size={17} /></>
                         : workspace.access?.active
                           ? <>Criar mensagem <ArrowRight aria-hidden="true" size={17} /></>
-                          : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
-                  </button>
-                  <button
-                    aria-label="Compartilhar (disponível após a publicação)"
-                    className="button button--share"
-                    disabled
-                    title="Disponível após a publicação"
-                    type="button"
-                  >
-                    <Share2 aria-hidden="true" size={16} /> Compartilhar
+                          : <>Continuar com esta mensagem <ArrowRight aria-hidden="true" size={17} /></>}
                   </button>
                 </div>
               </form>
