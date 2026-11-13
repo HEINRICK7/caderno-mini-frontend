@@ -268,6 +268,7 @@ export const customerPortalResponseSchema = z.object({
       id: z.string().uuid(),
       templateId: z.string(),
       templateName: z.string(),
+      businessName: z.string().max(80).optional(),
       updatedAt: z.string().datetime({ offset: true }),
     }).strict()),
   }).strict(),

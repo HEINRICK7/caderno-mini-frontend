@@ -91,7 +91,7 @@ export default function SavedMessagesPage() {
                     ) : null}
                   </div>
                   {!portal.platformAccess.active && !publicUrl ? <p className="saved-message-card__locked">Ative sua licença para publicar e compartilhar esta mensagem.</p> : null}
-                  {publicUrl ? <DraftShareActions allowImage={!isPixCopyPaste} draftId={draft.id} publicUrl={publicUrl} /> : null}
+                  {publicUrl ? <DraftShareActions allowImage={!isPixCopyPaste} businessName={draft.businessName} draftId={draft.id} publicUrl={publicUrl} /> : null}
                 </article>
               );
             })}

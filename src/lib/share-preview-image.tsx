@@ -44,7 +44,7 @@ export async function renderClientSharePreview(input: {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#126D70", fontFamily: "Poppins", fontSize: 18 }}>
               <span style={{ display: "flex", width: 12, height: 12, borderRadius: 6, background: "#F47D71" }} />
-              CARTÃO DIGITAL
+              CARTÃO DIGITAL · CADERNÔ EXPRESS
             </div>
             {input.companyName ? (
               <span style={{ maxWidth: 420, color: "#536274", fontSize: 18 }}>{cardTitle}</span>
