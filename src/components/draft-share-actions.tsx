@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download, ExternalLink, Image as ImageIcon, MessageCircle } from "lucide-react";
 import { WhatsAppPhonePreview } from "@/components/whatsapp-phone-preview";
+import { SharePublicLinkQr } from "@/components/share-public-link-qr";
 import {
   billingWhatsAppMessages,
   billingWhatsAppShareUrl,
@@ -91,6 +92,7 @@ export function DraftShareActions({
                 <ExternalLink aria-hidden="true" size={16} /> Abrir link
               </a>
             </div>
+            <SharePublicLinkQr isPixCharge={billingMessages} publicUrl={publicUrl} />
             {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
           </div>
           <WhatsAppPhonePreview
@@ -122,6 +124,7 @@ export function DraftShareActions({
               </>
             ) : null}
           </div>
+          <SharePublicLinkQr isPixCharge={billingMessages} publicUrl={publicUrl} />
           {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
         </>
       ) : null}
