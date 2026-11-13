@@ -23,8 +23,6 @@ export default function CustomerDashboardPage() {
   const [publishingDraftId, setPublishingDraftId] = useState("");
 
   const loadPortal = useCallback(async () => {
-    setLoading(true);
-    setError("");
     try {
       const data = await api.getCustomerPortal();
       if (!data.user.profileComplete) {
@@ -43,7 +41,27 @@ export default function CustomerDashboardPage() {
     }
   }, [router]);
 
-  useEffect(() => { void loadPortal(); }, [loadPortal]);
+  useEffect(() => {
+    let active = true;
+    void api.getCustomerPortal().then((data) => {
+      if (!active) return;
+      if (!data.user.profileComplete) {
+        router.replace("/primeiro-acesso?returnTo=%2Fpainel");
+        return;
+      }
+      setPortal(data);
+    }).catch((cause: unknown) => {
+      if (!active) return;
+      if (cause instanceof ApiError && cause.status === 401) {
+        router.replace("/entrar?returnTo=%2Fpainel");
+      } else {
+        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar sua área.");
+      }
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, [router]);
 
   const messageAccess = useMemo(() => {
     const unique = new Map<string, AccountAccessItem>();
@@ -89,7 +107,7 @@ export default function CustomerDashboardPage() {
           <Link className="button button--primary" href="/templates"><FilePlus2 aria-hidden="true" size={17} /> Criar mensagem</Link>
         </section>
 
-        {error ? <div className="customer-area-error" role="alert"><CircleAlert aria-hidden="true" size={18} />{error}<button className="text-button" onClick={() => void loadPortal()} type="button">Tentar novamente</button></div> : null}
+        {error ? <div className="customer-area-error" role="alert"><CircleAlert aria-hidden="true" size={18} />{error}<button className="text-button" onClick={() => { setLoading(true); setError(""); void loadPortal(); }} type="button">Tentar novamente</button></div> : null}
 
         <section className={`customer-license-card${platformAccess?.active ? " is-active" : ""}`} aria-label="Sua licença">
           <span className="customer-license-card__icon">{platformAccess?.active ? <Check aria-hidden="true" size={20} /> : <ShieldCheck aria-hidden="true" size={20} />}</span>

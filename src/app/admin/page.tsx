@@ -372,7 +372,6 @@ function AdminDashboard({ adminEmail, onUnauthorized }: { adminEmail: string; on
   useEffect(() => {
     if (activeSection !== "customers") return;
     let active = true;
-    setLoading(true);
     void api.getAdminUsers(search).then((result) => {
       if (!active) return;
       setUsers(result.users);
