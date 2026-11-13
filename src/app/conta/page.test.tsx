@@ -3,21 +3,22 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getAccountAccess, getAdminAccess, publishDraft, replace } = vi.hoisted(() => ({
+const { getAccountAccess, getPlatformAccess, getAdminAccess, publishDraft, replace } = vi.hoisted(() => ({
   getAccountAccess: vi.fn(),
+  getPlatformAccess: vi.fn(),
   getAdminAccess: vi.fn(),
   publishDraft: vi.fn(),
   replace: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }), usePathname: () => "/conta" }));
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header /> }));
 vi.mock("@/lib/api-client", () => ({
   ApiError: class ApiError extends Error {
     constructor(message: string, readonly status = 400) { super(message); }
     readonly code = "TEST_ERROR";
   },
-  api: { getAccountAccess, getAdminAccess, publishDraft },
+  api: { getAccountAccess, getPlatformAccess, getAdminAccess, publishDraft, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
 }));
 
 import AccountPage from "./page";
@@ -27,6 +28,7 @@ afterEach(() => cleanup());
 
 beforeEach(() => {
   getAccountAccess.mockReset();
+  getPlatformAccess.mockReset().mockResolvedValue({ active: false, accessPlan: null, expiresAt: null });
   getAdminAccess.mockReset().mockResolvedValue(false);
   publishDraft.mockReset();
   replace.mockReset();

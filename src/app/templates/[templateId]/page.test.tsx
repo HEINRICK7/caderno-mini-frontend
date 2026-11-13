@@ -14,6 +14,7 @@ const { getTemplate, validateTemplate, createDraft, push } = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({
   useParams: () => ({ templateId: "agradecimento-compra" }),
   useRouter: () => ({ push }),
+  usePathname: () => "/templates/agradecimento-compra",
 }));
 vi.mock("../../../components/site-header", () => ({ SiteHeader: () => <header /> }));
 vi.mock("../../../lib/api-client", () => ({
@@ -21,7 +22,7 @@ vi.mock("../../../lib/api-client", () => ({
     constructor(message: string) { super(message); this.status = 400; }
     status: number;
   },
-  api: { getTemplate, validateTemplate, createDraft },
+  api: { getTemplate, validateTemplate, createDraft, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
 }));
 
 import TemplatePage from "./page";

@@ -16,6 +16,7 @@ const { getDraft, getTemplate, validateTemplate, saveDraft, createDemoPublicatio
 vi.mock("next/navigation", () => ({
   useParams: () => ({ draftId: "draft-1" }),
   useRouter: () => ({ push }),
+  usePathname: () => "/mensagens/draft-1",
 }));
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header /> }));
 vi.mock("@/lib/api-client", () => ({
@@ -23,7 +24,7 @@ vi.mock("@/lib/api-client", () => ({
     constructor(message: string) { super(message); this.status = 400; }
     status: number;
   },
-  api: { getDraft, getTemplate, validateTemplate, saveDraft, createDemoPublication },
+  api: { getDraft, getTemplate, validateTemplate, saveDraft, createDemoPublication, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
 }));
 
 import DraftPage from "./page";
