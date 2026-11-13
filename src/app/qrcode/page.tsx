@@ -111,8 +111,8 @@ export default function QrCodeCreatorPage() {
     setFeedback("");
 
     const result = buildPixStaticPayload({ keyType, key, identifier, amount, recipientName, recipientCity });
-    if (result.error) {
-      setError(result.error);
+    if (!result.payload) {
+      setError(result.error ?? "Não foi possível montar o QR Code Pix.");
       setQrPayload("");
       return;
     }
