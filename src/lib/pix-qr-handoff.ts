@@ -73,8 +73,13 @@ function readPixQrHandoff(): PixQrHandoff | null {
 
 function isStoredHandoff(value: unknown): value is StoredPixQrHandoff {
   if (!value || typeof value !== "object") return false;
-  const handoff = value as Partial<StoredPixQrHandoff>;
-  return isValidHandoff(handoff) && typeof handoff.createdAt === "number" && Number.isFinite(handoff.createdAt);
+  const handoff = value as Record<string, unknown>;
+  return typeof handoff.payload === "string"
+    && handoff.payload.length > 0
+    && handoff.payload.length <= MAX_PIX_PAYLOAD_LENGTH
+    && (handoff.amount === null || (typeof handoff.amount === "number" && Number.isFinite(handoff.amount) && handoff.amount > 0))
+    && typeof handoff.createdAt === "number"
+    && Number.isFinite(handoff.createdAt);
 }
 
 function isValidHandoff(value: Partial<PixQrHandoff>): value is PixQrHandoff {
