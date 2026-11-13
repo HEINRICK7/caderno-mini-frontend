@@ -19,12 +19,15 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
   }
 
   const companyName = clientCompanyName(publication.templateDefinition, publication.data);
-  const title = companyName ? "Uma mensagem especial" : publication.templateName;
+  const displayCompanyName = companyName.length > 42 ? `${companyName.slice(0, 41).trimEnd()}…` : companyName;
+  const title = companyName
+    ? `Cartão de ${displayCompanyName} | Cadernô Express`
+    : `${publication.templateName} | Cadernô Express`;
   const description = companyName
-    ? `Abra o cartão digital personalizado que ${companyName} preparou para você.`
-    : publication.templateDescription ?? "Uma mensagem criada no Cadernô Express.";
+    ? `Cartão digital de ${companyName}, criado com o Cadernô Express. Confira o conteúdo e valide os dados antes de pagar.`
+    : `Você recebeu uma mensagem criada com o Cadernô Express. Abra o link para conferir o cartão${publication.templateDescription ? `: ${publication.templateDescription}` : ""}.`;
   const image = {
-    url: `/p/${slug}/share-image`,
+    url: `/p/${slug}/share-image?v=${Date.parse(publication.publishedAt)}`,
     type: "image/png",
     width: 1200,
     height: 630,
@@ -37,7 +40,7 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
     openGraph: {
       type: "website",
       locale: "pt_BR",
-      siteName: companyName || "Cartão digital",
+      siteName: "Cadernô Express",
       title,
       description,
       url: publication.publicUrl,

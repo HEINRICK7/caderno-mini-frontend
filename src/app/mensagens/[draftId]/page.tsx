@@ -9,6 +9,7 @@ import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/custom
 import { TemplateFields } from "@/components/template-fields";
 import { MessagePhonePreview } from "@/components/message-phone-preview";
 import { DraftShareActions } from "@/components/draft-share-actions";
+import { clientCompanyName } from "@/lib/share-preview";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import { trackInitiateCheckout } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
@@ -329,7 +330,7 @@ export default function DraftPage() {
                         <Share2 aria-hidden="true" size={17} /> {publishing ? "Publicando…" : "Publicar e compartilhar"}
                       </button>
                       <Link className="button button--secondary" href="/conta">Ver minha conta</Link>
-                      {publicUrl ? <DraftShareActions allowImage={!template.definition.fields.some((field) => field.id === "pixCopyPaste")} draftId={draft.id} publicUrl={publicUrl} /> : null}
+                      {publicUrl ? <DraftShareActions allowImage={!template.definition.fields.some((field) => field.id === "pixCopyPaste")} businessName={clientCompanyName(template.definition, values)} draftId={draft.id} publicUrl={publicUrl} /> : null}
                     </section>
                   ) : (
                     <section className="template-premium-panel" aria-labelledby="template-premium-title">

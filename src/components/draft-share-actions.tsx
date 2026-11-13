@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { Download, ExternalLink, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { whatsappShareUrl } from "@/lib/whatsapp-share";
 
 type DraftShareActionsProps = {
   draftId: string;
   publicUrl: string;
   allowImage: boolean;
+  businessName?: string;
 };
 
-export function DraftShareActions({ draftId, publicUrl, allowImage }: DraftShareActionsProps) {
+export function DraftShareActions({ draftId, publicUrl, allowImage, businessName = "" }: DraftShareActionsProps) {
   const [feedback, setFeedback] = useState("");
   const imageUrl = `/api/v1/drafts/${encodeURIComponent(draftId)}/export.png`;
 
@@ -44,7 +46,7 @@ export function DraftShareActions({ draftId, publicUrl, allowImage }: DraftShare
         <a href={publicUrl} rel="noreferrer" target="_blank">{publicUrl}</a>
       </div>
       <div className="draft-share-actions__buttons">
-        <a className="button button--primary" href={`https://wa.me/?text=${encodeURIComponent(`Confira a mensagem que preparei para você: ${publicUrl}`)}`} rel="noreferrer" target="_blank">
+        <a className="button button--primary" href={whatsappShareUrl(publicUrl, businessName)} rel="noreferrer" target="_blank">
           <MessageCircle aria-hidden="true" size={16} /> WhatsApp
         </a>
         <a className="button button--secondary" href={publicUrl} rel="noreferrer" target="_blank">
