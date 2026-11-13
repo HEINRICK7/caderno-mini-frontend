@@ -2,13 +2,23 @@ export type ShareLinkMetadataInput = {
   businessName: string;
   templateName: string;
   templateDescription?: string | null;
+  purpose?: "message" | "pix-charge";
 };
 
-export function shareLinkMetadata({ businessName, templateName, templateDescription }: ShareLinkMetadataInput) {
+export function shareLinkMetadata({ businessName, templateName, templateDescription, purpose = "message" }: ShareLinkMetadataInput) {
   const companyName = businessName.trim().slice(0, 80);
   const displayCompanyName = companyName.length > 42
     ? `${companyName.slice(0, 41).trimEnd()}…`
     : companyName;
+
+  if (purpose === "pix-charge") {
+    return {
+      title: companyName
+        ? `Cobrança Pix de ${displayCompanyName} | Cadernô Express`
+        : "Cobrança Pix | Cadernô Express",
+      description: "Acesse o link para ver o QR Code Pix e o código Pix Copia e Cola.",
+    };
+  }
 
   return {
     title: companyName

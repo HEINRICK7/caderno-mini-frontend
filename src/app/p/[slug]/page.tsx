@@ -24,13 +24,17 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
     businessName: companyName,
     templateName: publication.templateName,
     templateDescription: publication.templateDescription,
+    purpose: publication.templateId === "cobranca-pix" ? "pix-charge" : "message",
   });
+  const isPixCharge = publication.templateId === "cobranca-pix";
   const image = {
     url: `/p/${slug}/share-image?v=${Date.parse(publication.publishedAt)}`,
     type: "image/png",
     width: 1200,
     height: 630,
-    alt: companyName ? `Cartão digital de ${companyName}` : `Cartão digital: ${publication.templateName}`,
+    alt: isPixCharge
+      ? companyName ? `Cobrança Pix de ${companyName}` : "Cobrança Pix"
+      : companyName ? `Cartão digital de ${companyName}` : `Cartão digital: ${publication.templateName}`,
   };
 
   return {

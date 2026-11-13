@@ -94,6 +94,7 @@ export function DraftShareActions({
             {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
           </div>
           <WhatsAppPhonePreview
+            billingMessage
             businessName={businessName}
             message={billingMessage}
             publicUrl={publicUrl}
