@@ -73,7 +73,7 @@ export default function SavedMessagesPage() {
           <div className="saved-message-list">
             {portal.drafts.map((draft) => {
               const publicUrl = publicLinks[draft.id];
-              const isPixCopyPaste = draft.templateId === "cobranca-pix";
+              const isPixCharge = draft.templateId === "cobranca-pix";
               return (
                 <article className="saved-message-card" key={draft.id}>
                   <div className="saved-message-card__icon"><FileText aria-hidden="true" size={20} /></div>
@@ -91,7 +91,7 @@ export default function SavedMessagesPage() {
                     ) : null}
                   </div>
                   {!portal.platformAccess.active && !publicUrl ? <p className="saved-message-card__locked">Ative sua licença para publicar e compartilhar esta mensagem.</p> : null}
-                  {publicUrl ? <DraftShareActions allowImage={!isPixCopyPaste} businessName={draft.businessName} draftId={draft.id} publicUrl={publicUrl} /> : null}
+                  {publicUrl ? <DraftShareActions allowImage={!isPixCharge} billingMessages={isPixCharge} businessName={draft.businessName} draftId={draft.id} publicUrl={publicUrl} shareVariables={draft.shareVariables} /> : null}
                 </article>
               );
             })}
