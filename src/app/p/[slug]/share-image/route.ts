@@ -13,5 +13,10 @@ export async function GET(_request: Request, { params }: ShareImageRouteProps): 
   const companyName = clientCompanyName(publication.templateDefinition, publication.data);
   const logoId = clientLogoAssetId(publication.templateDefinition, publication.data);
   const logo = logoId ? await loadClientLogo(logoId) : null;
-  return renderClientSharePreview({ companyName, templateName: publication.templateName, logoSrc: logo });
+  return renderClientSharePreview({
+    companyName,
+    templateName: publication.templateName,
+    logoSrc: logo,
+    purpose: publication.templateId === "cobranca-pix" ? "pix-charge" : "message",
+  });
 }

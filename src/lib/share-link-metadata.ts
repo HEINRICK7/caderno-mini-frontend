@@ -5,6 +5,8 @@ export type ShareLinkMetadataInput = {
   purpose?: "message" | "pix-charge";
 };
 
+export const PIX_CHARGE_SHARE_PREVIEW_VERSION = "pix-v2";
+
 export function shareLinkMetadata({ businessName, templateName, templateDescription, purpose = "message" }: ShareLinkMetadataInput) {
   const companyName = businessName.trim().slice(0, 80);
   const displayCompanyName = companyName.length > 42

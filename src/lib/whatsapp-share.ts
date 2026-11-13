@@ -1,4 +1,5 @@
 import type { TemplateDefinition } from "@/lib/api-contracts";
+import { PIX_CHARGE_SHARE_PREVIEW_VERSION } from "@/lib/share-link-metadata";
 
 export type WhatsAppShareVariables = {
   nome_cliente?: string;
@@ -133,7 +134,19 @@ export function renderBillingWhatsAppMessage(messageId: string, variables: Whats
 }
 
 export function billingWhatsAppShareUrl(publicUrl: string, message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(`${message}\n${publicUrl}`)}`;
+  const shareUrl = pixChargeShareUrl(publicUrl);
+  return `https://wa.me/?text=${encodeURIComponent(`${message}\n${shareUrl}`)}`;
+}
+
+export function pixChargeShareUrl(publicUrl: string): string {
+  try {
+    const url = new URL(publicUrl);
+    url.searchParams.set("preview", PIX_CHARGE_SHARE_PREVIEW_VERSION);
+    return url.toString();
+  } catch {
+    const separator = publicUrl.includes("?") ? "&" : "?";
+    return `${publicUrl}${separator}preview=${PIX_CHARGE_SHARE_PREVIEW_VERSION}`;
+  }
 }
 
 export function whatsappShareUrl(publicUrl: string, businessName = ""): string {
