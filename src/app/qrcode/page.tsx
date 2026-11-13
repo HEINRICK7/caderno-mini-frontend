@@ -81,8 +81,6 @@ export default function QrCodeCreatorPage() {
 
   useEffect(() => {
     let active = true;
-    setWorkspaceLoading(true);
-    setWorkspaceError("");
 
     void api.getCustomerPortal().then((portal) => {
       if (!active) return;
@@ -202,7 +200,12 @@ export default function QrCodeCreatorPage() {
       {!workspace ? (
         <div className="qr-code-auth-error" role="alert">
           <p>{workspaceError}</p>
-          <button className="button button--secondary" onClick={() => setAuthAttempt((attempt) => attempt + 1)} type="button">
+          <button className="button button--secondary" onClick={() => {
+            setWorkspace(null);
+            setWorkspaceError("");
+            setWorkspaceLoading(true);
+            setAuthAttempt((attempt) => attempt + 1);
+          }} type="button">
             Tentar novamente
           </button>
         </div>
