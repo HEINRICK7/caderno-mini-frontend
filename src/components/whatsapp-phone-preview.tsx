@@ -7,6 +7,7 @@ type WhatsAppPhonePreviewProps = {
   message: string;
   publicUrl: string;
   templateName: string;
+  billingMessage?: boolean;
 };
 
 function linkDetails(publicUrl: string) {
@@ -31,9 +32,13 @@ function initials(value: string) {
   return words.slice(0, 2).map((word) => word[0]).join("").toLocaleUpperCase("pt-BR") || "SN";
 }
 
-export function WhatsAppPhonePreview({ businessName, message, publicUrl, templateName }: WhatsAppPhonePreviewProps) {
+export function WhatsAppPhonePreview({ businessName, message, publicUrl, templateName, billingMessage = false }: WhatsAppPhonePreviewProps) {
   const { domain, image } = linkDetails(publicUrl);
-  const { title, description } = shareLinkMetadata({ businessName, templateName });
+  const { title, description } = shareLinkMetadata({
+    businessName,
+    templateName,
+    purpose: billingMessage ? "pix-charge" : "message",
+  });
   const contactName = businessName.trim() || "Seu negócio";
 
   return (
