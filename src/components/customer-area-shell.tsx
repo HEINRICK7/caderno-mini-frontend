@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { FileText, LayoutDashboard, LogOut, Plus, ShieldCheck, UserRound } from "lucide-react";
+import { FileText, LayoutDashboard, LogOut, Plus, QrCode, ShieldCheck, UserRound } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { api } from "@/lib/api-client";
 import type { PlatformAccessSummary } from "@/lib/api-contracts";
@@ -19,6 +19,7 @@ const navigation = [
   { href: "/painel", label: "Visão geral", icon: LayoutDashboard, isCurrent: (path: string) => path === "/painel" },
   { href: "/mensagens", label: "Minhas mensagens", icon: FileText, isCurrent: (path: string) => path === "/mensagens" },
   { href: "/templates", label: "Criar mensagem", icon: Plus, isCurrent: (path: string) => path.startsWith("/templates") || path.startsWith("/mensagens/") },
+  { href: "/qrcode", label: "Criar QR Code", icon: QrCode, isCurrent: (path: string) => path === "/qrcode" },
   { href: "/conta", label: "Minha conta", icon: UserRound, isCurrent: (path: string) => path === "/conta" || path === "/primeiro-acesso" },
 ];
 
@@ -26,6 +27,7 @@ function pageTitle(pathname: string): string {
   if (pathname.startsWith("/templates")) return "Criar mensagem";
   if (pathname === "/mensagens") return "Minhas mensagens";
   if (pathname.startsWith("/mensagens/")) return "Editar mensagem";
+  if (pathname === "/qrcode") return "Criar QR Code";
   if (pathname === "/conta") return "Minha conta";
   if (pathname === "/primeiro-acesso") return "Completar cadastro";
   if (pathname.startsWith("/compras")) return "Compra";
