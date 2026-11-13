@@ -3,14 +3,16 @@ import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicPublication } from "@/lib/public-publication";
 import { clientCompanyName } from "@/lib/share-preview";
-import { shareLinkMetadata } from "@/lib/share-link-metadata";
+import { PIX_CHARGE_SHARE_PREVIEW_VERSION, shareLinkMetadata } from "@/lib/share-link-metadata";
 
 type PublicMessagePageProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ preview?: string | string[] }>;
 };
 
-export async function generateMetadata({ params }: PublicMessagePageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PublicMessagePageProps): Promise<Metadata> {
   const { slug } = await params;
+  const query = await searchParams;
   const publication = await getPublicPublication(slug);
   if (!publication) {
     return {
@@ -27,8 +29,16 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
     purpose: publication.templateId === "cobranca-pix" ? "pix-charge" : "message",
   });
   const isPixCharge = publication.templateId === "cobranca-pix";
+  const previewVersion = Array.isArray(query?.preview) ? query.preview[0] : query?.preview;
+  const shareUrl = new URL(publication.publicUrl);
+  const imageUrl = new URL(`/p/${slug}/share-image`, shareUrl);
+  imageUrl.searchParams.set("v", String(Date.parse(publication.publishedAt)));
+  if (isPixCharge && previewVersion === PIX_CHARGE_SHARE_PREVIEW_VERSION) {
+    shareUrl.searchParams.set("preview", PIX_CHARGE_SHARE_PREVIEW_VERSION);
+    imageUrl.searchParams.set("preview", PIX_CHARGE_SHARE_PREVIEW_VERSION);
+  }
   const image = {
-    url: `/p/${slug}/share-image?v=${Date.parse(publication.publishedAt)}`,
+    url: imageUrl.toString(),
     type: "image/png",
     width: 1200,
     height: 630,
@@ -46,7 +56,7 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
       siteName: "Cadernô Express",
       title,
       description,
-      url: publication.publicUrl,
+      url: shareUrl.toString(),
       images: [image],
     },
     twitter: {

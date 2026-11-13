@@ -8,6 +8,7 @@ import {
   billingWhatsAppMessages,
   billingWhatsAppShareUrl,
   DEFAULT_BILLING_MESSAGE_ID,
+  pixChargeShareUrl,
   renderBillingWhatsAppMessage,
   type WhatsAppShareVariables,
   whatsappShareUrl,
@@ -34,8 +35,9 @@ export function DraftShareActions({
   const [selectedMessageId, setSelectedMessageId] = useState(DEFAULT_BILLING_MESSAGE_ID);
   const imageUrl = `/api/v1/drafts/${encodeURIComponent(draftId)}/export.png`;
   const billingMessage = renderBillingWhatsAppMessage(selectedMessageId, shareVariables);
+  const whatsAppPublicUrl = billingMessages ? pixChargeShareUrl(publicUrl) : publicUrl;
   const shareUrl = billingMessages
-    ? billingWhatsAppShareUrl(publicUrl, billingMessage)
+    ? billingWhatsAppShareUrl(whatsAppPublicUrl, billingMessage)
     : whatsappShareUrl(publicUrl, businessName);
 
   async function shareImage() {
@@ -99,7 +101,7 @@ export function DraftShareActions({
             billingMessage
             businessName={businessName}
             message={billingMessage}
-            publicUrl={publicUrl}
+            publicUrl={whatsAppPublicUrl}
             templateName="Cobrança Pix"
           />
         </div>

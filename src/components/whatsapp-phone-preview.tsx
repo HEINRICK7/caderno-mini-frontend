@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ChevronLeft, Mic, MoreVertical, Phone, Plus } from "lucide-react";
-import { shareLinkMetadata } from "@/lib/share-link-metadata";
+import { PIX_CHARGE_SHARE_PREVIEW_VERSION, shareLinkMetadata } from "@/lib/share-link-metadata";
 
 type WhatsAppPhonePreviewProps = {
   businessName: string;
@@ -10,13 +10,14 @@ type WhatsAppPhonePreviewProps = {
   billingMessage?: boolean;
 };
 
-function linkDetails(publicUrl: string) {
+function linkDetails(publicUrl: string, previewVersion?: string) {
   try {
     const link = new URL(publicUrl);
     const image = new URL(link.href);
     image.pathname = `${link.pathname.replace(/\/$/, "")}/share-image`;
     image.search = "";
     image.hash = "";
+    if (previewVersion) image.searchParams.set("preview", previewVersion);
 
     return {
       domain: link.hostname.replace(/^www\./, ""),
@@ -33,7 +34,7 @@ function initials(value: string) {
 }
 
 export function WhatsAppPhonePreview({ businessName, message, publicUrl, templateName, billingMessage = false }: WhatsAppPhonePreviewProps) {
-  const { domain, image } = linkDetails(publicUrl);
+  const { domain, image } = linkDetails(publicUrl, billingMessage ? PIX_CHARGE_SHARE_PREVIEW_VERSION : undefined);
   const { title, description } = shareLinkMetadata({
     businessName,
     templateName,
