@@ -135,7 +135,7 @@ describe("editor de modelo", () => {
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Novidade exclusiva" } });
     fireEvent.change(screen.getByLabelText("Subtítulo"), { target: { value: "Uma mensagem da loja" } });
     fireEvent.change(screen.getByLabelText("Descrição da mensagem"), { target: { value: "Texto escolhido pelo estabelecimento." } });
-    fireEvent.click(screen.getByRole("button", { name: /Ver prévia gratuita/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Continuar com esta mensagem/ }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/mensagens/draft-1"));
     expect(validateTemplate).toHaveBeenCalledWith("agradecimento-compra", {
