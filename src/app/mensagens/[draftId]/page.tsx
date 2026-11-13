@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowRight, Check, Clock3, Copy, Link2, LockKeyhole, Mail, MessageCircle, Save, Share2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { TemplateFields } from "@/components/template-fields";
 import { MessagePhonePreview } from "@/components/message-phone-preview";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import { trackInitiateCheckout } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
+import { useCustomerWorkspace } from "@/hooks/use-customer-workspace";
 import type { Draft, Template } from "@/lib/api-contracts";
 
 type FieldValue = string | number | boolean;
@@ -28,6 +31,7 @@ function initialValues(draft: Draft, template: Template): Record<string, FieldVa
 export default function DraftPage() {
   const { draftId } = useParams<{ draftId: string }>();
   const router = useRouter();
+  const workspace = useCustomerWorkspace();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [template, setTemplate] = useState<Template | null>(null);
   const [values, setValues] = useState<Record<string, FieldValue>>({});
@@ -38,6 +42,7 @@ export default function DraftPage() {
   const [saving, setSaving] = useState(false);
   const [imageUploadBlocked, setImageUploadBlocked] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  const platformAccess = workspace.access;
   const [creatingDemoLink, setCreatingDemoLink] = useState(false);
   const [demoLink, setDemoLink] = useState("");
   const [demoExpiresAt, setDemoExpiresAt] = useState("");
@@ -202,9 +207,7 @@ export default function DraftPage() {
     }
   }
 
-  return (
-    <main className="subpage-shell">
-      <SiteHeader />
+  const draftContent = (
       <section className="subpage-content template-editor-content">
         {loading ? <p className="page-message" role="status">Carregando mensagem…</p> : null}
         {!loading && error && !draft ? (
@@ -218,7 +221,9 @@ export default function DraftPage() {
             <div className="template-editor-heading">
               <h1>Personalize sua mensagem</h1>
               <p>
-                Confira o resumo do plano anual (R$ 47,00) e continue para o checkout seguro.
+                {platformAccess?.active
+                  ? `Sua conta tem licença premium ativa${platformAccess.expiresAt ? ` até ${new Date(platformAccess.expiresAt).toLocaleDateString("pt-BR")}` : ""}. Você já pode publicar e exportar.`
+                  : "Confira o resumo do plano anual (R$ 47,00) e continue para o checkout seguro."}
               </p>
             </div>
             <div className="template-editor-layout">
@@ -243,7 +248,7 @@ export default function DraftPage() {
                     <Save aria-hidden="true" size={17} />
                     {saving ? "Salvando…" : "Salvar alterações"}
                   </button>
-                  {template.definition.catalog?.homeCategory ? (
+                  {template.definition.catalog?.homeCategory && !platformAccess?.active ? (
                     <section className="template-demo-panel" aria-labelledby="template-demo-title">
                       <div className="template-action-heading">
                         <span className="template-action-heading__eyebrow">Prévia gratuita</span>
@@ -291,35 +296,46 @@ export default function DraftPage() {
                       )}
                     </section>
                   ) : null}
-                  <section className="template-premium-panel" aria-labelledby="template-premium-title">
-                    <div className="template-action-heading">
-                      <span className="template-action-heading__eyebrow">Acesso premium</span>
-                      <h2 id="template-premium-title">Mantenha sua mensagem no ar</h2>
-                      <p>Libera a publicação e o compartilhamento do link definitivo por 12 meses.</p>
-                    </div>
-                    <div aria-label="Plano de acesso" className="template-premium-options" role="group">
-                      <button aria-pressed={true} className="template-plan-card template-plan-card--annual is-selected" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
-                        <span className="template-plan-card__topline">
-                          <span className="template-plan-card__name">Plano Anual</span>
-                          <span className="template-plan-card__badge">12 meses</span>
-                        </span>
-                        <span className="template-plan-card__price"><span>R$</span> 47,00</span>
-                        <span className="template-plan-card__description">Acesso premium por 12 meses.</span>
-                        <span className="template-plan-card__cta">Plano anual selecionado</span>
+                  {platformAccess?.active ? (
+                    <section className="template-premium-panel template-premium-panel--active" aria-labelledby="template-premium-title">
+                      <div className="template-action-heading">
+                        <span className="template-action-heading__eyebrow">Licença ativa</span>
+                        <h2 id="template-premium-title">Sua conta já pode publicar</h2>
+                        <p>Salve as alterações e publique a mensagem. Sua licença da plataforma cobre os modelos premium.</p>
+                      </div>
+                      <Link className="button button--secondary" href="/conta">Ver minha conta</Link>
+                    </section>
+                  ) : (
+                    <section className="template-premium-panel" aria-labelledby="template-premium-title">
+                      <div className="template-action-heading">
+                        <span className="template-action-heading__eyebrow">Acesso premium</span>
+                        <h2 id="template-premium-title">Mantenha sua mensagem no ar</h2>
+                        <p>Libera a publicação e o compartilhamento do link definitivo por 12 meses.</p>
+                      </div>
+                      <div aria-label="Plano de acesso" className="template-premium-options" role="group">
+                        <button aria-pressed={true} className="template-plan-card template-plan-card--annual is-selected" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
+                          <span className="template-plan-card__topline">
+                            <span className="template-plan-card__name">Plano Anual</span>
+                            <span className="template-plan-card__badge">12 meses</span>
+                          </span>
+                          <span className="template-plan-card__price"><span>R$</span> 47,00</span>
+                          <span className="template-plan-card__description">Acesso premium por 12 meses.</span>
+                          <span className="template-plan-card__cta">Plano anual selecionado</span>
+                        </button>
+                      </div>
+                      <PlanTermsNotice plan="annual" />
+                      <button
+                        className="button button--primary template-premium-continue"
+                        disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked}
+                        onClick={() => void continueToCheckout("annual")}
+                        type="button"
+                      >
+                        {checkingOut ? "Abrindo checkout…" : "Continuar para o pagamento"}
+                        {!checkingOut ? <ArrowRight aria-hidden="true" size={17} /> : null}
                       </button>
-                    </div>
-                    <PlanTermsNotice plan="annual" />
-                    <button
-                      className="button button--primary template-premium-continue"
-                      disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked}
-                      onClick={() => void continueToCheckout("annual")}
-                      type="button"
-                    >
-                      {checkingOut ? "Abrindo checkout…" : "Continuar para o pagamento"}
-                      {!checkingOut ? <ArrowRight aria-hidden="true" size={17} /> : null}
-                    </button>
-                    <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela AbacatePay.</p>
-                  </section>
+                      <p className="template-premium-security"><LockKeyhole aria-hidden="true" size={15} /> Pagamento processado com segurança pela AbacatePay.</p>
+                    </section>
+                  )}
                 </div>
               </form>
               <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} requireActionDestinationInPreview title={template.name} />
@@ -327,6 +343,12 @@ export default function DraftPage() {
           </>
         ) : null}
       </section>
-    </main>
   );
+
+  if (workspace.status === "loading") return <CustomerWorkspaceLoading label="Abrindo sua mensagem…" />;
+  if (workspace.status === "authenticated") {
+    return <CustomerAreaShell access={workspace.access} email={workspace.email}>{draftContent}</CustomerAreaShell>;
+  }
+
+  return <main className="subpage-shell"><SiteHeader />{draftContent}</main>;
 }

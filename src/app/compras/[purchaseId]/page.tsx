@@ -5,8 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CircleAlert, Clock3, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { trackMetaEvent } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
+import { useCustomerWorkspace } from "@/hooks/use-customer-workspace";
 import type { PurchaseStatus } from "@/lib/api-contracts";
 
 const statusLabels: Record<PurchaseStatus["status"], string> = {
@@ -45,6 +47,7 @@ function trackPurchaseConversion(status: PurchaseStatus, trackedPurchaseIds: Set
 export default function PurchasePage() {
   const { purchaseId } = useParams<{ purchaseId: string }>();
   const router = useRouter();
+  const workspace = useCustomerWorkspace();
   const publishing = useRef(false);
   const publishedUrl = useRef("");
   const trackedPurchaseIds = useRef(new Set<string>());
@@ -121,9 +124,7 @@ export default function PurchasePage() {
     ? `https://wa.me/?text=${encodeURIComponent(shareablePublicUrl)}`
     : "";
 
-  return (
-    <main className="subpage-shell">
-      <SiteHeader />
+  const purchaseContent = (
       <section className="subpage-content subpage-content--narrow purchase-content">
         <div className="page-heading page-heading--stacked purchase-heading">
           <span className="purchase-eyebrow">
@@ -149,6 +150,12 @@ export default function PurchasePage() {
         {error ? <button className="text-button purchase-retry" disabled={loading} onClick={() => { setLoading(true); void refresh(); }} type="button">Tentar novamente</button> : null}
         <Link className="back-link purchase-back-link" href="/templates">Voltar aos modelos <span aria-hidden="true">→</span></Link>
       </section>
-    </main>
   );
+
+  if (workspace.status === "loading") return <CustomerWorkspaceLoading label="Acompanhando sua compra…" />;
+  if (workspace.status === "authenticated") {
+    return <CustomerAreaShell access={workspace.access} email={workspace.email}>{purchaseContent}</CustomerAreaShell>;
+  }
+
+  return <main className="subpage-shell"><SiteHeader />{purchaseContent}</main>;
 }

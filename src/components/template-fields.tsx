@@ -39,7 +39,7 @@ export function TemplateFields({
     if (field.editable === false) return null;
     const previousField = fields[index - 1];
     const sectionHeading = field.section && field.section !== previousField?.section ? field.section : null;
-    const label = field.label ?? field.id;
+    const label = field.id === "pixCopyPaste" ? "Código Pix copia e cola" : field.label ?? field.id;
     const value = values[field.id] ?? (field.type === "boolean" ? false : "");
     const describedBy = field.helpText ? `${field.id}-help` : undefined;
     const shared = {
@@ -99,7 +99,9 @@ export function TemplateFields({
           ) : (
             <input
               {...shared}
+              min={field.id === "installmentNumber" || field.id === "installmentTotal" ? 1 : undefined}
               placeholder={field.placeholder}
+              step={field.id === "installmentNumber" || field.id === "installmentTotal" ? 1 : undefined}
               type="number"
               value={String(value)}
               onChange={(event) => onChange(field.id, event.target.value === "" ? "" : Number(event.target.value))}
@@ -214,6 +216,7 @@ export function TemplateFields({
           </>
         )}
         {field.helpText && <p className="form-field__help" id={describedBy}>{field.helpText}</p>}
+        {field.id === "pixCopyPaste" && value ? <p className="form-field__help" role="status">QR Code atualizado na prévia. O botão do cartão copia este mesmo código.</p> : null}
       </div>
       </Fragment>
     );

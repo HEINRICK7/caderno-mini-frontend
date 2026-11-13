@@ -19,11 +19,19 @@ function VerifyMagicLink() {
       return;
     }
     started.current = true;
-    void api.verifyMagicLink(token).then(() => {
-      const returnTo = safeReturnTo(sessionStorage.getItem("caderno:auth:return-to"), "/conta");
+    void api.verifyMagicLink(token).then((user) => {
+      const requestedReturnTo = safeReturnTo(sessionStorage.getItem("caderno:auth:return-to"), "/painel");
       sessionStorage.removeItem("caderno:auth:return-to");
       setMessage("Acesso confirmado.");
-      router.replace(returnTo);
+      if (!user.profileComplete) {
+        const params = new URLSearchParams();
+        if (requestedReturnTo !== "/primeiro-acesso") {
+          params.set("returnTo", requestedReturnTo === "/conta" ? "/painel" : requestedReturnTo);
+        }
+        router.replace(`/primeiro-acesso${params.size ? `?${params}` : ""}`);
+        return;
+      }
+      router.replace(requestedReturnTo === "/conta" ? "/painel" : requestedReturnTo);
     }).catch((cause: unknown) => {
       const detail = cause instanceof ApiError ? cause.message : "Não foi possível validar o link.";
       setError(detail);

@@ -4,26 +4,72 @@ import { ArrowRight, Share2 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SiteHeader } from "../../../components/site-header";
+import { CustomerAreaShell, CustomerWorkspaceLoading } from "../../../components/customer-area-shell";
 import { TemplateFields } from "../../../components/template-fields";
 import { MessagePhonePreview } from "../../../components/message-phone-preview";
 import { PlanTermsNotice } from "../../../components/plan-terms-notice";
 import { trackInitiateCheckout } from "../../../components/meta-pixel";
 import { ApiError, api } from "../../../lib/api-client";
 import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
-import type { Template } from "../../../lib/api-contracts";
+import { useCustomerWorkspace } from "../../../hooks/use-customer-workspace";
+import type { Template, TemplateField } from "../../../lib/api-contracts";
 
 type FieldValue = string | number | boolean;
 
 function editableExampleValues(template: Template): Record<string, FieldValue> {
   const editableFields = new Set(template.definition.fields.filter((field) => field.editable !== false).map((field) => field.id));
-  return Object.fromEntries(
+  const values = Object.fromEntries(
     Object.entries(template.definition.exampleData ?? {}).filter(([fieldId]) => editableFields.has(fieldId)),
   ) as Record<string, FieldValue>;
+  if (template.id === "cobranca-pix") {
+    values.chargeMode = "Cobrança única";
+    values.detailLabel1 = "Valor";
+  }
+  return values;
+}
+
+function editorFields(template: Template, values: Record<string, FieldValue>): TemplateField[] {
+  if (template.id !== "cobranca-pix") return template.definition.fields;
+
+  const chargeModeField: TemplateField = {
+    id: "chargeMode",
+    type: "select",
+    label: "Tipo da cobrança",
+    options: ["Cobrança única", "Cobrança parcelada"],
+    required: true,
+    section: "Detalhes da cobrança",
+    width: "full",
+  };
+  const installments = template.definition.fields.filter((field) => field.id === "installmentNumber" || field.id === "installmentTotal");
+  const fields: TemplateField[] = [];
+  for (const field of template.definition.fields) {
+    if (field.id === "detailLabel3" && values.chargeMode !== "Cobrança parcelada") continue;
+    if (field.id === "installmentNumber") {
+      fields.push(chargeModeField);
+      if (values.chargeMode === "Cobrança parcelada") fields.push(...installments);
+      continue;
+    }
+    if (field.id === "installmentTotal") continue;
+    fields.push(field);
+  }
+  return fields;
+}
+
+function editorPreviewData(template: Template, values: Record<string, FieldValue>) {
+  const data = { ...(template.definition.exampleData ?? {}), ...values };
+  delete data.chargeMode;
+  if (template.id === "cobranca-pix" && values.chargeMode !== "Cobrança parcelada") {
+    delete data.installmentNumber;
+    delete data.installmentTotal;
+    delete data.detailLabel3;
+  }
+  return data;
 }
 
 export default function TemplatePage() {
   const { templateId } = useParams<{ templateId: string }>();
   const router = useRouter();
+  const workspace = useCustomerWorkspace();
   const [template, setTemplate] = useState<Template | null>(null);
   const [values, setValues] = useState<Record<string, FieldValue>>({});
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -31,7 +77,8 @@ export default function TemplatePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const checkoutPlan = useCheckoutPlan();
+  const requestedCheckoutPlan = useCheckoutPlan();
+  const checkoutPlan = workspace.access?.active ? null : requestedCheckoutPlan;
 
   const loadTemplate = useCallback(async () => {
     try {
@@ -69,6 +116,12 @@ export default function TemplatePage() {
     setSaving(true);
     setError("");
     const data = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== ""));
+    delete data.chargeMode;
+    if (template.id === "cobranca-pix" && values.chargeMode !== "Cobrança parcelada") {
+      delete data.installmentNumber;
+      delete data.installmentTotal;
+      delete data.detailLabel3;
+    }
     try {
       await api.validateTemplate(template.id, data);
       const draft = await api.createDraft(template.id, data);
@@ -99,9 +152,7 @@ export default function TemplatePage() {
     }
   }
 
-  return (
-    <main className="subpage-shell">
-      <SiteHeader />
+  const editorContent = (
       <section className="subpage-content template-editor-content">
         {loading ? <p className="page-message" role="status">Carregando modelo…</p> : null}
         {!loading && error && !template ? (
@@ -117,13 +168,15 @@ export default function TemplatePage() {
               <p>
                 {checkoutPlan
                   ? "Edite os campos e continue para o checkout do plano anual (R$ 47,00)."
-                  : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real."}
+                  : workspace.access?.active
+                    ? "Sua conta está conectada e tem acesso premium ativo. Personalize e crie sua mensagem."
+                    : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real; para publicar, entre e tenha uma licença ativa."}
               </p>
             </div>
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
                 <TemplateFields
-                  fields={template.definition.fields}
+                  fields={editorFields(template, values)}
                   values={values}
                   onUploadStateChange={setUploadingImage}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
@@ -138,12 +191,14 @@ export default function TemplatePage() {
                 {error ? <p className="form-error" role="alert">{error}</p> : null}
                 <div className="template-editor-actions">
                   {checkoutPlan ? <PlanTermsNotice plan={checkoutPlan} /> : null}
-                  <button className="button button--primary form-submit" disabled={saving || uploadingImage} type="submit">
+                  <button className="button button--primary form-submit" disabled={saving || uploadingImage || workspace.status === "loading"} type="submit">
                     {saving
                       ? "Salvando…"
                       : checkoutPlan
                         ? <>Continuar para o checkout <ArrowRight aria-hidden="true" size={17} /></>
-                        : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
+                        : workspace.access?.active
+                          ? <>Criar mensagem <ArrowRight aria-hidden="true" size={17} /></>
+                          : <>Ver prévia gratuita <ArrowRight aria-hidden="true" size={17} /></>}
                   </button>
                   <button
                     aria-label="Compartilhar (disponível após a publicação)"
@@ -157,7 +212,7 @@ export default function TemplatePage() {
                 </div>
               </form>
               <MessagePhonePreview
-                data={{ ...(template.definition.exampleData ?? {}), ...values }}
+                data={editorPreviewData(template, values)}
                 definition={template.definition}
                 imagePreviews={imagePreviews}
                 title={template.name}
@@ -166,6 +221,12 @@ export default function TemplatePage() {
           </>
         ) : null}
       </section>
-    </main>
   );
+
+  if (workspace.status === "loading") return <CustomerWorkspaceLoading label="Abrindo o editor da sua mensagem…" />;
+  if (workspace.status === "authenticated") {
+    return <CustomerAreaShell access={workspace.access} email={workspace.email}>{editorContent}</CustomerAreaShell>;
+  }
+
+  return <main className="subpage-shell"><SiteHeader />{editorContent}</main>;
 }
