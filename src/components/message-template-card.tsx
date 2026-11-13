@@ -130,7 +130,9 @@ export function MessageTemplateCard({
     return { ...detail, label, value, imageSrc };
   });
   const pixDetail = layout === "pix" ? resolvedDetails.find((detail) => detail.imageFieldId || detail.icon === "qrcode") : undefined;
+  const isSinglePixCharge = layout === "pix" && data.installmentNumber == null && data.installmentTotal == null;
   const details = resolvedDetails.filter((detail) => detail !== pixDetail)
+    .filter((detail) => !(isSinglePixCharge && detail.icon === "receipt" && detail.labelFieldId === "detailLabel3"))
     .filter((detail) => (detail.label.trim() !== "" || detail.value.trim() !== "") && (detail.value.trim() !== "" || detail.imageSrc !== null))
     .filter((detail) => layout !== "settled" || (detail.value !== "" && (detail.labelFieldId !== "settlementLabel" || detail.value === "Todas as parcelas pagas")));
 
@@ -291,7 +293,7 @@ export function MessageTemplateCard({
     <div className="message-template__actions">
       {visibleActions.map((action, index) => {
         const className = `message-template__action${index > 0 ? " message-template__action--secondary" : ""}`;
-        if (action.copyValue && mode === "published") {
+        if (action.copyValue && (mode === "published" || layout === "pix")) {
           return <CopyTextAction className={className} key={`${action.label}-${index}`} label={action.label} showArrow={layout !== "approval"} value={action.copyValue} />;
         }
         const actionContent = <><span>{action.label}</span>{layout !== "approval" ? <ChevronRight aria-hidden="true" className="message-template__action-arrow" size={26} strokeWidth={3} /> : null}</>;

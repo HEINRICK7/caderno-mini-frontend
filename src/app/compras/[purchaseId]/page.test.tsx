@@ -14,6 +14,7 @@ let pollPurchase: (() => void) | undefined;
 vi.mock("next/navigation", () => ({
   useParams: () => ({ purchaseId: "purchase-1" }),
   useRouter: () => ({ replace }),
+  usePathname: () => "/compras/purchase-1",
 }));
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header /> }));
 vi.mock("@/components/meta-pixel", () => ({ trackMetaEvent }));
@@ -22,7 +23,7 @@ vi.mock("@/lib/api-client", () => ({
     constructor(message: string, readonly status = 400) { super(message); }
     readonly code = "TEST_ERROR";
   },
-  api: { getPurchase, publishDraft },
+  api: { getPurchase, publishDraft, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
 }));
 
 import PurchasePage from "./page";

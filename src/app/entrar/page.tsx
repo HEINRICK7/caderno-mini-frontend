@@ -21,7 +21,7 @@ function SignInForm() {
     setMessage("");
     try {
       const response = await api.requestMagicLink(email);
-      sessionStorage.setItem("caderno:auth:return-to", safeReturnTo(searchParams.get("returnTo"), "/conta"));
+      sessionStorage.setItem("caderno:auth:return-to", safeReturnTo(searchParams.get("returnTo"), "/painel"));
       setMessage(response);
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível enviar o link.");

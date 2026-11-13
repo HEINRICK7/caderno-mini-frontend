@@ -3,6 +3,9 @@ import {
   checkoutResponseSchema,
   authMessageResponseSchema,
   accountAccessResponseSchema,
+  platformAccessResponseSchema,
+  authSessionResponseSchema,
+  customerPortalResponseSchema,
   createDraftResponseSchema,
   draftResponseSchema,
   publicPublicationResponseSchema,
@@ -20,6 +23,9 @@ import {
   adminUsersResponseSchema,
   adminUserResponseSchema,
   adminSetUserStatusResponseSchema,
+  adminManualPaymentResponseSchema,
+  adminManualPlatformSaleResponseSchema,
+  adminCreateCustomerResponseSchema,
   adminTemplateListResponseSchema,
   adminTemplateResponseSchema,
   adminTemplateArchiveResponseSchema,
@@ -132,11 +138,11 @@ export const api = {
     })).data.message;
   },
 
-  async verifyMagicLink(token: string): Promise<void> {
-    await request("/api/v1/auth/verify", sessionResponseSchema, {
+  async verifyMagicLink(token: string) {
+    return (await request("/api/v1/auth/verify", sessionResponseSchema, {
       method: "POST",
       body: JSON.stringify({ token }),
-    });
+    })).data.user;
   },
 
   async getDraft(draftId: string): Promise<Draft> {
@@ -187,6 +193,29 @@ export const api = {
     return (await request("/api/v1/account/access", accountAccessResponseSchema)).data;
   },
 
+  async getPlatformAccess() {
+    return (await request("/api/v1/account/platform-access", platformAccessResponseSchema)).data;
+  },
+
+  async getCustomerPortal() {
+    return (await request("/api/v1/customer-portal", customerPortalResponseSchema)).data;
+  },
+
+  async updateCustomerProfile(input: { name: string; whatsapp: string; birthDate: string }) {
+    return (await request("/api/v1/account/profile", sessionResponseSchema, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    })).data.user;
+  },
+
+  async signOutCustomer(): Promise<void> {
+    await request("/api/v1/auth/session", z.undefined(), { method: "DELETE" });
+  },
+
+  async getCurrentUser() {
+    return (await request("/api/v1/auth/session", authSessionResponseSchema)).data.user;
+  },
+
   async getAdminAccess(): Promise<boolean> {
     return (await request("/api/v1/admin/access", adminAccessResponseSchema)).data.allowed;
   },
@@ -213,6 +242,13 @@ export const api = {
     return (await request(`/api/v1/admin/users?${params}`, adminUsersResponseSchema)).data;
   },
 
+  async createAdminCustomer(email: string) {
+    return (await request("/api/v1/admin/customers", adminCreateCustomerResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    })).data;
+  },
+
   async getAdminUser(userId: string): Promise<AdminUserDetail> {
     return (await request(
       `/api/v1/admin/users/${encodeURIComponent(userId)}`,
@@ -220,11 +256,50 @@ export const api = {
     )).data;
   },
 
+  async sendAdminCustomerAccessLink(userId: string): Promise<string> {
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/access-link`,
+      authMessageResponseSchema,
+      { method: "POST" },
+    )).data.message;
+  },
+
   async setAdminUserStatus(userId: string, status: "active" | "suspended") {
     return (await request(
       `/api/v1/admin/users/${encodeURIComponent(userId)}/status`,
       adminSetUserStatusResponseSchema,
       { method: "POST", body: JSON.stringify({ status }) },
+    )).data;
+  },
+
+  async registerAdminManualSale(input: {
+    userId: string;
+    draftId: string;
+    plan: "annual" | "lifetime";
+    amountMinor: number;
+    paymentMethod: "pix" | "bank_transfer" | "cash" | "other";
+    paymentReference?: string;
+  }) {
+    const { userId, ...body } = input;
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/manual-sales`,
+      adminManualPaymentResponseSchema,
+      { method: "POST", body: JSON.stringify(body) },
+    )).data;
+  },
+
+  async registerAdminPlatformSale(input: {
+    userId: string;
+    plan: "annual" | "lifetime";
+    amountMinor: number;
+    paymentMethod: "pix" | "bank_transfer" | "cash" | "other";
+    paymentReference?: string;
+  }) {
+    const { userId, ...body } = input;
+    return (await request(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}/platform-sales`,
+      adminManualPlatformSaleResponseSchema,
+      { method: "POST", body: JSON.stringify({ ...body, confirmPaymentReceived: true }) },
     )).data;
   },
 

@@ -198,12 +198,20 @@ export const authMessageResponseSchema = z.object({
   data: z.object({ message: z.string() }).strict(),
 }).strict();
 
+export const customerProfileSchema = z.object({
+  name: z.string().nullable(),
+  whatsapp: z.string().nullable(),
+  birthDate: z.string().date().nullable(),
+  profileComplete: z.boolean(),
+});
+
 export const sessionResponseSchema = z.object({
   data: z.object({
     user: z.object({
       id: z.string(),
       email: z.string().email(),
       createdAt: z.string().datetime({ offset: true }),
+      ...customerProfileSchema.shape,
     }).strict(),
   }).strict(),
 }).strict();
@@ -244,6 +252,22 @@ export const accountAccessResponseSchema = z.object({
   }).strict()),
 }).strict();
 
+export const platformAccessResponseSchema = z.object({
+  data: z.object({
+    active: z.boolean(),
+    accessPlan: z.enum(["annual", "lifetime"]).nullable(),
+    expiresAt: z.string().datetime({ offset: true }).nullable(),
+  }).strict(),
+}).strict();
+export const customerPortalResponseSchema = z.object({
+  data: z.object({
+    user: sessionResponseSchema.shape.data.shape.user,
+    platformAccess: platformAccessResponseSchema.shape.data,
+    accountAccess: accountAccessResponseSchema.shape.data,
+  }).strict(),
+}).strict();
+export const authSessionResponseSchema = sessionResponseSchema;
+
 export const adminUserSummarySchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
@@ -261,19 +285,51 @@ export const adminUsersResponseSchema = z.object({
 
 export const adminUserResponseSchema = z.object({
   data: z.object({
-    user: adminUserSummarySchema,
+    user: adminUserSummarySchema.extend({
+      name: z.string().nullable(),
+      whatsapp: z.string().nullable(),
+      birthDate: z.string().date().nullable(),
+    }),
     purchases: z.array(z.object({
       purchaseId: z.string().uuid(),
       draftId: z.string().uuid(),
       templateId: z.string(),
+      templateName: z.string(),
       purchaseStatus: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
       accessStatus: z.enum(["active", "revoked"]).nullable(),
+      saleSource: z.enum(["checkout", "manual"]),
+      accessPlan: z.enum(["annual", "lifetime"]).nullable(),
+      amountMinor: z.number().int().positive().nullable(),
+      currency: z.string().length(3).nullable(),
+      paymentMethod: z.enum(["pix", "bank_transfer", "cash", "other"]).nullable(),
+      paymentReference: z.string().nullable(),
+      recordedByAdminEmail: z.string().email().nullable(),
+      expiresAt: z.string().datetime({ offset: true }).nullable(),
       createdAt: z.string().datetime({ offset: true }),
       updatedAt: z.string().datetime({ offset: true }),
     }).strict()),
+    platformSales: z.array(z.object({
+      saleId: z.string().uuid(),
+      accessStatus: z.enum(["active", "expired", "revoked"]),
+      accessPlan: z.enum(["annual", "lifetime"]),
+      amountMinor: z.number().int().positive(),
+      currency: z.string().length(3),
+      paymentMethod: z.enum(["pix", "bank_transfer", "cash", "other"]),
+      paymentReference: z.string().nullable(),
+      recordedByAdminEmail: z.string().email(),
+      expiresAt: z.string().datetime({ offset: true }).nullable(),
+      createdAt: z.string().datetime({ offset: true }),
+    }).strict()),
+    drafts: z.array(z.object({
+      id: z.string().uuid(),
+      templateId: z.string(),
+      templateName: z.string(),
+      updatedAt: z.string().datetime({ offset: true }),
+    }).strict()),
     recentActions: z.array(z.object({
-      action: z.enum(["account_suspended", "account_reactivated"]),
+      action: z.enum(["account_suspended", "account_reactivated", "manual_payment_recorded", "manual_platform_sale_recorded", "customer_created"]),
       actorEmail: z.string().email(),
+      purchaseId: z.string().uuid().nullable(),
       createdAt: z.string().datetime({ offset: true }),
     }).strict()),
   }).strict(),
@@ -288,6 +344,35 @@ export const adminSetUserStatusResponseSchema = z.object({
     status: z.enum(["active", "suspended"]),
     changed: z.boolean(),
     revokedSessions: z.number().int().nonnegative(),
+  }).strict(),
+}).strict();
+
+export const adminManualPaymentResponseSchema = z.object({
+  data: z.object({
+    purchaseId: z.string().uuid(),
+    status: z.literal("paid"),
+    accessStatus: z.literal("active"),
+    expiresAt: z.string().datetime({ offset: true }).nullable(),
+  }).strict(),
+}).strict();
+
+export const adminManualPlatformSaleResponseSchema = z.object({
+  data: z.object({
+    saleId: z.string().uuid(),
+    accessStatus: z.literal("active"),
+    accessPlan: z.enum(["annual", "lifetime"]),
+    expiresAt: z.string().datetime({ offset: true }).nullable(),
+  }).strict(),
+}).strict();
+
+export const adminCreateCustomerResponseSchema = z.object({
+  data: z.object({
+    user: z.object({
+      id: z.string().uuid(),
+      email: z.string().email(),
+      createdAt: z.string().datetime({ offset: true }),
+    }).strict(),
+    accessLinkSent: z.boolean(),
   }).strict(),
 }).strict();
 
@@ -352,6 +437,9 @@ export type TemplateDefinition = z.infer<typeof templateDefinitionSchema>;
 export type Draft = z.infer<typeof draftSchema>;
 export type PurchaseStatus = z.infer<typeof purchaseStatusResponseSchema>["data"];
 export type AccountAccessItem = z.infer<typeof accountAccessResponseSchema>["data"][number];
+export type PlatformAccessSummary = z.infer<typeof platformAccessResponseSchema>["data"];
+export type AuthenticatedCustomer = z.infer<typeof sessionResponseSchema>["data"]["user"];
+export type CustomerPortalSummary = z.infer<typeof customerPortalResponseSchema>["data"];
 export type AdminUserSummary = z.infer<typeof adminUserSummarySchema>;
 export type AdminUserDetail = z.infer<typeof adminUserResponseSchema>["data"];
 export type DemoPublication = z.infer<typeof publicDemoPublicationResponseSchema>["data"];

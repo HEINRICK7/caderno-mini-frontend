@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { CircleAlert, PackageOpen, RotateCcw, UserRound } from "lucide-react";
+import { Check, CircleAlert, PackageOpen, RotateCcw, ShieldCheck, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { SiteHeader } from "@/components/site-header";
+import { CustomerAreaShell } from "@/components/customer-area-shell";
 import { ApiError, api } from "@/lib/api-client";
-import type { AccountAccessItem } from "@/lib/api-contracts";
+import type { AccountAccessItem, PlatformAccessSummary } from "@/lib/api-contracts";
+import { useCustomerWorkspace } from "@/hooks/use-customer-workspace";
 
 export default function AccountPage() {
   const router = useRouter();
+  const workspace = useCustomerWorkspace();
   const [accessItems, setAccessItems] = useState<AccountAccessItem[]>([]);
+  const [platformAccess, setPlatformAccess] = useState<PlatformAccessSummary | null>(null);
   const [canManageUsers, setCanManageUsers] = useState(false);
   const [publicLinks, setPublicLinks] = useState<Record<string, string>>({});
   const [publishingDraftId, setPublishingDraftId] = useState("");
@@ -21,7 +24,9 @@ export default function AccountPage() {
     setLoading(true);
     setError("");
     try {
-      setAccessItems(await api.getAccountAccess());
+      const [items, access] = await Promise.all([api.getAccountAccess(), api.getPlatformAccess()]);
+      setAccessItems(items);
+      setPlatformAccess(access);
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) {
         router.replace("/entrar?returnTo=%2Fconta");
@@ -35,9 +40,10 @@ export default function AccountPage() {
 
   useEffect(() => {
     let active = true;
-    void api.getAccountAccess().then((items) => {
+    void Promise.all([api.getAccountAccess(), api.getPlatformAccess()]).then(([items, access]) => {
       if (active) {
         setAccessItems(items);
+        setPlatformAccess(access);
         setError("");
       }
     }).catch((cause: unknown) => {
@@ -89,8 +95,7 @@ export default function AccountPage() {
   }, new Map<string, AccountAccessItem>()).values()];
 
   return (
-    <main className="subpage-shell">
-      <SiteHeader />
+    <CustomerAreaShell access={platformAccess ?? workspace.access} email={workspace.email}>
       <section className="subpage-content subpage-content--narrow account-content">
         <div className="page-heading page-heading--stacked account-heading">
           <span className="account-eyebrow"><UserRound aria-hidden="true" size={14} /> Espaço do cliente</span>
@@ -111,6 +116,19 @@ export default function AccountPage() {
             <div><h2>Não conseguimos abrir sua conta</h2><p>{error}</p></div>
             <button className="button button--secondary" onClick={() => void loadAccount()} type="button"><RotateCcw aria-hidden="true" size={16} /> Tentar novamente</button>
           </div>
+        ) : null}
+        {!loading && !error && platformAccess ? (
+          <section className={`account-platform-access${platformAccess.active ? " is-active" : ""}`} aria-label="Acesso à plataforma">
+            <span className="account-platform-access__icon">{platformAccess.active ? <Check aria-hidden="true" size={19} /> : <ShieldCheck aria-hidden="true" size={19} />}</span>
+            <div>
+              <span className="account-platform-access__eyebrow">Acesso à plataforma</span>
+              <h2>{platformAccess.active ? "Sua licença está ativa" : "Prévia gratuita disponível"}</h2>
+              <p>{platformAccess.active
+                ? `Você pode criar, publicar e exportar mensagens${platformAccess.accessPlan === "lifetime" ? " sem prazo para acabar" : platformAccess.expiresAt ? ` até ${new Date(platformAccess.expiresAt).toLocaleDateString("pt-BR")}` : " durante o período contratado"}.`
+                : "Qualquer pessoa pode testar a prévia. Para publicar links definitivos e exportar mensagens, a conta precisa de uma licença ativa."}</p>
+            </div>
+            {platformAccess.active ? <Link className="button button--primary" href="/templates">Criar uma mensagem</Link> : null}
+          </section>
         ) : null}
         {!loading && !error && uniqueItems.length === 0 ? (
           <div className="account-empty">
@@ -164,6 +182,6 @@ export default function AccountPage() {
           </div>
         ) : null}
       </section>
-    </main>
+    </CustomerAreaShell>
   );
 }

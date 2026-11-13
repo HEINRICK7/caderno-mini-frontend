@@ -6,8 +6,10 @@ import { ArrowUpRight, CircleAlert, RotateCcw, Search, SearchX, ShoppingBag, Spa
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { StatusSticker } from "../../components/status-sticker";
 import { SiteHeader } from "../../components/site-header";
+import { CustomerAreaShell, CustomerWorkspaceLoading } from "../../components/customer-area-shell";
 import { ApiError, api } from "../../lib/api-client";
 import { useCheckoutPlan } from "../../hooks/use-checkout-plan";
+import { useCustomerWorkspace } from "../../hooks/use-customer-workspace";
 import type { Template } from "../../lib/api-contracts";
 import welcomePreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/01-boas-vindas.png";
 import thanksPreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/02-agradecimento-compra.png";
@@ -69,6 +71,7 @@ function getRequestedSegment(): Segment {
 }
 
 export default function TemplatesPage() {
+  const workspace = useCustomerWorkspace();
   const [templates, setTemplates] = useState<Template[]>([]);
   const requestedSegment = useSyncExternalStore(subscribeToLocation, getRequestedSegment, () => "product");
   const [segmentOverride, setSegmentOverride] = useState<Segment | null>(null);
@@ -77,7 +80,8 @@ export default function TemplatesPage() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const checkoutPlan = useCheckoutPlan();
+  const requestedCheckoutPlan = useCheckoutPlan();
+  const checkoutPlan = workspace.access?.active ? null : requestedCheckoutPlan;
 
   const loadTemplates = useCallback(async () => {
     try {
@@ -118,9 +122,7 @@ export default function TemplatesPage() {
     setQuery("");
   }
 
-  return (
-    <main className="subpage-shell templates-shell">
-      <SiteHeader />
+  const catalogContent = (
       <section className="subpage-content templates-content">
         <div className="templates-heading">
           <div className="templates-heading__copy">
@@ -225,7 +227,7 @@ export default function TemplatesPage() {
                 <Link
                   aria-label={`${template.name}. ${template.description ?? ""} Personalizar modelo`}
                   className="template-card__link"
-                  href={`/templates/${encodeURIComponent(template.id)}${checkoutPlan ? `?plan=${checkoutPlan}` : ""}`}
+                    href={`/templates/${encodeURIComponent(template.id)}${checkoutPlan ? `?plan=${checkoutPlan}` : ""}`}
                 >
                   <div className="template-card__art" style={{ "--template-art-bg": template.definition.visual?.background ?? "#e8f5ef" } as CSSProperties}>
                     {preview ? (
@@ -253,6 +255,12 @@ export default function TemplatesPage() {
           </>
         ) : null}
       </section>
-    </main>
   );
+
+  if (workspace.status === "loading") return <CustomerWorkspaceLoading label="Carregando seus modelos…" />;
+  if (workspace.status === "authenticated") {
+    return <CustomerAreaShell access={workspace.access} email={workspace.email}>{catalogContent}</CustomerAreaShell>;
+  }
+
+  return <main className="subpage-shell templates-shell"><SiteHeader />{catalogContent}</main>;
 }

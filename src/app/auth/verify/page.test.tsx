@@ -28,12 +28,12 @@ afterEach(() => {
 });
 
 describe("retorno do magic link", () => {
-  it("abre Minha conta quando o link foi aberto sem o armazenamento da aba de origem", async () => {
-    verifyMagicLink.mockResolvedValue(undefined);
+  it("abre a área privada padrão quando o link foi aberto sem o armazenamento da aba de origem", async () => {
+    verifyMagicLink.mockResolvedValue({ profileComplete: true });
     render(<VerifyPage />);
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(replace).toHaveBeenCalledWith("/conta");
+    expect(replace).toHaveBeenCalledWith("/painel");
   });
 });

@@ -63,7 +63,7 @@ function initialPreviewValues(definition: TemplateDefinition): Record<string, Pr
 function errorMessage(cause: unknown) {
   if (cause instanceof ApiError) {
     if (cause.code === "TEMPLATE_DEFINITION_INVALID") {
-      return "O template precisa ter campos válidos, categoria, visual completo e cartão de prévia. Revise a definição e tente novamente.";
+      return "O modelo precisa ter campos válidos, categoria, identidade visual completa e prévia do cartão. Revise a definição e tente novamente.";
     }
     if (cause.status >= 500) return `O servidor retornou erro ${cause.status}. Tente novamente.`;
     return cause.message;
@@ -184,11 +184,11 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
       try {
         parsedDefinition = JSON.parse(definition);
       } catch {
-        setError("O JSON do template tem um erro de sintaxe. Corrija e salve o rascunho novamente.");
+        setError("O JSON do modelo tem um erro de sintaxe. Corrija e salve o rascunho novamente.");
         return;
       }
       if (typeof parsedDefinition !== "object" || parsedDefinition === null || Array.isArray(parsedDefinition)) {
-        setError("A definição do template precisa ser um objeto JSON.");
+        setError("A definição do modelo precisa ser um objeto JSON.");
         return;
       }
       const input = {
@@ -221,7 +221,7 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
     setNotice("");
     try {
       if (!editorDefinition) {
-        setError("A definição não segue o formato do template. Revise o JSON e tente novamente.");
+        setError("A definição não segue o formato do modelo. Revise o JSON e tente novamente.");
         return;
       }
       await api.validateAdminTemplateDefinition(editorDefinition as Record<string, unknown>);
@@ -294,20 +294,20 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
       <header className="admin-template-manager__heading">
         <div>
           <span className="admin-eyebrow"><Layers3 aria-hidden="true" size={15} /> Catálogo de modelos</span>
-          <h2 id="admin-templates-title">Criar e publicar templates</h2>
-          <p>Salve como rascunho, valide o formulário e o cartão na prévia e só então publique para os clientes em <strong>/templates</strong>.</p>
+          <h2 id="admin-templates-title">Criar e publicar modelos</h2>
+          <p>Salve um rascunho, confira o formulário e a prévia do cartão e publique para os clientes em <strong>/templates</strong>.</p>
         </div>
-        <button className="button button--secondary" disabled={saving || validating || publishing} onClick={startBlank} type="button"><FilePlus2 aria-hidden="true" size={16} /> Novo template</button>
+        <button className="button button--secondary" disabled={saving || validating || publishing} onClick={startBlank} type="button"><FilePlus2 aria-hidden="true" size={16} /> Novo modelo</button>
       </header>
 
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       {notice ? <p className="form-notice admin-template-manager__notice" role="status">{notice}</p> : null}
 
       <div className="admin-template-manager__layout">
-        <section className="admin-template-list" aria-label="Templates e versões existentes">
+        <section className="admin-template-list" aria-label="Modelos e versões existentes">
           <div className="admin-template-list__heading"><h3>Modelos existentes</h3><span>{loading ? "Carregando…" : `${publishedCount} publicados · ${draftCount} rascunhos`}</span></div>
           {loading ? <p className="admin-empty">Carregando catálogo…</p> : null}
-          {!loading && templates.length === 0 ? <p className="admin-empty">Ainda não há templates. Use o modelo inicial no editor ao lado ou abaixo para publicar o primeiro.</p> : null}
+          {!loading && templates.length === 0 ? <p className="admin-empty">Ainda não há modelos. Use o modelo inicial no editor ao lado ou abaixo para publicar o primeiro.</p> : null}
           {templates.map((template) => {
             const isDraft = template.publicationStatus === "draft";
             const statusLabel = isDraft ? "Rascunho" : template.publicationStatus === "published" ? "Publicado" : "Arquivado";
@@ -339,7 +339,7 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
               <p className="form-field__help">Use letras minúsculas, números e hífens. O mesmo identificador cria uma nova versão.</p>
             </div>
             <div className="form-field">
-              <label htmlFor="admin-template-name">Nome do template</label>
+              <label htmlFor="admin-template-name">Nome do modelo</label>
               <input id="admin-template-name" maxLength={120} required value={name} onChange={(event) => setName(event.target.value)} />
             </div>
             <div className="form-field">
@@ -358,7 +358,7 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
           </div>
 
           {previewOpen && editorDefinition ? (
-            <section className="admin-template-preview" aria-label="Prévia do template para o cliente">
+            <section className="admin-template-preview" aria-label="Prévia do modelo para o cliente">
               <header className="admin-template-preview__heading">
                 <div><span className="admin-eyebrow"><Check aria-hidden="true" size={14} /> Validação aprovada</span><h4>Confira antes de publicar</h4></div>
                 {!isSaved ? <span className="admin-template-preview__warning">Salve as alterações antes de publicar</span> : null}
@@ -385,7 +385,7 @@ export function AdminTemplateManager({ onUnauthorized }: { onUnauthorized: () =>
                   definition={editorDefinition}
                   imagePreviews={imagePreviews}
                   requireActionDestinationInPreview
-                  title={name || "Seu template"}
+                  title={name || "Seu modelo"}
                 />
               </div>
               {!isValidated ? <p className="admin-template-preview__warning">O conteúdo mudou desde a validação. Valide a prévia novamente antes de publicar.</p> : null}

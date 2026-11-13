@@ -8,8 +8,9 @@ const { getTemplates } = vi.hoisted(() => ({ getTemplates: vi.fn() }));
 
 vi.mock("../../lib/api-client", () => ({
   ApiError: class ApiError extends Error {},
-  api: { getTemplates },
+  api: { getTemplates, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
 }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/templates", useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("../../components/site-header", () => ({ SiteHeader: () => <header /> }));
 
 import TemplatesPage from "./page";
