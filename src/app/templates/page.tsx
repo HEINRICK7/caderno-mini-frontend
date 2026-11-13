@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image, { type StaticImageData } from "next/image";
-import { ArrowUpRight, CircleAlert, RotateCcw, Search, SearchX, ShoppingBag, Sparkles, Wrench } from "lucide-react";
+import { ArrowUpRight, CircleAlert, QrCode, RotateCcw, Search, SearchX, ShoppingBag, Sparkles, Wrench } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { StatusSticker } from "../../components/status-sticker";
 import { SiteHeader } from "../../components/site-header";
@@ -11,6 +11,7 @@ import { ApiError, api } from "../../lib/api-client";
 import { useCheckoutPlan } from "../../hooks/use-checkout-plan";
 import { useCustomerWorkspace } from "../../hooks/use-customer-workspace";
 import type { Template } from "../../lib/api-contracts";
+import { hasPendingPixQrHandoff } from "../../lib/pix-qr-handoff";
 import welcomePreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/01-boas-vindas.png";
 import thanksPreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/02-agradecimento-compra.png";
 import installmentPreview from "../../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
@@ -70,10 +71,19 @@ function getRequestedSegment(): Segment {
   return requestedSegment === "service" ? "service" : "product";
 }
 
+function getPixQrCatalogRequest(): boolean {
+  return new URLSearchParams(window.location.search).get("usePixQr") === "1" && hasPendingPixQrHandoff();
+}
+
+function supportsPixQr(template: Template): boolean {
+  return template.definition.fields.some((field) => field.id === "pixCopyPaste");
+}
+
 export default function TemplatesPage() {
   const workspace = useCustomerWorkspace();
   const [templates, setTemplates] = useState<Template[]>([]);
   const requestedSegment = useSyncExternalStore(subscribeToLocation, getRequestedSegment, () => "product");
+  const usePixQrInCatalog = useSyncExternalStore(subscribeToLocation, getPixQrCatalogRequest, () => false);
   const [segmentOverride, setSegmentOverride] = useState<Segment | null>(null);
   const segment = segmentOverride ?? requestedSegment;
   const [category, setCategory] = useState<CategoryFilter>("Todos");
@@ -139,6 +149,19 @@ export default function TemplatesPage() {
             <span><strong>Produtos e serviços</strong><small>para diferentes momentos</small></span>
           </div>
         </div>
+
+        {usePixQrInCatalog ? (
+          <div className="catalog-state catalog-state--pix-qr">
+            <span className="catalog-state__icon"><QrCode aria-hidden="true" size={21} /></span>
+            <div>
+              <h2>Seu QR Pix está pronto para usar</h2>
+              <p>Escolha um dos modelos de cobrança compatíveis para inserir o código e o valor. Confira os dados antes de criar a mensagem.</p>
+            </div>
+            <Link className="button button--secondary" href={`/templates/cobranca-pix?usePixQr=1${checkoutPlan ? `&plan=${checkoutPlan}` : ""}`}>
+              Usar em Cobrança Pix <ArrowUpRight aria-hidden="true" size={15} />
+            </Link>
+          </div>
+        ) : null}
 
         <section aria-label="Filtrar modelos" className="catalog-toolbar">
           <div className="catalog-toolbar__top">
@@ -222,12 +245,16 @@ export default function TemplatesPage() {
             <div className="template-grid">
             {visibleTemplates.map((template, index) => {
               const preview = catalogPreviews[template.id];
+              const editorOptions = [
+                checkoutPlan ? `plan=${checkoutPlan}` : "",
+                usePixQrInCatalog && supportsPixQr(template) ? "usePixQr=1" : "",
+              ].filter(Boolean).join("&");
               return (
               <article className="template-card" key={template.id}>
                 <Link
                   aria-label={`${template.name}. ${template.description ?? ""} Personalizar modelo`}
                   className="template-card__link"
-                    href={`/templates/${encodeURIComponent(template.id)}${checkoutPlan ? `?plan=${checkoutPlan}` : ""}`}
+                    href={`/templates/${encodeURIComponent(template.id)}${editorOptions ? `?${editorOptions}` : ""}`}
                 >
                   <div className="template-card__art" style={{ "--template-art-bg": template.definition.visual?.background ?? "#e8f5ef" } as CSSProperties}>
                     {preview ? (
@@ -245,7 +272,7 @@ export default function TemplatesPage() {
                     <span className="template-card__category">{template.definition.catalog?.category ?? (segment === "product" ? "Produtos" : "Serviços")}</span>
                     <h2>{template.name}</h2>
                     {template.description ? <p>{template.description}</p> : null}
-                    <span className="template-card__cta">Personalizar <ArrowUpRight aria-hidden="true" size={15} /></span>
+                    <span className="template-card__cta">{usePixQrInCatalog && supportsPixQr(template) ? "Usar QR Pix neste modelo" : "Personalizar"} <ArrowUpRight aria-hidden="true" size={15} /></span>
                   </div>
                 </Link>
               </article>
