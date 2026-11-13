@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { TemplateFields } from "@/components/template-fields";
 import { MessagePhonePreview } from "@/components/message-phone-preview";
+import { DraftShareActions } from "@/components/draft-share-actions";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import { trackInitiateCheckout } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
@@ -40,6 +41,8 @@ export default function DraftPage() {
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publicUrl, setPublicUrl] = useState("");
   const [imageUploadBlocked, setImageUploadBlocked] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const platformAccess = workspace.access;
@@ -106,6 +109,25 @@ export default function DraftPage() {
       throw cause;
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function publishMessage() {
+    if (!draft || !template) return;
+    setPublishing(true);
+    setError("");
+    setNotice("");
+    try {
+      await save();
+      const publication = await api.publishDraft(draft.id);
+      setPublicUrl(publication.publicUrl);
+      setNotice("Mensagem publicada. Escolha como quer compartilhar.");
+    } catch (cause) {
+      if (!(cause instanceof ApiError && error)) {
+        setError(cause instanceof ApiError ? cause.message : "Não foi possível publicar a mensagem.");
+      }
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -301,9 +323,13 @@ export default function DraftPage() {
                       <div className="template-action-heading">
                         <span className="template-action-heading__eyebrow">Licença ativa</span>
                         <h2 id="template-premium-title">Sua conta já pode publicar</h2>
-                        <p>Salve as alterações e publique a mensagem. Sua licença da plataforma cobre os modelos premium.</p>
+                        <p>Salve sua mensagem na biblioteca e publique para enviar o link ou a imagem ao cliente.</p>
                       </div>
+                      <button className="button button--primary" disabled={saving || publishing || imageUploadBlocked} onClick={() => void publishMessage()} type="button">
+                        <Share2 aria-hidden="true" size={17} /> {publishing ? "Publicando…" : "Publicar e compartilhar"}
+                      </button>
                       <Link className="button button--secondary" href="/conta">Ver minha conta</Link>
+                      {publicUrl ? <DraftShareActions allowImage={!template.definition.fields.some((field) => field.id === "pixCopyPaste")} draftId={draft.id} publicUrl={publicUrl} /> : null}
                     </section>
                   ) : (
                     <section className="template-premium-panel" aria-labelledby="template-premium-title">
