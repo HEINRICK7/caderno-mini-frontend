@@ -12,7 +12,13 @@ import { trackInitiateCheckout } from "../../../components/meta-pixel";
 import { ApiError, api } from "../../../lib/api-client";
 import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
 import { useCustomerWorkspace } from "../../../hooks/use-customer-workspace";
-import type { Template, TemplateField } from "../../../lib/api-contracts";
+import type { Template } from "../../../lib/api-contracts";
+import {
+  SINGLE_PIX_CHARGE_MODE,
+  templateEditorFields,
+  templateEditorPreviewData,
+  templateEditorSubmitData,
+} from "../../../lib/template-editor";
 
 type FieldValue = string | number | boolean;
 
@@ -22,48 +28,10 @@ function editableExampleValues(template: Template): Record<string, FieldValue> {
     Object.entries(template.definition.exampleData ?? {}).filter(([fieldId]) => editableFields.has(fieldId)),
   ) as Record<string, FieldValue>;
   if (template.id === "cobranca-pix") {
-    values.chargeMode = "Cobrança única";
+    values.chargeMode = SINGLE_PIX_CHARGE_MODE;
     values.detailLabel1 = "Valor";
   }
   return values;
-}
-
-function editorFields(template: Template, values: Record<string, FieldValue>): TemplateField[] {
-  if (template.id !== "cobranca-pix") return template.definition.fields;
-
-  const chargeModeField: TemplateField = {
-    id: "chargeMode",
-    type: "select",
-    label: "Tipo da cobrança",
-    options: ["Cobrança única", "Cobrança parcelada"],
-    required: true,
-    section: "Detalhes da cobrança",
-    width: "full",
-  };
-  const installments = template.definition.fields.filter((field) => field.id === "installmentNumber" || field.id === "installmentTotal");
-  const fields: TemplateField[] = [];
-  for (const field of template.definition.fields) {
-    if (field.id === "detailLabel3" && values.chargeMode !== "Cobrança parcelada") continue;
-    if (field.id === "installmentNumber") {
-      fields.push(chargeModeField);
-      if (values.chargeMode === "Cobrança parcelada") fields.push(...installments);
-      continue;
-    }
-    if (field.id === "installmentTotal") continue;
-    fields.push(field);
-  }
-  return fields;
-}
-
-function editorPreviewData(template: Template, values: Record<string, FieldValue>) {
-  const data = { ...(template.definition.exampleData ?? {}), ...values };
-  delete data.chargeMode;
-  if (template.id === "cobranca-pix" && values.chargeMode !== "Cobrança parcelada") {
-    delete data.installmentNumber;
-    delete data.installmentTotal;
-    delete data.detailLabel3;
-  }
-  return data;
 }
 
 export default function TemplatePage() {
@@ -115,13 +83,7 @@ export default function TemplatePage() {
     let createdDraftId: string | undefined;
     setSaving(true);
     setError("");
-    const data = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== ""));
-    delete data.chargeMode;
-    if (template.id === "cobranca-pix" && values.chargeMode !== "Cobrança parcelada") {
-      delete data.installmentNumber;
-      delete data.installmentTotal;
-      delete data.detailLabel3;
-    }
+    const data = templateEditorSubmitData(template, values);
     try {
       await api.validateTemplate(template.id, data);
       const draft = await api.createDraft(template.id, data);
@@ -176,7 +138,7 @@ export default function TemplatePage() {
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
                 <TemplateFields
-                  fields={editorFields(template, values)}
+                  fields={templateEditorFields(template, values)}
                   values={values}
                   onUploadStateChange={setUploadingImage}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
@@ -203,7 +165,7 @@ export default function TemplatePage() {
                 </div>
               </form>
               <MessagePhonePreview
-                data={editorPreviewData(template, values)}
+                data={templateEditorPreviewData(template, values)}
                 definition={template.definition}
                 imagePreviews={imagePreviews}
                 title={template.name}
