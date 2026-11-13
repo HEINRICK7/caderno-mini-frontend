@@ -16,6 +16,12 @@ import { trackInitiateCheckout } from "@/components/meta-pixel";
 import { ApiError, api } from "@/lib/api-client";
 import { useCustomerWorkspace } from "@/hooks/use-customer-workspace";
 import type { Draft, Template } from "@/lib/api-contracts";
+import {
+  resolvePixChargeMode,
+  templateEditorFields,
+  templateEditorPreviewData,
+  templateEditorSubmitData,
+} from "@/lib/template-editor";
 
 type FieldValue = string | number | boolean;
 
@@ -27,6 +33,16 @@ function initialValues(draft: Draft, template: Template): Record<string, FieldVa
     if (field.type === "boolean") values[field.id] = Boolean(value);
     else if (field.type === "number") values[field.id] = typeof value === "number" ? value : "";
     else values[field.id] = typeof value === "string" ? value : "";
+  }
+  if (template.id === "cobranca-pix") {
+    values.chargeMode = resolvePixChargeMode(draft.data);
+    for (const fieldId of ["installmentNumber", "installmentTotal", "detailLabel3"]) {
+      const example = template.definition.exampleData?.[fieldId];
+      const savedValue = draft.data[fieldId];
+      if ((savedValue === undefined || savedValue === null) && (typeof example === "string" || typeof example === "number")) {
+        values[fieldId] = example;
+      }
+    }
   }
   return values;
 }
@@ -92,7 +108,7 @@ export default function DraftPage() {
   }, [draftId]);
 
   function formData() {
-    return Object.fromEntries(Object.entries(values).filter(([, value]) => value !== ""));
+    return template ? templateEditorSubmitData(template, values) : {};
   }
 
   async function save() {
@@ -253,7 +269,7 @@ export default function DraftPage() {
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={(event) => { event.preventDefault(); void save().catch(() => undefined); }}>
                 <TemplateFields
-                  fields={template.definition.fields}
+                  fields={templateEditorFields(template, values)}
                   values={values}
                   onUploadStateChange={setImageUploadBlocked}
                   onChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
@@ -373,7 +389,7 @@ export default function DraftPage() {
                   )}
                 </div>
               </form>
-              <MessagePhonePreview data={values} definition={template.definition} imagePreviews={imagePreviews} requireActionDestinationInPreview title={template.name} />
+              <MessagePhonePreview data={templateEditorPreviewData(template, values)} definition={template.definition} imagePreviews={imagePreviews} requireActionDestinationInPreview title={template.name} />
             </div>
           </>
         ) : null}
