@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { QrCode } from "lucide-react";
+import { LockKeyhole, QrCode } from "lucide-react";
 import { api } from "../lib/api-client";
 import { MAX_TEMPLATE_IMAGE_BYTES, type TemplateField } from "@/lib/api-contracts";
 
@@ -224,6 +224,12 @@ export function TemplateFields({
           <Link className="pix-qr-generator-link" href={pixQrGeneratorHref}><QrCode aria-hidden="true" size={16} /> Gerar QR Code Pix para este modelo</Link>
         ) : null}
         {field.id === "pixCopyPaste" && value ? <p className="form-field__help" role="status">QR Code atualizado na prévia. O botão do cartão copia este mesmo código.</p> : null}
+        {field.id === "pixCopyPaste" ? (
+          <div className="pix-security-hint">
+            <LockKeyhole aria-hidden="true" size={16} />
+            <span>O sistema confere o código antes de publicar. Confira o recebedor e o valor no app do banco antes de pagar.</span>
+          </div>
+        ) : null}
       </div>
       </Fragment>
     );

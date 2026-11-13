@@ -16,6 +16,7 @@ import {
   Heart,
   Link2,
   Instagram,
+  LockKeyhole,
   MessageCircle,
   Music2,
   MessageSquareMore,
@@ -262,6 +263,10 @@ export function MessageTemplateCard({
         )}
         <span className="message-template__pix-note">
           {pixSecurityNote || "Confirme o nome do recebedor no app do banco antes de pagar."}
+        </span>
+        <span className="message-template__pix-security">
+          <LockKeyhole aria-hidden="true" size={12} />
+          <span>O sistema confere o código. Confirme o recebedor e o valor no app do banco antes de pagar.</span>
         </span>
       </div>
     </section>

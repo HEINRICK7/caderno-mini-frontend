@@ -622,6 +622,8 @@
 .message-template__pix-code { display: block; max-height: 86px; overflow: auto; padding: 9px 10px; border: 1px solid #e3ece8; border-radius: 10px; background: #f8fbfa; color: #314b45; font: 400 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; word-break: break-all; user-select: all; }
 .message-template__pix-code-empty { padding: 10px; border: 1px dashed #c5ddd5; border-radius: 10px; background: #f7fbf9; color: var(--template-muted); font: 400 12px/1.4 var(--font-template-body); }
 .message-template__pix-note { color: var(--template-muted); font: 400 10px/1.4 var(--font-template-body); }
+.message-template__pix-security { display: flex; align-items: flex-start; gap: 5px; color: var(--template-muted); font: 400 10px/1.4 var(--font-template-body); }
+.message-template__pix-security svg { flex: 0 0 auto; margin-top: 1px; color: #078b78; }
 .message-template__socials { min-width: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; padding: 10px 4px 2px; }
 .message-template__social-link { min-height: 36px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border: 1px solid #e5e8e5; border-radius: 999px; background: #fff; color: var(--social-color, var(--template-accent)); font: 600 12px/1 var(--font-template-body); text-decoration: none; transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease; }
 .message-template__social-link:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--social-color, var(--template-accent)) 30%, #e5e8e5); background: color-mix(in srgb, var(--social-color, var(--template-accent)) 5%, #fff); }
@@ -807,7 +809,8 @@
 .message-phone .message-template__pix-code-card { gap: 6px; padding: 9px; border-radius: 12px; }
 .message-phone .message-template__pix-code-heading strong { font-size: 12px; }
 .message-phone .message-template__pix-code-heading span,
-.message-phone .message-template__pix-note { font-size: 9px; }
+.message-phone .message-template__pix-note,
+.message-phone .message-template__pix-security { font-size: 9px; }
 .message-phone .message-template__pix-code { max-height: 66px; padding: 7px; font-size: 8px; }
 .message-phone .message-template__pix-code-empty { padding: 8px; font-size: 10px; }
 .message-phone .message-template__socials { gap: 5px; padding: 6px 2px 0; }
