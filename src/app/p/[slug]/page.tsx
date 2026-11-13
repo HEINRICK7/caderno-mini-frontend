@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MessageTemplateCard } from "@/components/message-template-card";
 import { getPublicPublication } from "@/lib/public-publication";
 import { clientCompanyName } from "@/lib/share-preview";
+import { shareLinkMetadata } from "@/lib/share-link-metadata";
 
 type PublicMessagePageProps = {
   params: Promise<{ slug: string }>;
@@ -19,13 +20,11 @@ export async function generateMetadata({ params }: PublicMessagePageProps): Prom
   }
 
   const companyName = clientCompanyName(publication.templateDefinition, publication.data);
-  const displayCompanyName = companyName.length > 42 ? `${companyName.slice(0, 41).trimEnd()}…` : companyName;
-  const title = companyName
-    ? `Cartão de ${displayCompanyName} | Cadernô Express`
-    : `${publication.templateName} | Cadernô Express`;
-  const description = companyName
-    ? `Cartão digital de ${companyName}, criado com o Cadernô Express. Confira o conteúdo e valide os dados antes de pagar.`
-    : `Você recebeu uma mensagem criada com o Cadernô Express. Abra o link para conferir o cartão${publication.templateDescription ? `: ${publication.templateDescription}` : ""}.`;
+  const { title, description } = shareLinkMetadata({
+    businessName: companyName,
+    templateName: publication.templateName,
+    templateDescription: publication.templateDescription,
+  });
   const image = {
     url: `/p/${slug}/share-image?v=${Date.parse(publication.publishedAt)}`,
     type: "image/png",

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Download, ExternalLink, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { WhatsAppPhonePreview } from "@/components/whatsapp-phone-preview";
 import {
   billingWhatsAppMessages,
   billingWhatsAppShareUrl,
@@ -61,46 +62,68 @@ export function DraftShareActions({
   }
 
   return (
-    <section className="draft-share-actions" aria-label="Compartilhar mensagem">
+    <section className={`draft-share-actions${billingMessages ? " draft-share-actions--billing" : ""}`} aria-label="Compartilhar mensagem">
       <div className="draft-share-actions__url">
         <span>Link publicado</span>
         <a href={publicUrl} rel="noreferrer" target="_blank">{publicUrl}</a>
       </div>
       {billingMessages ? (
-        <div className="draft-share-message-picker">
-          <label htmlFor={`whatsapp-message-${draftId}`}>Texto para enviar no WhatsApp</label>
-          <select
-            id={`whatsapp-message-${draftId}`}
-            onChange={(event) => setSelectedMessageId(event.target.value)}
-            value={selectedMessageId}
-          >
-            {billingWhatsAppMessages.map((message) => (
-              <option key={message.id} value={message.id}>{message.label}</option>
-            ))}
-          </select>
-          <span>Nome, valor e vencimento são preenchidos com os dados da cobrança.</span>
-          <p aria-live="polite">{billingMessage}</p>
+        <div className="draft-share-actions__billing-layout">
+          <div className="draft-share-actions__billing-controls">
+            <div className="draft-share-message-picker">
+              <label htmlFor={`whatsapp-message-${draftId}`}>Texto para enviar no WhatsApp</label>
+              <select
+                id={`whatsapp-message-${draftId}`}
+                onChange={(event) => setSelectedMessageId(event.target.value)}
+                value={selectedMessageId}
+              >
+                {billingWhatsAppMessages.map((message) => (
+                  <option key={message.id} value={message.id}>{message.label}</option>
+                ))}
+              </select>
+              <span>Nome, valor e vencimento são preenchidos com os dados da cobrança.</span>
+            </div>
+            <div className="draft-share-actions__buttons">
+              <a className="button button--primary" href={shareUrl} rel="noreferrer" target="_blank">
+                <MessageCircle aria-hidden="true" size={16} /> WhatsApp
+              </a>
+              <a className="button button--secondary" href={publicUrl} rel="noreferrer" target="_blank">
+                <ExternalLink aria-hidden="true" size={16} /> Abrir link
+              </a>
+            </div>
+            {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
+          </div>
+          <WhatsAppPhonePreview
+            businessName={businessName}
+            message={billingMessage}
+            publicUrl={publicUrl}
+            templateName="Cobrança Pix"
+          />
         </div>
       ) : null}
-      <div className="draft-share-actions__buttons">
-        <a className="button button--primary" href={shareUrl} rel="noreferrer" target="_blank">
-          <MessageCircle aria-hidden="true" size={16} /> WhatsApp
-        </a>
-        <a className="button button--secondary" href={publicUrl} rel="noreferrer" target="_blank">
-          <ExternalLink aria-hidden="true" size={16} /> Abrir link
-        </a>
-        {allowImage ? (
-          <>
-            <a className="button button--secondary" href={imageUrl} download>
-              <Download aria-hidden="true" size={16} /> Baixar imagem
+      {!billingMessages ? (
+        <>
+          <div className="draft-share-actions__buttons">
+            <a className="button button--primary" href={shareUrl} rel="noreferrer" target="_blank">
+              <MessageCircle aria-hidden="true" size={16} /> WhatsApp
             </a>
-            <button className="button button--secondary" onClick={() => void shareImage()} type="button">
-              <ImageIcon aria-hidden="true" size={16} /> Enviar imagem
-            </button>
-          </>
-        ) : null}
-      </div>
-      {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
+            <a className="button button--secondary" href={publicUrl} rel="noreferrer" target="_blank">
+              <ExternalLink aria-hidden="true" size={16} /> Abrir link
+            </a>
+            {allowImage ? (
+              <>
+                <a className="button button--secondary" href={imageUrl} download>
+                  <Download aria-hidden="true" size={16} /> Baixar imagem
+                </a>
+                <button className="button button--secondary" onClick={() => void shareImage()} type="button">
+                  <ImageIcon aria-hidden="true" size={16} /> Enviar imagem
+                </button>
+              </>
+            ) : null}
+          </div>
+          {feedback ? <p className="draft-share-actions__feedback" role="status">{feedback}</p> : null}
+        </>
+      ) : null}
     </section>
   );
 }
