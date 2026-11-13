@@ -2,18 +2,39 @@
 
 import { useState } from "react";
 import { Download, ExternalLink, Image as ImageIcon, MessageCircle } from "lucide-react";
-import { whatsappShareUrl } from "@/lib/whatsapp-share";
+import {
+  billingWhatsAppMessages,
+  billingWhatsAppShareUrl,
+  DEFAULT_BILLING_MESSAGE_ID,
+  renderBillingWhatsAppMessage,
+  type WhatsAppShareVariables,
+  whatsappShareUrl,
+} from "@/lib/whatsapp-share";
 
 type DraftShareActionsProps = {
   draftId: string;
   publicUrl: string;
   allowImage: boolean;
   businessName?: string;
+  billingMessages?: boolean;
+  shareVariables?: WhatsAppShareVariables;
 };
 
-export function DraftShareActions({ draftId, publicUrl, allowImage, businessName = "" }: DraftShareActionsProps) {
+export function DraftShareActions({
+  draftId,
+  publicUrl,
+  allowImage,
+  businessName = "",
+  billingMessages = false,
+  shareVariables = {},
+}: DraftShareActionsProps) {
   const [feedback, setFeedback] = useState("");
+  const [selectedMessageId, setSelectedMessageId] = useState(DEFAULT_BILLING_MESSAGE_ID);
   const imageUrl = `/api/v1/drafts/${encodeURIComponent(draftId)}/export.png`;
+  const billingMessage = renderBillingWhatsAppMessage(selectedMessageId, shareVariables);
+  const shareUrl = billingMessages
+    ? billingWhatsAppShareUrl(publicUrl, billingMessage)
+    : whatsappShareUrl(publicUrl, businessName);
 
   async function shareImage() {
     setFeedback("");
@@ -45,8 +66,24 @@ export function DraftShareActions({ draftId, publicUrl, allowImage, businessName
         <span>Link publicado</span>
         <a href={publicUrl} rel="noreferrer" target="_blank">{publicUrl}</a>
       </div>
+      {billingMessages ? (
+        <div className="draft-share-message-picker">
+          <label htmlFor={`whatsapp-message-${draftId}`}>Texto para enviar no WhatsApp</label>
+          <select
+            id={`whatsapp-message-${draftId}`}
+            onChange={(event) => setSelectedMessageId(event.target.value)}
+            value={selectedMessageId}
+          >
+            {billingWhatsAppMessages.map((message) => (
+              <option key={message.id} value={message.id}>{message.label}</option>
+            ))}
+          </select>
+          <span>Nome, valor e vencimento são preenchidos com os dados da cobrança.</span>
+          <p aria-live="polite">{billingMessage}</p>
+        </div>
+      ) : null}
       <div className="draft-share-actions__buttons">
-        <a className="button button--primary" href={whatsappShareUrl(publicUrl, businessName)} rel="noreferrer" target="_blank">
+        <a className="button button--primary" href={shareUrl} rel="noreferrer" target="_blank">
           <MessageCircle aria-hidden="true" size={16} /> WhatsApp
         </a>
         <a className="button button--secondary" href={publicUrl} rel="noreferrer" target="_blank">
