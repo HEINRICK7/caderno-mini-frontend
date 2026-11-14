@@ -8,10 +8,7 @@ import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/custom
 import { DraftShareActions } from "@/components/draft-share-actions";
 import { ApiError, api } from "@/lib/api-client";
 import type { CustomerPortalSummary } from "@/lib/api-contracts";
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("pt-BR");
-}
+import { formatDate } from "@/lib/format-date";
 
 export default function SavedMessagesPage() {
   const router = useRouter();

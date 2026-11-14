@@ -64,3 +64,21 @@ describe("campo de logo da empresa", () => {
     }
   });
 });
+
+describe("campos de mensagem", () => {
+  it("mantém campos essenciais visíveis e recolhe perfis sociais opcionais", () => {
+    const { container } = render(<TemplateFields
+      fields={[
+        { id: "title", type: "text", label: "Título", section: "Conteúdo", required: true },
+        { id: "instagramUrl", type: "url", label: "Instagram", section: "Redes sociais", required: false },
+      ]}
+      values={{ title: "", instagramUrl: "" }}
+      onChange={vi.fn()}
+    />);
+    expect(screen.getByLabelText("Título *")).toBeTruthy();
+    const details = container.querySelector("details");
+    expect(details?.open).toBe(false);
+    fireEvent.click(screen.getByText("Redes sociais"));
+    expect(screen.getByLabelText("Instagram")).toBeTruthy();
+  });
+});

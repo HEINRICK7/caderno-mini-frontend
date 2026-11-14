@@ -347,7 +347,7 @@
 .template-editor-form { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; padding: 16px; border: 1px solid #d7e8e2; border-radius: 8px; background: #fffdfa; }
 .template-editor-form .form-field { gap: 6px; min-width: 0; }
 .template-editor-form .form-field--half, .template-editor-form .form-field--full,
-.template-editor-form .form-section-heading, .template-editor-form .form-error,
+.template-editor-form .form-section-heading, .template-editor-form .form-error, .template-editor-form .template-editor-guidance, .template-editor-form .template-optional-fields,
 .template-editor-form .template-editor-actions { grid-column: 1; }
 .form-section-heading { min-height: 0; display: flex; align-items: center; margin: 18px 0 0; padding: 0 0 8px; border: 0; border-bottom: 1px solid #d7e8e2; border-radius: 0; background: transparent; color: var(--ink); font: 700 15px/1.3 var(--font-heading); }
 .template-editor-form .form-field > label { color: #126d70; font-size: 14px; font-weight: 700; }
