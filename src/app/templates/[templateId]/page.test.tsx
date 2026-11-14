@@ -5,15 +5,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Template } from "@/lib/api-contracts";
 import { backendCatalog } from "../../../../tests/helpers/backend-catalog";
 
-const { getTemplate, validateTemplate, createDraft, push } = vi.hoisted(() => ({
+const { getTemplate, validateTemplate, createDraft, getMerchantInstallmentMessageContext, getMerchantSaleMessageContext, getMerchantSalePaymentMessageContext, linkMerchantChargeMessage, params, push } = vi.hoisted(() => ({
   getTemplate: vi.fn(),
   validateTemplate: vi.fn(),
   createDraft: vi.fn(),
+  getMerchantInstallmentMessageContext: vi.fn(),
+  getMerchantSaleMessageContext: vi.fn(),
+  getMerchantSalePaymentMessageContext: vi.fn(),
+  linkMerchantChargeMessage: vi.fn(),
+  params: { templateId: "agradecimento-compra" },
   push: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useParams: () => ({ templateId: "agradecimento-compra" }),
+  useParams: () => params,
   useRouter: () => ({ push }),
   usePathname: () => "/templates/agradecimento-compra",
 }));
@@ -23,7 +28,10 @@ vi.mock("../../../lib/api-client", () => ({
     constructor(message: string) { super(message); this.status = 400; }
     status: number;
   },
-  api: { getTemplate, validateTemplate, createDraft, getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")) },
+  api: {
+    getTemplate, validateTemplate, createDraft, getMerchantInstallmentMessageContext, getMerchantSaleMessageContext, getMerchantSalePaymentMessageContext, linkMerchantChargeMessage,
+    getCustomerPortal: vi.fn().mockRejectedValue(new Error("No customer session")),
+  },
 }));
 
 import TemplatePage from "./page";
@@ -104,10 +112,16 @@ const paymentConfirmedTemplate = backendCatalog.find((template) => template.id =
 
 afterEach(cleanup);
 beforeEach(() => {
+  params.templateId = "agradecimento-compra";
   getTemplate.mockReset().mockResolvedValue(purchaseTemplate);
   validateTemplate.mockReset().mockResolvedValue(undefined);
   createDraft.mockReset().mockResolvedValue({ id: "draft-1" });
+  getMerchantInstallmentMessageContext.mockReset();
+  getMerchantSaleMessageContext.mockReset();
+  getMerchantSalePaymentMessageContext.mockReset();
+  linkMerchantChargeMessage.mockReset().mockResolvedValue(undefined);
   push.mockReset();
+  window.history.replaceState({}, "", "/templates/agradecimento-compra");
 });
 
 describe("editor de modelo", () => {
@@ -214,5 +228,71 @@ describe("editor de modelo", () => {
       primaryActionLabel: "Ver comprovante",
       paymentStatus: "confirmed",
     }));
+  });
+
+  it("preenche uma cobrança com dados atuais da caderneta e associa o rascunho ao compromisso", async () => {
+    const billingTemplate = backendCatalog.find((template) => template.id === "parcela-proxima") as unknown as Template;
+    params.templateId = "parcela-proxima";
+    getTemplate.mockResolvedValue(billingTemplate);
+    getMerchantInstallmentMessageContext.mockResolvedValue({
+      sourceType: "sale_installment", sourceId: "sale-installment-1", customerId: "0d44a994-29d2-4cf7-a5c7-54a55f3a5e7e",
+      customerName: "Ana cliente", businessName: "Loja da Ana", amountMinor: 8_750, dueDate: "2026-12-10",
+      installmentNumber: 2, installmentTotal: 4, itemNames: ["Manutenção"],
+    });
+    window.history.replaceState({}, "", "/templates/parcela-proxima?installmentId=sale-installment-1");
+
+    render(<TemplatePage />);
+    expect((await screen.findByLabelText("Nome do cliente (variável)") as HTMLInputElement).value).toBe("Ana cliente");
+    expect((screen.getByLabelText("Nome do negócio (variável)") as HTMLInputElement).value).toBe("Loja da Ana");
+    expect((screen.getByLabelText("Valor da parcela") as HTMLInputElement).value).toBe("87,50");
+    expect((screen.getByLabelText("Vencimento") as HTMLInputElement).value).toBe("2026-12-10");
+    expect(screen.getByRole("status").textContent).toContain("dados atuais da caderneta");
+
+    fireEvent.click(screen.getByRole("button", { name: /Continuar com esta mensagem/ }));
+    await waitFor(() => expect(linkMerchantChargeMessage).toHaveBeenCalledWith({
+      draftId: "draft-1", sourceType: "sale_installment", sourceId: "sale-installment-1",
+    }));
+    expect(push).toHaveBeenCalledWith("/mensagens/draft-1");
+    window.history.replaceState({}, "", "/templates/agradecimento-compra");
+  });
+
+  it("preenche o agradecimento com a venda e guarda a mensagem na caderneta do cliente", async () => {
+    getMerchantSaleMessageContext.mockResolvedValue({
+      sourceType: "sale", sourceId: "sale-1", customerId: "0d44a994-29d2-4cf7-a5c7-54a55f3a5e7e",
+      customerName: "Ana Cliente", businessName: "Loja da Ana", amountMinor: 7_250, dueDate: null,
+      installmentNumber: null, installmentTotal: null, itemNames: ["Caderno artesanal"], paidAt: null,
+    });
+    window.history.replaceState({}, "", "/templates/agradecimento-compra?saleId=sale-1");
+
+    render(<TemplatePage />);
+
+    expect((await screen.findByLabelText("Nome do cliente (variável)") as HTMLInputElement).value).toBe("Ana Cliente");
+    expect((screen.getByLabelText("Nome do negócio (variável)") as HTMLInputElement).value).toBe("Loja da Ana");
+    expect((screen.getByLabelText("Nome do produto") as HTMLInputElement).value).toBe("Caderno artesanal");
+    expect((screen.getByLabelText("Valor da compra") as HTMLInputElement).value).toBe("72,50");
+
+    fireEvent.click(screen.getByRole("button", { name: /Continuar com esta mensagem/ }));
+    await waitFor(() => expect(linkMerchantChargeMessage).toHaveBeenCalledWith({
+      draftId: "draft-1", sourceType: "sale", sourceId: "sale-1",
+    }));
+  });
+
+  it("preenche pagamento registrado, mas deixa a confirmação bancária sem marcar", async () => {
+    getTemplate.mockResolvedValue(paymentConfirmedTemplate);
+    getMerchantSalePaymentMessageContext.mockResolvedValue({
+      sourceType: "sale_payment", sourceId: "payment-1", customerId: "0d44a994-29d2-4cf7-a5c7-54a55f3a5e7e",
+      customerName: "Ana Cliente", businessName: "Loja da Ana", amountMinor: 2_000, dueDate: null,
+      installmentNumber: 1, installmentTotal: 3, itemNames: ["Caderno artesanal"], paidAt: "2026-11-13",
+    });
+    params.templateId = "pagamento-confirmado";
+    window.history.replaceState({}, "", "/templates/pagamento-confirmado?salePaymentId=payment-1");
+
+    render(<TemplatePage />);
+
+    expect((await screen.findByLabelText("Valor pago *") as HTMLInputElement).value).toBe("20,00");
+    expect((screen.getByLabelText("Data do pagamento *") as HTMLInputElement).value).toBe("2026-11-13");
+    expect((screen.getByLabelText("Confirmar após conferir no banco *") as HTMLSelectElement).value).toBe("");
+    expect(screen.getByText(/só marque como confirmado depois de conferir o recebimento no banco/i)).toBeTruthy();
+    expect(linkMerchantChargeMessage).not.toHaveBeenCalled();
   });
 });

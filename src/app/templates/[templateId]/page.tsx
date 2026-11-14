@@ -13,8 +13,9 @@ import { ApiError, api } from "../../../lib/api-client";
 import { useCheckoutPlan } from "../../../hooks/use-checkout-plan";
 import { useCustomerWorkspace } from "../../../hooks/use-customer-workspace";
 import { consumePixQrHandoff } from "../../../lib/pix-qr-handoff";
-import type { Template } from "../../../lib/api-contracts";
+import type { MerchantChargeMessageContext, Template } from "../../../lib/api-contracts";
 import {
+  INSTALLMENT_PIX_CHARGE_MODE,
   SINGLE_PIX_CHARGE_MODE,
   templateEditorFields,
   templateEditorPreviewData,
@@ -22,6 +23,7 @@ import {
 } from "../../../lib/template-editor";
 
 type FieldValue = string | number | boolean;
+type BillingSource = { sourceType: "sale" | "sale_installment" | "sale_payment" | "recurring_charge" | "recurring_payment"; sourceId: string };
 
 function editableExampleValues(template: Template): Record<string, FieldValue> {
   const editableFields = new Set(template.definition.fields.filter((field) => field.editable !== false).map((field) => field.id));
@@ -54,14 +56,83 @@ export default function TemplatePage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [pixQrImportMessage, setPixQrImportMessage] = useState("");
   const [pixQrImportFailed, setPixQrImportFailed] = useState(false);
+  const [billingSource, setBillingSource] = useState<BillingSource | null>(null);
+  const [linkedDraftId, setLinkedDraftId] = useState("");
+  const [billingPrefilled, setBillingPrefilled] = useState(false);
   const requestedCheckoutPlan = useCheckoutPlan();
   const checkoutPlan = workspace.access?.active ? null : requestedCheckoutPlan;
 
-  const initializeTemplate = useCallback((loadedTemplate: Template) => {
+  const initializeTemplate = useCallback(async (loadedTemplate: Template, isActive: () => boolean = () => true) => {
     const nextValues = editableExampleValues(loadedTemplate);
+    const params = new URLSearchParams(window.location.search);
+    const installmentId = params.get("installmentId");
+    const recurringChargeId = params.get("recurringChargeId");
+    const saleId = params.get("saleId");
+    const salePaymentId = params.get("salePaymentId");
+    const recurringPaymentId = params.get("recurringPaymentId");
+    const requestedSources = [installmentId, recurringChargeId, saleId, salePaymentId, recurringPaymentId].filter(Boolean);
+    if (requestedSources.length > 1) throw new Error("Abra uma mensagem por venda ou pagamento por vez.");
+    let chargeContext: MerchantChargeMessageContext | null = null;
+    const source: BillingSource | null = installmentId
+      ? { sourceType: "sale_installment", sourceId: installmentId }
+      : recurringChargeId
+        ? { sourceType: "recurring_charge", sourceId: recurringChargeId }
+        : saleId
+          ? { sourceType: "sale", sourceId: saleId }
+          : salePaymentId
+            ? { sourceType: "sale_payment", sourceId: salePaymentId }
+            : recurringPaymentId
+              ? { sourceType: "recurring_payment", sourceId: recurringPaymentId }
+        : null;
+    if (installmentId) chargeContext = await api.getMerchantInstallmentMessageContext(installmentId);
+    else if (recurringChargeId) chargeContext = await api.getMerchantRecurringChargeMessageContext(recurringChargeId);
+    else if (saleId) chargeContext = await api.getMerchantSaleMessageContext(saleId);
+    else if (salePaymentId) chargeContext = await api.getMerchantSalePaymentMessageContext(salePaymentId);
+    else if (recurringPaymentId) chargeContext = await api.getMerchantRecurringPaymentMessageContext(recurringPaymentId);
+
+    if (chargeContext) {
+      const editableFields = new Set(loadedTemplate.definition.fields.filter((field) => field.editable !== false).map((field) => field.id));
+      const setIfEditable = (fieldId: string, value: FieldValue) => {
+        if (editableFields.has(fieldId)) nextValues[fieldId] = value;
+      };
+      setIfEditable("recipientName", chargeContext.customerName);
+      setIfEditable("businessName", chargeContext.businessName);
+      setIfEditable("amount", chargeContext.amountMinor / 100);
+      setIfEditable("installmentAmount", chargeContext.amountMinor / 100);
+      setIfEditable("dueDate", chargeContext.dueDate ?? "");
+      setIfEditable("detailLabel1", chargeContext.installmentNumber === null ? "Valor" : "Valor da parcela");
+      setIfEditable("detailLabel2", "Vencimento");
+      setIfEditable("detailLabel3", "Parcela");
+      setIfEditable("installmentNumber", chargeContext.installmentNumber ?? "");
+      setIfEditable("installmentTotal", chargeContext.installmentTotal ?? "");
+      setIfEditable("paidAt", chargeContext.paidAt ?? "");
+      setIfEditable("purchaseAmount", chargeContext.amountMinor / 100);
+      setIfEditable("productName", chargeContext.itemNames.join(", ").slice(0, 120));
+      if (loadedTemplate.id === "cobranca-pix") {
+        nextValues.chargeMode = chargeContext.installmentNumber === null ? SINGLE_PIX_CHARGE_MODE : INSTALLMENT_PIX_CHARGE_MODE;
+      }
+      if (loadedTemplate.id === "agradecimento-compra" && chargeContext.sourceType === "sale") {
+        setIfEditable("title", "Obrigado pela sua compra!");
+        setIfEditable("subtitle", "Sua compra foi registrada com sucesso.");
+        setIfEditable("message", "Agradecemos por escolher nosso negócio. Se precisar de ajuda, estamos à disposição.");
+        setIfEditable("detailLabel1", "Produto ou serviço");
+        setIfEditable("detailLabel2", "Valor da compra");
+      }
+      if (loadedTemplate.id === "pagamento-confirmado" && chargeContext.paidAt) {
+        setIfEditable("subtitle", "Pagamento registrado manualmente.");
+        setIfEditable("message", "Confira no seu banco antes de confirmar esta mensagem.");
+      }
+      if (["sale_installment", "recurring_charge"].includes(chargeContext.sourceType)) {
+        setIfEditable("subtitle", chargeContext.installmentNumber === null ? "A cobrança está disponível para pagamento." : "Confira os dados da parcela antes de pagar.");
+        setIfEditable("primaryActionLabel", "Copiar código Pix");
+      }
+      if (loadedTemplate.definition.fields.some((field) => field.id === "message") && ["sale_installment", "recurring_charge"].includes(chargeContext.sourceType)) {
+        setIfEditable("message", "No link você encontra o QR Code Pix e o código Pix Copia e Cola. Confira o recebedor e o valor no app do banco antes de pagar.");
+      }
+    }
+
     const supportsPixQr = loadedTemplate.definition.fields.some((field) => field.id === "pixCopyPaste");
-    const importRequested = supportsPixQr
-      && new URLSearchParams(window.location.search).get("usePixQr") === "1";
+    const importRequested = supportsPixQr && params.get("usePixQr") === "1";
     const handoff = importRequested ? consumePixQrHandoff() : null;
 
     if (handoff) {
@@ -80,14 +151,19 @@ export default function TemplatePage() {
       setPixQrImportFailed(importRequested);
     }
 
-    setTemplate(loadedTemplate);
-    setValues(nextValues);
+    if (isActive()) {
+      setTemplate(loadedTemplate);
+      setValues(nextValues);
+      setBillingSource(source);
+      setLinkedDraftId("");
+      setBillingPrefilled(Boolean(chargeContext));
+    }
   }, []);
 
   const loadTemplate = useCallback(async () => {
     try {
       const loadedTemplate = await api.getTemplate(templateId);
-      initializeTemplate(loadedTemplate);
+      await initializeTemplate(loadedTemplate);
       setError("");
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
@@ -98,10 +174,8 @@ export default function TemplatePage() {
 
   useEffect(() => {
     let active = true;
-    void api.getTemplate(templateId).then((loadedTemplate) => {
-      if (active) {
-        initializeTemplate(loadedTemplate);
-      }
+    void api.getTemplate(templateId).then(async (loadedTemplate) => {
+      await initializeTemplate(loadedTemplate, () => active);
     }).catch((cause: unknown) => {
       if (active) setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar este modelo.");
     }).finally(() => {
@@ -120,8 +194,14 @@ export default function TemplatePage() {
     const data = templateEditorSubmitData(template, values);
     try {
       await api.validateTemplate(template.id, data);
-      const draft = await api.createDraft(template.id, data);
+      const draft = linkedDraftId
+        ? await api.saveDraft(linkedDraftId, data)
+        : await api.createDraft(template.id, data);
       createdDraftId = draft.id;
+      if (billingSource) {
+        setLinkedDraftId(draft.id);
+        await api.linkMerchantChargeMessage({ draftId: draft.id, ...billingSource });
+      }
       if (checkoutPlan) {
         const checkout = await api.createCheckout(draft.id, checkoutPlan);
         trackInitiateCheckout(checkoutPlan);
@@ -135,6 +215,7 @@ export default function TemplatePage() {
         router.push(`/compras/${encodeURIComponent(checkout.purchaseId)}`);
         return;
       }
+      setLinkedDraftId("");
       router.push(`/mensagens/${encodeURIComponent(draft.id)}`);
     } catch (cause) {
       paymentWindow?.close();
@@ -169,6 +250,8 @@ export default function TemplatePage() {
                     : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real; para publicar, entre e tenha uma licença ativa."}
               </p>
             </div>
+            {billingPrefilled ? <p className="merchant-billing-prefill-notice" role="status">{billingSource?.sourceType === "sale" ? "Preenchida com os dados da venda. Confira os detalhes antes de salvar e compartilhar." : billingSource?.sourceType.includes("payment") ? "Preenchida com os dados do pagamento registrado." : "Preenchida com os dados atuais da caderneta. Confira o valor e o vencimento antes de salvar e compartilhar."}</p> : null}
+            {billingSource && ["sale_payment", "recurring_payment"].includes(billingSource.sourceType) && template.id === "pagamento-confirmado" ? <p className="merchant-billing-prefill-notice" role="note">O valor e a data vêm do pagamento registrado. Só marque como confirmado depois de conferir o recebimento no banco; o Cadernô não consulta sua conta nem envia a mensagem automaticamente.</p> : null}
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
                 <TemplateFields

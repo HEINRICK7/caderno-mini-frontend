@@ -733,7 +733,51 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 .qr-code-auth-error { display: grid; justify-items: start; gap: 12px; padding: 18px; border: 1px solid #edcfc9; border-radius: 15px; background: #fff8f5; color: #874c42; }
 .qr-code-auth-error p { margin: 0; font-size: 13px; }
 
+.merchant-directory-page { width: min(100%, 1240px); margin-inline: auto; }
+.merchant-directory-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 22px; }
+.merchant-directory-heading > .customer-area-eyebrow, .merchant-directory-heading > h1, .merchant-directory-heading > p { grid-column: 1; }
+.merchant-directory-heading > .button { grid-column: 2; grid-row: 1 / 4; white-space: nowrap; }
+.merchant-directory-layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(330px, .92fr); align-items: start; gap: 18px; }
+.merchant-directory-list-panel, .merchant-directory-form-panel { min-width: 0; }
+.merchant-directory-filter select { max-width: 180px; min-height: 36px; padding: 0 30px 0 10px; border: 1px solid #d9e5dc; border-radius: 10px; background: #fffefa; color: #425a6b; font: inherit; font-size: 11px; }
+.merchant-directory-search { min-width: 0; display: flex; align-items: center; gap: 9px; margin-bottom: 13px; padding: 5px 6px 5px 11px; border: 1px solid #dce8e0; border-radius: 12px; background: #fff; color: #168d86; }
+.merchant-directory-search input { min-width: 0; flex: 1; height: 34px; padding: 0; border: 0; outline: 0; background: transparent; color: #23435b; font: inherit; font-size: 12px; }
+.merchant-directory-search input::placeholder { color: #8897a0; }
+.merchant-directory-search .button { min-height: 34px; padding: 0 12px; font-size: 11px; }
+.merchant-directory-archived-filter { display: flex; align-items: center; gap: 7px; margin: -2px 0 10px; color: #72808a; font-size: 11px; }
+.merchant-directory-archived-filter input { accent-color: #0e8a80; }
+.merchant-directory-list { display: grid; gap: 7px; max-height: 590px; overflow: auto; margin: 0; padding: 0; list-style: none; }
+.merchant-directory-record { width: 100%; min-width: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px; border: 1px solid transparent; border-radius: 12px; background: #f7faf8; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.merchant-directory-record:hover, .merchant-directory-record[aria-current="true"] { border-color: #c5e3d8; background: #edf8f3; }
+.merchant-directory-record__icon, .merchant-directory-empty > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #e4f4ed; color: #0d8c82; }
+.merchant-directory-record__copy { min-width: 0; display: grid; gap: 4px; }
+.merchant-directory-record__copy strong { overflow: hidden; color: #24435c; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.merchant-directory-record__copy small { overflow: hidden; color: #71818e; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.merchant-directory-status { padding: 5px 8px; border-radius: 999px; background: #e1f4ee; color: #087b68; font-size: 9px; font-weight: 800; }
+.merchant-directory-status.is-archived { background: #f0f1ed; color: #77817e; }
+.merchant-directory-empty { display: grid; justify-items: start; gap: 9px; padding: 18px 8px 10px; color: #71818e; }
+.merchant-directory-empty > span { width: 42px; height: 42px; }
+.merchant-directory-empty strong { color: #28455d; font-size: 13px; }
+.merchant-directory-empty p { max-width: 40ch; margin: 0; font-size: 11px; line-height: 1.55; }
+.merchant-directory-form-panel > .customer-dashboard-panel__heading { margin-bottom: 14px; }
+.merchant-directory-close { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #e1e9e3; border-radius: 10px; background: #fffefa; color: #627581; cursor: pointer; }
+.merchant-directory-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.merchant-directory-form .form-field { min-width: 0; display: grid; gap: 6px; margin: 0; }
+.merchant-directory-form .form-field > span { color: #344f68; font-size: 11px; font-weight: 750; }
+.merchant-directory-form .form-field input, .merchant-directory-form .form-field select, .merchant-directory-form .form-field textarea { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #d8e3dc; border-radius: 10px; background: #fff; color: #213d59; font: inherit; font-size: 12px; }
+.merchant-directory-form .form-field textarea { min-height: 80px; resize: vertical; }
+.merchant-directory-form .form-field input:focus, .merchant-directory-form .form-field select:focus, .merchant-directory-form .form-field textarea:focus { border-color: #5aa89a; outline: 3px solid rgba(19, 127, 120, .1); }
+.merchant-directory-form .form-field:nth-child(3), .merchant-directory-form .form-field:nth-child(5), .merchant-directory-form__actions, .merchant-directory-form .form-error, .merchant-directory-form .merchant-directory-notice { grid-column: 1 / -1; }
+.merchant-directory-form__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 3px; }
+.merchant-directory-form__actions .button { min-height: 40px; font-size: 11px; }
+.merchant-directory-notice { grid-column: 1 / -1; margin: 0; color: #087b68; font-size: 11px; }
+.merchant-directory-currency { min-width: 0; display: flex; align-items: center; overflow: hidden; border: 1px solid #d8e3dc; border-radius: 10px; background: #fff; }
+.merchant-directory-currency > span { align-self: stretch; display: grid; place-items: center; padding: 0 11px; background: #eaf5f0; color: #087f79; font-size: 11px; font-weight: 800; }
+.merchant-directory-currency input { border: 0 !important; border-radius: 0 !important; outline: 0 !important; }
+
 @media (max-width: 760px) {
+  .merchant-directory-layout { grid-template-columns: minmax(0, 1fr); }
+  .merchant-directory-heading > .button { min-height: 40px; padding-inline: 12px; font-size: 11px; }
   .customer-workspace__sidebar { position: sticky; inset: 0 0 auto; width: 100%; height: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 8px 14px 0; border-right: 0; border-bottom: 1px solid #dfe8e2; }
   .customer-workspace__sidebar > .brand-mark { margin: 0; }
   .customer-workspace__sidebar > .brand-mark .brand-mark__symbol { width: 31px; height: 31px; }
@@ -757,6 +801,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 }
 
 @media (max-width: 540px) {
+  .merchant-directory-heading { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 17px; }
+  .merchant-directory-heading > .button { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 3px; }
+  .merchant-directory-form { grid-template-columns: minmax(0, 1fr); }
+  .merchant-directory-form .form-field:nth-child(3), .merchant-directory-form .form-field:nth-child(5), .merchant-directory-form__actions, .merchant-directory-form .form-error, .merchant-directory-form .merchant-directory-notice { grid-column: 1; }
+  .merchant-directory-search { gap: 6px; }
+  .merchant-directory-search .button { padding-inline: 9px; }
   .qr-code-form__fields { grid-template-columns: minmax(0, 1fr); }
   .qr-code-form__actions, .qr-code-preview__actions { grid-template-columns: minmax(0, 1fr); }
   .qr-code-form__actions .button--secondary { width: 100%; }
@@ -765,4 +815,102 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 @media (max-width: 380px) {
   .customer-workspace__nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .customer-workspace__nav a { min-height: 44px; }
+}
+
+.merchant-ledger-page, .merchant-recurring-page { width: min(100%, 1240px); margin-inline: auto; }
+.merchant-ledger-heading, .merchant-recurring-heading { margin-bottom: 18px; }
+.merchant-ledger-layout, .merchant-recurring-layout { display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); align-items: start; gap: 16px; }
+.merchant-ledger-sale-panel, .merchant-ledger-history, .merchant-recurring-create, .merchant-recurring-list { min-width: 0; }
+.merchant-ledger-sale-panel > .customer-dashboard-panel__heading > svg, .merchant-recurring-create > .customer-dashboard-panel__heading > svg, .merchant-recurring-list > .customer-dashboard-panel__heading > svg { color: #168b82; }
+.merchant-ledger-form { display: grid; gap: 12px; }
+.merchant-ledger-form .form-field, .merchant-recurring-create .form-field, .merchant-ledger-payment-form .form-field, .merchant-recurring-payment-form .form-field, .merchant-recurring-rate-form .form-field { min-width: 0; display: grid; gap: 6px; margin: 0; }
+.merchant-ledger-form .form-field > span, .merchant-recurring-create .form-field > span, .merchant-ledger-payment-form .form-field > span, .merchant-recurring-payment-form .form-field > span, .merchant-recurring-rate-form .form-field > span { color: #344f68; font-size: 11px; font-weight: 750; }
+.merchant-ledger-form .form-field input, .merchant-ledger-form .form-field select, .merchant-recurring-create .form-field input, .merchant-recurring-create .form-field select, .merchant-ledger-payment-form .form-field input, .merchant-ledger-payment-form .form-field select, .merchant-recurring-payment-form .form-field input, .merchant-recurring-payment-form .form-field select, .merchant-recurring-rate-form .form-field input { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #d8e3dc; border-radius: 10px; background: #fff; color: #213d59; font: inherit; font-size: 12px; }
+.merchant-ledger-form .form-field small { margin-left: 4px; color: #7a8992; font-size: 10px; font-weight: 500; }
+.merchant-ledger-form__row { display: grid; grid-template-columns: .55fr 1fr; gap: 10px; }
+.merchant-ledger-total { display: flex; align-items: center; justify-content: space-between; padding: 12px 13px; border: 1px solid #dcece5; border-radius: 12px; background: #f4faf6; color: #536b7d; font-size: 12px; }
+.merchant-ledger-total strong { color: #183c59; font: 800 20px/1 var(--font-heading); }
+.merchant-ledger-form > .button, .merchant-recurring-create > form > .button { min-height: 44px; margin-top: 3px; }
+.merchant-ledger-sales, .merchant-recurring-cards { display: grid; gap: 12px; }
+.merchant-ledger-sale, .merchant-recurring-card { padding: 15px; border: 1px solid #e5ece6; border-radius: 14px; background: #fffefa; }
+.merchant-ledger-sale__heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding-bottom: 11px; border-bottom: 1px solid #edf0eb; }
+.merchant-ledger-sale__heading > div { display: grid; gap: 4px; }
+.merchant-ledger-sale__heading strong { color: #213d59; font: 800 18px/1.1 var(--font-heading); }
+.merchant-ledger-sale__heading small, .merchant-ledger-installment small, .merchant-recurring-charge small { display: flex; align-items: center; gap: 5px; color: #74818c; font-size: 10px; }
+.merchant-ledger-sale__heading > span { color: #4e6575; font-size: 11px; }
+.merchant-ledger-sale ul { display: grid; gap: 6px; margin: 10px 0 14px; padding: 0; list-style: none; }
+.merchant-ledger-sale li { display: flex; justify-content: space-between; gap: 10px; color: #536879; font-size: 11px; }
+.merchant-ledger-sale li strong { color: #354f64; }
+.merchant-ledger-installments { display: grid; gap: 7px; }
+.merchant-ledger-installments h3, .merchant-recurring-charge-list h4 { margin: 0 0 2px; color: #344f68; font: 750 12px/1.3 var(--font-heading); }
+.merchant-ledger-installment { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 9px; padding: 9px 10px; border: 1px solid #e9eee9; border-radius: 10px; background: #fafcf9; }
+.merchant-ledger-installment > div { display: grid; gap: 4px; }
+.merchant-ledger-installment > div > strong, .merchant-recurring-charge > div > strong { color: #23455e; font-size: 12px; }
+.merchant-ledger-installment .button, .merchant-recurring-charge .button, .merchant-recurring-actions .button { min-height: 32px; padding-inline: 10px; font-size: 10px; }
+.merchant-charge-message-history { display: grid; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf0eb; }
+.merchant-charge-message-history h3 { margin: 0; color: #344f68; font: 750 12px/1.3 var(--font-heading); }
+.merchant-charge-message-history > a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px solid #e5ece7; border-radius: 10px; color: #087e79; background: #fbfdfb; text-decoration: none; font-size: 11px; }
+.merchant-charge-message-history > a:hover { border-color: #a9d8cf; background: #f1faf6; }
+.merchant-charge-message-history > a > span:first-child { display: grid; gap: 4px; }
+.merchant-charge-message-history strong { color: #23455e; }
+.merchant-charge-message-history small { color: #74818c; }
+.merchant-billing-prefill-notice { margin: -8px 0 0; padding: 10px 12px; border: 1px solid #bee5d8; border-radius: 10px; color: #14756d; background: #f1faf6; font-size: 12px; line-height: 1.5; }
+.merchant-ledger-payment-form, .merchant-recurring-payment-form, .merchant-recurring-rate-form { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 9px; padding-top: 10px; }
+.merchant-ledger-payment-form > .button, .merchant-recurring-payment-form > .button, .merchant-recurring-rate-form > .button { align-self: end; min-height: 38px; }
+.merchant-ledger-payment-history { display: grid; gap: 7px; margin: 11px 0 0; color: #71828d; font-size: 10px; }
+.merchant-ledger-payment-history h3 { margin: 0; color: #344f68; font: 750 12px/1.3 var(--font-heading); }
+.merchant-recurring-card__heading { display: flex; justify-content: space-between; gap: 12px; }
+.merchant-recurring-card__heading h3 { margin: 6px 0 3px; color: #213d59; font: 750 15px/1.25 var(--font-heading); }
+.merchant-recurring-card__heading p { margin: 0; color: #74818c; font-size: 10px; }
+.merchant-recurring-card__heading > strong { color: #183c59; font: 800 18px/1.2 var(--font-heading); white-space: nowrap; }
+.merchant-recurring-status { display: inline-flex; padding: 4px 8px; border-radius: 99px; background: #e6f5ee; color: #087b68; font-size: 9px; font-weight: 800; }
+.merchant-recurring-status.is-paused { background: #fff4dc; color: #8b6710; }
+.merchant-recurring-status.is-ended { background: #eff1ee; color: #69777b; }
+.merchant-recurring-actions { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0; }
+.merchant-recurring-rate-form { margin-bottom: 12px; padding: 12px; border: 1px solid #e2eee7; border-radius: 12px; background: #f8fbf8; }
+.merchant-recurring-charge-list { display: grid; gap: 7px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #edf0eb; }
+.merchant-recurring-charge { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 9px; padding: 9px 10px; border: 1px solid #e9eee9; border-radius: 10px; background: #fafcf9; }
+.merchant-recurring-charge > div { display: grid; gap: 4px; }
+.merchant-recurring-payment-record { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; border-top: 1px solid #e9eee9; }
+.merchant-recurring-payment-record > span { display: grid; gap: 4px; }
+.merchant-recurring-payment-record > span > strong { color: #23455e; font-size: 12px; }
+.merchant-recurring-payment-record .button { min-height: 32px; padding-inline: 10px; font-size: 10px; }
+.merchant-recurring-payment-form { border-top: 1px dashed #d8e6dd; }
+.merchant-recurring-empty { margin: 10px 0 0; color: #7a8992; font-size: 11px; }
+.merchant-overview { display: grid; gap: 14px; margin: 18px 0; padding: 18px; border: 1px solid #dcebe3; border-radius: 17px; background: linear-gradient(145deg, #f4faf6, #fffefa 68%); }
+.merchant-overview__heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+.merchant-overview__heading h2 { margin: 5px 0 3px; color: #213d59; font: 750 20px/1.2 var(--font-heading); letter-spacing: -.035em; }
+.merchant-overview__heading p { margin: 0; color: #718093; font-size: 11px; }
+.merchant-overview__quick-links { max-width: 520px; display: flex; flex-wrap: wrap; justify-content: end; gap: 6px; }
+.merchant-overview__quick-links a { padding: 7px 9px; border: 1px solid #d8e7df; border-radius: 9px; background: rgba(255,255,255,.7); color: #137f79; font-size: 10px; font-weight: 750; text-decoration: none; }
+.merchant-overview__quick-links a:hover { border-color: #8ec6b5; background: #fff; }
+.merchant-overview__metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.merchant-overview__metrics > a { min-width: 0; display: grid; gap: 3px; padding: 10px 11px; border: 1px solid #e4ebe6; border-radius: 11px; background: #fffefa; text-decoration: none; }
+.merchant-overview__metrics strong { color: #1c3d59; font: 800 20px/1 var(--font-heading); }
+.merchant-overview__metrics span { color: #71818d; font-size: 9px; }
+.merchant-overview__lists { display: grid; grid-template-columns: 1.2fr .8fr; gap: 10px; }
+.merchant-overview__lists > section { min-width: 0; padding: 12px; border: 1px solid #e5ebe5; border-radius: 12px; background: #fffefa; }
+.merchant-overview__lists > section > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.merchant-overview__lists h3 { margin: 0; color: #324d64; font: 750 12px/1.3 var(--font-heading); }
+.merchant-overview__lists > section > div > a { color: #0b827b; font-size: 9px; font-weight: 750; text-decoration: none; }
+.merchant-overview__lists ul { display: grid; gap: 7px; margin: 10px 0 0; padding: 0; list-style: none; }
+.merchant-overview__lists li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 7px; border-top: 1px solid #f0f1ed; }
+.merchant-overview__lists li > span { min-width: 0; display: grid; gap: 2px; }
+.merchant-overview__lists li strong { overflow: hidden; color: #304b61; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.merchant-overview__lists li small { overflow: hidden; color: #78868e; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.merchant-overview__lists li b { color: #23435d; font-size: 10px; white-space: nowrap; }
+.merchant-overview__lists > section:first-child li { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.merchant-overview__item-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.merchant-overview__item-actions a { padding: 5px 8px; border: 1px solid #d8e7df; border-radius: 8px; color: #127e78; background: #f8fcf9; font-size: 9px; font-weight: 750; text-decoration: none; }
+.merchant-overview__item-actions a:hover { border-color: #8ec6b5; background: #fff; }
+.merchant-overview__lists section > p { margin: 9px 0 0; color: #76858b; font-size: 10px; }
+@media (max-width: 900px) { .merchant-ledger-layout, .merchant-recurring-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) {
+  .merchant-ledger-form__row, .merchant-ledger-payment-form, .merchant-recurring-payment-form, .merchant-recurring-rate-form { grid-template-columns: minmax(0, 1fr); }
+  .merchant-ledger-sale, .merchant-recurring-card { padding: 12px; }
+  .merchant-recurring-card__heading { flex-direction: column; }
+  .merchant-overview__heading { flex-direction: column; }
+  .merchant-overview__quick-links { justify-content: start; }
+  .merchant-overview__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .merchant-overview__lists { grid-template-columns: minmax(0, 1fr); }
 }

@@ -7,10 +7,14 @@ import { ArrowRight, CalendarDays, Check, CircleAlert, FilePlus2, PackageOpen, P
 import { CustomerAreaShell } from "@/components/customer-area-shell";
 import { CustomerProfileForm } from "@/components/customer-profile-form";
 import { ApiError, api } from "@/lib/api-client";
-import type { AccountAccessItem, CustomerPortalSummary } from "@/lib/api-contracts";
+import type { AccountAccessItem, CustomerPortalSummary, MerchantLedgerOverview, MerchantRecurringOverview } from "@/lib/api-contracts";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("pt-BR");
+}
+
+function formatAmount(value: number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 }
 
 export default function CustomerDashboardPage() {
@@ -21,6 +25,14 @@ export default function CustomerDashboardPage() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [publicLinks, setPublicLinks] = useState<Record<string, string>>({});
   const [publishingDraftId, setPublishingDraftId] = useState("");
+  const [ledgerOverview, setLedgerOverview] = useState<MerchantLedgerOverview | null>(null);
+  const [recurringOverview, setRecurringOverview] = useState<MerchantRecurringOverview | null>(null);
+
+  const loadCommercialOverview = useCallback(() => {
+    void Promise.all([api.getMerchantLedgerOverview(), api.getMerchantRecurringOverview()]).then(([ledger, recurring]) => {
+      setLedgerOverview(ledger); setRecurringOverview(recurring);
+    }).catch(() => undefined);
+  }, []);
 
   const loadPortal = useCallback(async () => {
     try {
@@ -30,6 +42,7 @@ export default function CustomerDashboardPage() {
         return;
       }
       setPortal(data);
+      loadCommercialOverview();
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) {
         router.replace("/entrar?returnTo=%2Fpainel");
@@ -39,7 +52,7 @@ export default function CustomerDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [loadCommercialOverview, router]);
 
   useEffect(() => {
     let active = true;
@@ -50,6 +63,7 @@ export default function CustomerDashboardPage() {
         return;
       }
       setPortal(data);
+      loadCommercialOverview();
     }).catch((cause: unknown) => {
       if (!active) return;
       if (cause instanceof ApiError && cause.status === 401) {
@@ -61,7 +75,7 @@ export default function CustomerDashboardPage() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [router]);
+  }, [loadCommercialOverview, router]);
 
   const messageAccess = useMemo(() => {
     const unique = new Map<string, AccountAccessItem>();
@@ -94,6 +108,14 @@ export default function CustomerDashboardPage() {
   const user = portal?.user;
   const platformAccess = portal?.platformAccess;
   const firstName = user?.name?.trim().split(/\s+/)[0] || "cliente";
+  const attentionItems = [
+    ...(ledgerOverview?.overdue ?? []).map((item) => ({ name: item.customer.name, customerId: item.installment.customerId, description: item.saleItems.map((line) => line.name).join(", "), dueDate: item.installment.dueDate, amount: item.installment.balanceMinor, state: "Atrasada", sourceType: "sale_installment" as const, sourceId: item.installment.id, templateId: "parcela-atrasada" })),
+    ...(ledgerOverview?.dueToday ?? []).map((item) => ({ name: item.customer.name, customerId: item.installment.customerId, description: item.saleItems.map((line) => line.name).join(", "), dueDate: item.installment.dueDate, amount: item.installment.balanceMinor, state: "Vence hoje", sourceType: "sale_installment" as const, sourceId: item.installment.id, templateId: "parcela-hoje" })),
+    ...(ledgerOverview?.upcoming ?? []).map((item) => ({ name: item.customer.name, customerId: item.installment.customerId, description: item.saleItems.map((line) => line.name).join(", "), dueDate: item.installment.dueDate, amount: item.installment.balanceMinor, state: "Próximo", sourceType: "sale_installment" as const, sourceId: item.installment.id, templateId: "parcela-proxima" })),
+    ...(recurringOverview?.overdue ?? []).map((item) => ({ name: item.customer.name, customerId: item.customerId, description: item.description, dueDate: item.dueDate, amount: item.balanceMinor, state: "Atrasada", sourceType: "recurring_charge" as const, sourceId: item.id, templateId: "cobranca-pix" })),
+    ...(recurringOverview?.dueToday ?? []).map((item) => ({ name: item.customer.name, customerId: item.customerId, description: item.description, dueDate: item.dueDate, amount: item.balanceMinor, state: "Vence hoje", sourceType: "recurring_charge" as const, sourceId: item.id, templateId: "cobranca-pix" })),
+    ...(recurringOverview?.upcoming ?? []).map((item) => ({ name: item.customer.name, customerId: item.customerId, description: item.description, dueDate: item.dueDate, amount: item.balanceMinor, state: "Próximo", sourceType: "recurring_charge" as const, sourceId: item.id, templateId: "cobranca-pix" })),
+  ].sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, 6);
 
   return (
     <CustomerAreaShell access={platformAccess} email={user?.email}>
@@ -119,6 +141,23 @@ export default function CustomerDashboardPage() {
               : "Você pode explorar os modelos. Escolha um plano para liberar criação, publicação e exportação premium."}</p>
           </div>
           <span className={`customer-license-card__status${platformAccess?.active ? " is-active" : ""}`}>{platformAccess?.active ? "Ativa" : "Prévia"}</span>
+        </section>
+
+        <section className="merchant-overview" aria-labelledby="merchant-overview-title">
+          <div className="merchant-overview__heading"><div><span className="customer-area-eyebrow">Rotina comercial</span><h2 id="merchant-overview-title">Acompanhe seus compromissos</h2><p>Clientes, vendas e cobranças que precisam da sua atenção.</p></div><div className="merchant-overview__quick-links"><Link href="/clientes">Novo cliente</Link><Link href="/catalogo">Novo produto ou serviço</Link><Link href="/cadernetas">Registrar venda</Link><Link href="/cadernetas">Abrir caderneta</Link><Link href="/recorrencias">Nova recorrência</Link><Link href="/templates">Criar mensagem</Link></div></div>
+          <div className="merchant-overview__metrics">
+            <Link href="/clientes"><strong>{ledgerOverview?.customerCount ?? "—"}</strong><span>clientes</span></Link>
+            <Link href="/cadernetas"><strong>{ledgerOverview?.saleCount ?? "—"}</strong><span>vendas registradas</span></Link>
+            <Link href="/cadernetas"><strong>{(ledgerOverview?.dueToday.length ?? 0) + (recurringOverview?.dueToday.length ?? 0)}</strong><span>vencem hoje</span></Link>
+            <Link href="/cadernetas"><strong>{(ledgerOverview?.overdue.length ?? 0) + (recurringOverview?.overdue.length ?? 0)}</strong><span>em atraso</span></Link>
+            <Link href="/recorrencias"><strong>{recurringOverview?.activePlanCount ?? "—"}</strong><span>recorrências ativas</span></Link>
+          </div>
+          <div className="merchant-overview__lists">
+            <section><div><h3>Compromissos para acompanhar</h3><Link href="/cadernetas">Ver cadernetas</Link></div>{attentionItems.length ? <ul>
+              {attentionItems.map((item, index) => <li key={`${item.name}-${item.dueDate}-${index}`}><span><strong>{item.name} · {item.state}</strong><small>{item.description || "Cobrança"} · {formatDate(item.dueDate)}</small></span><b>{formatAmount(item.amount)}</b><div className="merchant-overview__item-actions"><Link href={`/cadernetas?customerId=${encodeURIComponent(item.customerId)}`}>Caderneta</Link><Link href={`/templates/${item.templateId}?${item.sourceType === "sale_installment" ? "installmentId" : "recurringChargeId"}=${encodeURIComponent(item.sourceId)}`}>Criar mensagem</Link></div></li>)}
+            </ul> : <p>Nenhum compromisso próximo ou atrasado.</p>}</section>
+            <section><div><h3>Pagamentos registrados</h3><Link href="/cadernetas">Abrir cadernetas</Link></div>{ledgerOverview?.recentPayments.length ? <ul>{ledgerOverview.recentPayments.slice(0, 4).map((payment) => <li key={payment.id}><span><strong>{formatAmount(payment.amountMinor)}</strong><small>{payment.method === "pix" ? "Pix" : payment.method === "cash" ? "Dinheiro" : payment.method === "bank_transfer" ? "Transferência" : "Outro"} · {formatDate(payment.paidAt)}</small></span><Check aria-label="Registrado" size={16} /></li>)}</ul> : <p>Os pagamentos que você registrar aparecem aqui.</p>}</section>
+          </div>
         </section>
 
         <div className="customer-dashboard__grid">
