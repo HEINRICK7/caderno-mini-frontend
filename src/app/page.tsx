@@ -50,11 +50,19 @@ export default function Home() {
           <div className="home-footer__brand">
             <span className="home-footer__name">Cadernô Express</span>
             <p>Modelos de agradecimento, cobrança, oferta e serviços. R$ 47,00 em pagamento único, sem renovação: 12 meses para publicar cards ilimitados e compartilhar links manualmente. O download de imagem está disponível em modelos compatíveis.</p>
+            <p className="home-footer__company-id">CNPJ: 46.770.466/0001-77</p>
+            <p className="home-footer__contact">
+              Contato: <a href="mailto:contato@otimizanegocio.com">contato@otimizanegocio.com</a>
+              <span aria-hidden="true"> · </span>
+              <a href="https://wa.me/5586995389481" rel="noreferrer" target="_blank">WhatsApp: (86) 99538-9481</a>
+            </p>
           </div>
           <nav aria-label="Links do rodapé" className="home-footer__links">
             <Link href="/templates">Modelos</Link>
             <Link href="/como-funciona">Como funciona</Link>
             <Link href="/para-seu-negocio">Para seu negócio</Link>
+            <Link href="/termos">Termos de Uso</Link>
+            <Link href="/privacidade">Privacidade</Link>
           </nav>
         </div>
       </footer>

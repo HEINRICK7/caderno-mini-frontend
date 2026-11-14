@@ -98,7 +98,10 @@ export function MetaPixel() {
   const location = `${pathname}${search ? `?${search}` : ""}`;
   const shouldTrack = Boolean(pathname && consent === "accepted" && isMarketingPage(pathname));
   const shouldLoad = Boolean(pathname && consent === "accepted" && shouldLoadPixel(pathname));
-  const shouldOfferConsent = Boolean(pathname && shouldLoadPixel(pathname));
+  const shouldOfferConsent = Boolean(
+    pathname
+      && (shouldLoadPixel(pathname) || pathname === "/termos" || pathname === "/privacidade"),
+  );
 
   useEffect(() => {
     if (!pathname || !shouldTrack) {
@@ -181,6 +184,7 @@ export function MetaPixel() {
                 Meta seguem as políticas da própria Meta e podem variar conforme o navegador.
               </p>
               <div className="meta-consent__links">
+                <a href="/privacidade">Política de Privacidade do Cadernô Express</a>
                 <a href="https://www.facebook.com/privacy/policies/cookies" rel="noreferrer" target="_blank">
                   Política de cookies da Meta <span aria-hidden="true">↗</span>
                 </a>
