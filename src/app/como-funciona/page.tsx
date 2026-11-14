@@ -36,7 +36,7 @@ const steps = [
   {
     number: "04",
     title: "Publique e compartilhe",
-    description: "Pague R$ 47 uma vez no checkout da AbacatePay. Por 12 meses, publique quantos cards quiser e compartilhe cada link quando preferir.",
+    description: "Pague R$ 47,00 uma vez no checkout da AbacatePay. Por 12 meses, publique quantos cards quiser e compartilhe cada link quando preferir.",
     note: "Não enviamos mensagens automaticamente; você controla o compartilhamento.",
   },
 ];
@@ -44,7 +44,7 @@ const steps = [
 const faqs = [
   {
     question: "Preciso pagar para criar a mensagem?",
-    answer: "Não. Escolha modelos, personalize e confira as prévias sem custo. R$ 47 em pagamento único libera 12 meses para criar, editar, publicar e compartilhar quantos cards quiser.",
+    answer: "Não. Escolha modelos, personalize e confira as prévias sem custo. R$ 47,00 em pagamento único libera 12 meses para criar, editar, publicar e compartilhar quantos cards quiser.",
   },
   {
     question: "O pagamento é mensal?",

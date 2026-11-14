@@ -234,9 +234,9 @@ export function HomeTemplateCarousel() {
     <div className="home-carousel">
       <AnimatedContent className="home-carousel__intro-reveal" distance={18} duration={0.65} threshold={0.1}>
         <div className="home-carousel__intro">
-          <p className="home-section-eyebrow">Modelos para situações reais</p>
-          <h2>Escolha um cartão para editar</h2>
-          <p>Escolha entre 16 modelos, personalize e confira a prévia grátis. Alguns modelos também têm um link de demonstração por 7 dias. Para publicar e compartilhar seus cards, o acesso custa R$ 47 por 12 meses.</p>
+          <p className="home-section-eyebrow">16 modelos para diferentes ocasiões</p>
+          <h2>Encontre o card para o seu momento</h2>
+          <p>Escolha um modelo para agradecer, lembrar um pagamento ou apresentar um serviço ou novidade. Personalize e confira a prévia grátis. Com o acesso de 12 meses, compartilhe o link ou, nos modelos compatíveis, baixe a imagem para publicar você mesmo. São R$ 47,00 em pagamento único.</p>
         </div>
       </AnimatedContent>
 

@@ -14,12 +14,13 @@ export function HomeHero() {
       <div className="hero__copy">
         <p className="hero__eyebrow">
           <MessageCircleHeart aria-hidden="true" size={15} strokeWidth={2} />
-          16 modelos para pequenos negócios
+          Cards para diferentes momentos e mensagens
         </p>
         <h1 id="home-title">
-          Cartões para agradecer, lembrar e divulgar.
+          Precisa agradecer, lembrar um pagamento ou compartilhar uma novidade?
         </h1>
-        <p className="hero__description">Escolha um modelo, personalize e compartilhe pelo WhatsApp. Por R$ 47, em pagamento único, crie, edite, publique e compartilhe quantos cards quiser por 12 meses.</p>
+        <p className="hero__description">Escolha um modelo, personalize e decida como compartilhar: nos modelos compatíveis, baixe a imagem para publicar você mesmo; ou compartilhe o link.</p>
+        <p className="hero__offer">R$ 47,00, pagamento único. Por 12 meses, crie, edite, publique e compartilhe quantos cards quiser, sem renovação automática.</p>
         <div className="hero__actions">
           <Link className="button button--primary hero__button" href="/templates">
             Escolher um modelo <ArrowRight aria-hidden="true" size={17} />
