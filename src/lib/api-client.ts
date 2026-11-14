@@ -30,6 +30,21 @@ import {
   adminTemplateResponseSchema,
   adminTemplateArchiveResponseSchema,
   adminTemplateValidationResponseSchema,
+  merchantCustomerListResponseSchema,
+  merchantCustomerResponseSchema,
+  merchantCatalogItemListResponseSchema,
+  merchantCatalogItemResponseSchema,
+  merchantSaleResponseSchema,
+  merchantCustomerLedgerResponseSchema,
+  merchantLedgerOverviewResponseSchema,
+  merchantChargeMessageContextResponseSchema,
+  merchantChargeMessageListResponseSchema,
+  merchantChargeMessageLinkedResponseSchema,
+  merchantRecurringPlansResponseSchema,
+  merchantRecurringChargesResponseSchema,
+  merchantRecurringPaymentResponseSchema,
+  merchantRecurringOverviewResponseSchema,
+  merchantRecurringPlanSchema,
   type Draft,
   type AccountAccessItem,
   type DemoPublication,
@@ -39,6 +54,16 @@ import {
   type AdminUserSummary,
   type AdminTemplate,
   type Template,
+  type MerchantCustomer,
+  type MerchantCatalogItem,
+  type MerchantSale,
+  type MerchantCustomerLedger,
+  type MerchantLedgerOverview,
+  type MerchantChargeMessageContext,
+  type MerchantChargeMessage,
+  type MerchantRecurringPlan,
+  type MerchantRecurringCharge,
+  type MerchantRecurringOverview,
 } from "./api-contracts";
 
 const apiErrorSchema = z.object({
@@ -199,6 +224,162 @@ export const api = {
 
   async getCustomerPortal() {
     return (await request("/api/v1/customer-portal", customerPortalResponseSchema)).data;
+  },
+
+  async getMerchantCustomers(input: { query?: string; status?: "active" | "archived" | "all" } = {}): Promise<MerchantCustomer[]> {
+    const params = new URLSearchParams();
+    if (input.query?.trim()) params.set("q", input.query.trim());
+    if (input.status) params.set("status", input.status);
+    const suffix = params.size ? `?${params.toString()}` : "";
+    return (await request(`/api/v1/merchant/customers${suffix}`, merchantCustomerListResponseSchema)).data;
+  },
+
+  async createMerchantCustomer(input: {
+    name: string; whatsapp?: string; email?: string; address?: string; notes?: string; status?: "active" | "archived";
+  }): Promise<MerchantCustomer> {
+    return (await request("/api/v1/merchant/customers", merchantCustomerResponseSchema, {
+      method: "POST",
+      body: JSON.stringify(input),
+    })).data;
+  },
+
+  async updateMerchantCustomer(id: string, input: {
+    name: string; whatsapp?: string; email?: string; address?: string; notes?: string; status: "active" | "archived";
+  }): Promise<MerchantCustomer> {
+    return (await request(`/api/v1/merchant/customers/${encodeURIComponent(id)}`, merchantCustomerResponseSchema, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    })).data;
+  },
+
+  async getMerchantCatalogItems(input: {
+    query?: string; kind?: "product" | "service"; status?: "active" | "archived" | "all";
+  } = {}): Promise<MerchantCatalogItem[]> {
+    const params = new URLSearchParams();
+    if (input.query?.trim()) params.set("q", input.query.trim());
+    if (input.kind) params.set("kind", input.kind);
+    if (input.status) params.set("status", input.status);
+    const suffix = params.size ? `?${params.toString()}` : "";
+    return (await request(`/api/v1/merchant/catalog-items${suffix}`, merchantCatalogItemListResponseSchema)).data;
+  },
+
+  async createMerchantCatalogItem(input: {
+    kind: "product" | "service"; name: string; description?: string; priceMinor: number; status?: "active" | "archived";
+  }): Promise<MerchantCatalogItem> {
+    return (await request("/api/v1/merchant/catalog-items", merchantCatalogItemResponseSchema, {
+      method: "POST",
+      body: JSON.stringify(input),
+    })).data;
+  },
+
+  async updateMerchantCatalogItem(id: string, input: {
+    kind: "product" | "service"; name: string; description?: string; priceMinor: number; status: "active" | "archived";
+  }): Promise<MerchantCatalogItem> {
+    return (await request(`/api/v1/merchant/catalog-items/${encodeURIComponent(id)}`, merchantCatalogItemResponseSchema, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    })).data;
+  },
+
+  async getMerchantCustomerLedger(customerId: string): Promise<MerchantCustomerLedger> {
+    return (await request(`/api/v1/merchant/customers/${encodeURIComponent(customerId)}/ledger`, merchantCustomerLedgerResponseSchema)).data;
+  },
+
+  async createMerchantSale(input: {
+    customerId: string;
+    items: Array<{ catalogItemId?: string; name?: string; kind?: "product" | "service" | "other"; quantity: number; unitPriceMinor?: number }>;
+    condition: "cash" | "single_due" | "installments";
+    downPaymentMinor?: number;
+    initialPaymentMethod?: "pix" | "cash" | "bank_transfer" | "other";
+    installmentCount?: number;
+    firstDueDate?: string;
+  }): Promise<MerchantSale> {
+    return (await request("/api/v1/merchant/sales", merchantSaleResponseSchema, { method: "POST", body: JSON.stringify(input) })).data;
+  },
+
+  async recordMerchantInstallmentPayment(id: string, input: { amountMinor: number; method: "pix" | "cash" | "bank_transfer" | "other"; reference?: string }) {
+    const schema = z.object({ data: z.object({
+      id: z.string(), saleId: z.string().uuid(), installmentId: z.string().nullable(), amountMinor: z.number().int().positive(),
+      method: z.enum(["pix", "cash", "bank_transfer", "other"]), reference: z.string().nullable(), paidAt: z.string().datetime({ offset: true }),
+    }).strict() }).strict();
+    return (await request(`/api/v1/merchant/installments/${encodeURIComponent(id)}/payments`, schema, { method: "POST", body: JSON.stringify(input) })).data;
+  },
+
+  async getMerchantLedgerOverview(): Promise<MerchantLedgerOverview> {
+    return (await request("/api/v1/merchant/overview", merchantLedgerOverviewResponseSchema)).data;
+  },
+
+  async getMerchantInstallmentMessageContext(id: string): Promise<MerchantChargeMessageContext> {
+    return (await request(`/api/v1/merchant/installments/${encodeURIComponent(id)}/message-context`, merchantChargeMessageContextResponseSchema)).data;
+  },
+
+  async getMerchantSaleMessageContext(id: string): Promise<MerchantChargeMessageContext> {
+    return (await request(`/api/v1/merchant/sales/${encodeURIComponent(id)}/message-context`, merchantChargeMessageContextResponseSchema)).data;
+  },
+
+  async getMerchantSalePaymentMessageContext(id: string): Promise<MerchantChargeMessageContext> {
+    return (await request(`/api/v1/merchant/sales/payments/${encodeURIComponent(id)}/message-context`, merchantChargeMessageContextResponseSchema)).data;
+  },
+
+  async linkMerchantChargeMessage(input: { draftId: string; sourceType: "sale" | "sale_installment" | "sale_payment" | "recurring_charge" | "recurring_payment"; sourceId: string }): Promise<void> {
+    await request("/api/v1/merchant/charge-messages", merchantChargeMessageLinkedResponseSchema, { method: "POST", body: JSON.stringify(input) });
+  },
+
+  async getMerchantChargeMessages(customerId: string): Promise<MerchantChargeMessage[]> {
+    return (await request(`/api/v1/merchant/customers/${encodeURIComponent(customerId)}/charge-messages`, merchantChargeMessageListResponseSchema)).data;
+  },
+
+  async getMerchantRecurringPlans(status: "active" | "paused" | "ended" | "all" = "all"): Promise<MerchantRecurringPlan[]> {
+    return (await request(`/api/v1/merchant/recurrences?status=${status}`, merchantRecurringPlansResponseSchema)).data;
+  },
+
+  async createMerchantRecurringPlan(input: {
+    customerId: string; description?: string; catalogItemId?: string; amountMinor?: number;
+    frequency: "weekly" | "fortnightly" | "monthly"; startDate: string; dueDay?: number; endDate?: string; totalCycles?: number;
+  }): Promise<MerchantRecurringPlan> {
+    const schema = z.object({ data: merchantRecurringPlanSchema }).strict();
+    return (await request("/api/v1/merchant/recurrences", schema, { method: "POST", body: JSON.stringify(input) })).data;
+  },
+
+  async changeMerchantRecurringRate(id: string, input: { effectiveDate: string; amountMinor: number }): Promise<Array<{ effectiveDate: string; amountMinor: number }>> {
+    const schema = z.object({ data: z.object({ rates: z.array(z.object({ effectiveDate: z.string().date(), amountMinor: z.number().int().nonnegative() }).strict()) }).strict() }).strict();
+    return (await request(`/api/v1/merchant/recurrences/${encodeURIComponent(id)}/rate`, schema, { method: "PUT", body: JSON.stringify(input) })).data.rates;
+  },
+
+  async pauseMerchantRecurringPlan(id: string): Promise<void> {
+    await request(`/api/v1/merchant/recurrences/${encodeURIComponent(id)}/pause`, z.object({ data: z.object({ status: z.literal("paused") }) }), { method: "POST", body: "{}" });
+  },
+
+  async resumeMerchantRecurringPlan(id: string): Promise<void> {
+    await request(`/api/v1/merchant/recurrences/${encodeURIComponent(id)}/resume`, z.object({ data: z.object({ status: z.literal("active") }) }), { method: "POST", body: "{}" });
+  },
+
+  async endMerchantRecurringPlan(id: string): Promise<void> {
+    await request(`/api/v1/merchant/recurrences/${encodeURIComponent(id)}/end`, z.object({ data: z.object({ status: z.literal("ended") }) }), { method: "POST", body: "{}" });
+  },
+
+  async getMerchantRecurringCharges(input: { planId?: string; customerId?: string } = {}): Promise<MerchantRecurringCharge[]> {
+    const params = new URLSearchParams();
+    if (input.planId) params.set("planId", input.planId);
+    if (input.customerId) params.set("customerId", input.customerId);
+    const suffix = params.size ? `?${params.toString()}` : "";
+    return (await request(`/api/v1/merchant/recurring-charges${suffix}`, merchantRecurringChargesResponseSchema)).data;
+  },
+
+  async getMerchantRecurringChargeMessageContext(id: string): Promise<MerchantChargeMessageContext> {
+    return (await request(`/api/v1/merchant/recurring-charges/${encodeURIComponent(id)}/message-context`, merchantChargeMessageContextResponseSchema)).data;
+  },
+
+  async getMerchantRecurringPaymentMessageContext(id: string): Promise<MerchantChargeMessageContext> {
+    return (await request(`/api/v1/merchant/recurring-charges/payments/${encodeURIComponent(id)}/message-context`, merchantChargeMessageContextResponseSchema)).data;
+  },
+
+  async recordMerchantRecurringPayment(id: string, input: { amountMinor: number; method: "pix" | "cash" | "bank_transfer" | "other"; reference?: string }) {
+    return (await request(`/api/v1/merchant/recurring-charges/${encodeURIComponent(id)}/payments`, merchantRecurringPaymentResponseSchema, { method: "POST", body: JSON.stringify(input) })).data;
+  },
+
+  async getMerchantRecurringOverview(): Promise<MerchantRecurringOverview> {
+    return (await request("/api/v1/merchant/recurring-overview", merchantRecurringOverviewResponseSchema)).data;
   },
 
   async updateCustomerProfile(input: { name: string; whatsapp: string; birthDate: string }) {

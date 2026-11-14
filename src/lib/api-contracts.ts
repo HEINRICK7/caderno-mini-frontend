@@ -281,6 +281,123 @@ export const customerPortalResponseSchema = z.object({
     }).strict()),
   }).strict(),
 }).strict();
+
+export const merchantCustomerSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  whatsapp: z.string().nullable(),
+  email: z.string().nullable(),
+  address: z.string().nullable(),
+  notes: z.string().nullable(),
+  status: z.enum(["active", "archived"]),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+}).strict();
+
+export const merchantCustomerListResponseSchema = z.object({
+  data: z.array(merchantCustomerSchema),
+}).strict();
+
+export const merchantCustomerResponseSchema = z.object({
+  data: merchantCustomerSchema,
+}).strict();
+
+export const merchantCatalogItemSchema = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["product", "service"]),
+  name: z.string(),
+  description: z.string().nullable(),
+  priceMinor: z.number().int().nonnegative(),
+  status: z.enum(["active", "archived"]),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+}).strict();
+
+export const merchantCatalogItemListResponseSchema = z.object({
+  data: z.array(merchantCatalogItemSchema),
+}).strict();
+
+export const merchantCatalogItemResponseSchema = z.object({
+  data: merchantCatalogItemSchema,
+}).strict();
+
+export const merchantSaleConditionSchema = z.enum(["cash", "single_due", "installments"]);
+export const merchantPaymentMethodSchema = z.enum(["pix", "cash", "bank_transfer", "other"]);
+export const merchantSaleItemSchema = z.object({
+  id: z.string(), catalogItemId: z.string().nullable(), kind: z.enum(["product", "service", "other"]),
+  name: z.string(), quantity: z.number().int().positive(), unitPriceMinor: z.number().int().nonnegative(), lineTotalMinor: z.number().int().nonnegative(),
+}).strict();
+export const merchantLedgerPaymentSchema = z.object({
+  id: z.string(), saleId: z.string().uuid(), installmentId: z.string().nullable(), amountMinor: z.number().int().positive(),
+  method: merchantPaymentMethodSchema, reference: z.string().nullable(), paidAt: z.string().datetime({ offset: true }),
+}).strict();
+export const merchantInstallmentSchema = z.object({
+  id: z.string(), number: z.number().int().positive(), amountMinor: z.number().int().positive(), dueDate: z.string().date(),
+  status: z.enum(["open", "canceled"]), paidMinor: z.number().int().nonnegative().optional(),
+  balanceMinor: z.number().int().nonnegative().optional(),
+  derivedStatus: z.enum(["pending", "due_today", "overdue", "partially_paid", "paid", "canceled"]).optional(),
+}).strict();
+export const merchantSaleSchema = z.object({
+  id: z.string().uuid(), customerId: z.string().uuid(), condition: merchantSaleConditionSchema,
+  totalMinor: z.number().int().positive(), downPaymentMinor: z.number().int().nonnegative(), financedMinor: z.number().int().nonnegative(),
+  balanceMinor: z.number().int().nonnegative().optional(), items: z.array(merchantSaleItemSchema),
+  installments: z.array(merchantInstallmentSchema), payments: z.array(merchantLedgerPaymentSchema),
+  createdAt: z.string().datetime({ offset: true }),
+}).strict();
+export const merchantSaleResponseSchema = z.object({ data: merchantSaleSchema }).strict();
+export const merchantCustomerLedgerResponseSchema = z.object({
+  data: z.object({ customer: merchantCustomerSchema, sales: z.array(merchantSaleSchema) }).strict(),
+}).strict();
+export const merchantCommitmentSchema = z.object({
+  installment: merchantInstallmentSchema.extend({ saleId: z.string().uuid(), customerId: z.string().uuid(), paidMinor: z.number().int().nonnegative(), balanceMinor: z.number().int().nonnegative(), derivedStatus: z.enum(["pending", "due_today", "overdue", "partially_paid", "paid", "canceled"]) }),
+  customer: z.object({ id: z.string().uuid(), name: z.string(), whatsapp: z.string().nullable() }).strict(),
+  saleItems: z.array(merchantSaleItemSchema.omit({ catalogItemId: true })),
+  payments: z.array(merchantLedgerPaymentSchema),
+}).strict();
+export const merchantLedgerOverviewResponseSchema = z.object({
+  data: z.object({ customerCount: z.number().int().nonnegative(), saleCount: z.number().int().nonnegative(), dueToday: z.array(merchantCommitmentSchema), overdue: z.array(merchantCommitmentSchema), upcoming: z.array(merchantCommitmentSchema), recentPayments: z.array(merchantLedgerPaymentSchema) }).strict(),
+}).strict();
+export const merchantChargeMessageContextResponseSchema = z.object({ data: z.object({
+  sourceType: z.enum(["sale", "sale_installment", "sale_payment", "recurring_charge", "recurring_payment"]), sourceId: z.string(), customerId: z.string().uuid(),
+  customerName: z.string(), businessName: z.string(), amountMinor: z.number().int().positive(), dueDate: z.string().date().nullable(),
+  installmentNumber: z.number().int().positive().nullable(), installmentTotal: z.number().int().positive().nullable(), itemNames: z.array(z.string()),
+  paidAt: z.string().date().nullable(),
+}).strict() }).strict();
+export const merchantChargeMessageLinkedSchema = z.object({
+  id: z.string().uuid(), customerId: z.string().uuid(), sourceType: z.enum(["sale", "sale_installment", "sale_payment", "recurring_charge", "recurring_payment"]),
+  sourceId: z.string(), draftId: z.string().uuid(), createdAt: z.string().datetime({ offset: true }),
+}).strict();
+export const merchantChargeMessageSchema = merchantChargeMessageLinkedSchema.extend({ templateId: z.string(), templateName: z.string() }).strict();
+export const merchantChargeMessageListResponseSchema = z.object({ data: z.array(merchantChargeMessageSchema) }).strict();
+export const merchantChargeMessageLinkedResponseSchema = z.object({ data: merchantChargeMessageLinkedSchema }).strict();
+
+export const merchantRecurringPaymentSchema = z.object({
+  id: z.string().uuid(), chargeId: z.string().uuid(), amountMinor: z.number().int().positive(), method: merchantPaymentMethodSchema,
+  reference: z.string().nullable(), paidAt: z.string().datetime({ offset: true }),
+}).strict();
+export const merchantRecurringChargeSchema = z.object({
+  id: z.string().uuid(), customerId: z.string().uuid(), planId: z.string().uuid(), periodKey: z.string(),
+  amountMinor: z.number().int().positive(), dueDate: z.string().date(), status: z.enum(["open", "canceled"]),
+  description: z.string(), frequency: z.enum(["weekly", "fortnightly", "monthly"]),
+  customer: z.object({ id: z.string().uuid(), name: z.string(), whatsapp: z.string().nullable() }).strict(),
+  payments: z.array(merchantRecurringPaymentSchema), paidMinor: z.number().int().nonnegative(), balanceMinor: z.number().int().nonnegative(),
+  derivedStatus: z.enum(["pending", "due_today", "overdue", "partially_paid", "paid", "canceled"]),
+}).strict();
+export const merchantRecurringPlanSchema = z.object({
+  id: z.string().uuid(), customerId: z.string().uuid(), description: z.string(), catalogItemId: z.string().nullable(),
+  amountMinor: z.number().int().nonnegative(), currentAmountMinor: z.number().int().nonnegative(),
+  frequency: z.enum(["weekly", "fortnightly", "monthly"]), startDate: z.string().date(), dueDay: z.number().int().nullable(),
+  endDate: z.string().date().nullable(), totalCycles: z.number().int().nullable(), status: z.enum(["active", "paused", "ended"]),
+  rates: z.array(z.object({ effectiveDate: z.string().date(), amountMinor: z.number().int().nonnegative() }).strict()),
+  pauses: z.array(z.object({ startDate: z.string().date(), endDate: z.string().date().nullable() }).strict()),
+  charges: z.array(merchantRecurringChargeSchema), createdAt: z.string().datetime({ offset: true }), updatedAt: z.string().datetime({ offset: true }),
+}).strict();
+export const merchantRecurringPlansResponseSchema = z.object({ data: z.array(merchantRecurringPlanSchema) }).strict();
+export const merchantRecurringChargesResponseSchema = z.object({ data: z.array(merchantRecurringChargeSchema) }).strict();
+export const merchantRecurringPaymentResponseSchema = z.object({ data: merchantRecurringPaymentSchema }).strict();
+export const merchantRecurringOverviewResponseSchema = z.object({
+  data: z.object({ activePlanCount: z.number().int().nonnegative(), dueToday: z.array(merchantRecurringChargeSchema), overdue: z.array(merchantRecurringChargeSchema), upcoming: z.array(merchantRecurringChargeSchema) }).strict(),
+}).strict();
 export const authSessionResponseSchema = sessionResponseSchema;
 
 export const adminUserSummarySchema = z.object({
@@ -455,6 +572,16 @@ export type AccountAccessItem = z.infer<typeof accountAccessResponseSchema>["dat
 export type PlatformAccessSummary = z.infer<typeof platformAccessResponseSchema>["data"];
 export type AuthenticatedCustomer = z.infer<typeof sessionResponseSchema>["data"]["user"];
 export type CustomerPortalSummary = z.infer<typeof customerPortalResponseSchema>["data"];
+export type MerchantCustomer = z.infer<typeof merchantCustomerSchema>;
+export type MerchantCatalogItem = z.infer<typeof merchantCatalogItemSchema>;
+export type MerchantSale = z.infer<typeof merchantSaleSchema>;
+export type MerchantCustomerLedger = z.infer<typeof merchantCustomerLedgerResponseSchema>["data"];
+export type MerchantLedgerOverview = z.infer<typeof merchantLedgerOverviewResponseSchema>["data"];
+export type MerchantChargeMessageContext = z.infer<typeof merchantChargeMessageContextResponseSchema>["data"];
+export type MerchantChargeMessage = z.infer<typeof merchantChargeMessageSchema>;
+export type MerchantRecurringPlan = z.infer<typeof merchantRecurringPlanSchema>;
+export type MerchantRecurringCharge = z.infer<typeof merchantRecurringChargeSchema>;
+export type MerchantRecurringOverview = z.infer<typeof merchantRecurringOverviewResponseSchema>["data"];
 export type AdminUserSummary = z.infer<typeof adminUserSummarySchema>;
 export type AdminUserDetail = z.infer<typeof adminUserResponseSchema>["data"];
 export type DemoPublication = z.infer<typeof publicDemoPublicationResponseSchema>["data"];
