@@ -63,4 +63,16 @@ describe("catálogo comercial", () => {
 
     await waitFor(() => expect(updateMerchantCatalogItem).toHaveBeenCalledWith(item.id, expect.objectContaining({ priceMinor: 15000 })));
   });
+
+  it("requires an explicit free-item choice before saving zero price", async () => {
+    render(<MerchantCatalogPage />);
+    fireEvent.change(await screen.findByLabelText("Nome *"), { target: { value: "Orientação gratuita" } });
+    fireEvent.submit(screen.getByRole("button", { name: "Salvar item" }).closest("form")!);
+    expect(createMerchantCatalogItem).not.toHaveBeenCalled();
+    expect((await screen.findByRole("alert")).textContent).toContain("marque “Item gratuito”");
+
+    fireEvent.click(screen.getByLabelText("Item gratuito (R$ 0,00)"));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar item" }));
+    await waitFor(() => expect(createMerchantCatalogItem).toHaveBeenCalledWith(expect.objectContaining({ priceMinor: 0 })));
+  });
 });

@@ -7,13 +7,14 @@ import { CalendarClock, CircleAlert, Pause, Play, Plus, Repeat2, StopCircle } fr
 import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { ApiError, api } from "@/lib/api-client";
 import type { CustomerPortalSummary, MerchantCatalogItem, MerchantCustomer, MerchantRecurringPlan } from "@/lib/api-contracts";
+import { formatDate } from "@/lib/format-date";
 
 function toMinor(value: string) { return Number(value.replace(/\D/g, "") || 0); }
 function formatAmount(value: number) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100); }
 function formatInput(value: number) { return new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100); }
-function todayInput() { return new Date().toISOString().slice(0, 10); }
-function inThirtyDays() { const date = new Date(); date.setDate(date.getDate() + 30); return date.toISOString().slice(0, 10); }
-function formatDate(value: string) { return new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR"); }
+function dateInputValue(date: Date) { return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-"); }
+function todayInput() { return dateInputValue(new Date()); }
+function inThirtyDays() { const date = new Date(); date.setDate(date.getDate() + 30); return dateInputValue(date); }
 
 export default function MerchantRecurrencesPage() {
   const router = useRouter();

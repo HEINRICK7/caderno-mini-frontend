@@ -15,11 +15,11 @@ export function HomeHero() {
       <div className="hero__copy">
         <p className="hero__eyebrow">
           <MessageCircleHeart aria-hidden="true" size={15} strokeWidth={2} />
-          Pós-venda simples para pequenos negócios
+          Cartões prontos para o dia a dia do seu negócio
         </p>
         <h1 id="home-title">
-          A venda termina.
-          <span className="hero__headline-highlight">O cuidado continua.</span>
+          Continue perto dos seus clientes.
+          <span className="hero__headline-highlight">Mesmo depois da venda.</span>
         </h1>
         <BlurText
           animateBy="words"
@@ -29,7 +29,7 @@ export function HomeHero() {
           direction="top"
           distance={14}
           stepDuration={0.42}
-          text="Agradeça, lembre um pagamento ou divulgue uma novidade com um cartão pronto para personalizar, sem criar cada mensagem do zero."
+          text="Crie cartões personalizados para agradecer, lembrar um pagamento e divulgar novidades — prontos para enviar pelo WhatsApp."
           trigger="load"
         />
         <div className="hero__actions">

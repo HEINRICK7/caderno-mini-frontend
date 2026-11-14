@@ -44,10 +44,12 @@ export function TemplateFields({
   const setFieldUploading = (fieldId: string, active: boolean) => {
     setUploading((current) => ({ ...current, [fieldId]: active }));
   };
-  return fields.map((field, index) => {
+  const renderField = (index: number, includeSectionHeading = true) => {
+    const field = fields[index];
+    if (!field) return null;
     if (field.editable === false) return null;
     const previousField = fields[index - 1];
-    const sectionHeading = field.section && field.section !== previousField?.section ? field.section : null;
+    const sectionHeading = includeSectionHeading && field.section && field.section !== previousField?.section ? field.section : null;
     const label = field.id === "pixCopyPaste" ? "Código Pix copia e cola" : field.label ?? field.id;
     const value = values[field.id] ?? (field.type === "boolean" ? false : "");
     const describedBy = field.helpText ? `${field.id}-help` : undefined;
@@ -238,7 +240,24 @@ export function TemplateFields({
       </div>
       </Fragment>
     );
-  });
+  };
+
+  const socialFieldIndexes = fields.flatMap((field, index) => field.section === "Redes sociais" && field.editable !== false ? [index] : []);
+  const firstSocialFieldIndex = socialFieldIndexes[0];
+
+  return <>
+    {fields.map((field, index) => {
+      if (field.section !== "Redes sociais") return renderField(index);
+      if (index !== firstSocialFieldIndex) return null;
+      return (
+        <details className="template-optional-fields" key="optional-social-fields">
+          <summary>Redes sociais <span>Opcional</span></summary>
+          <p>Adicione apenas os perfis que deseja mostrar no rodapé da mensagem.</p>
+          {socialFieldIndexes.map((socialIndex) => renderField(socialIndex, false))}
+        </details>
+      );
+    })}
+  </>;
 }
 
 function imageDataUriMatchesMime(value: string, mime: string): boolean {

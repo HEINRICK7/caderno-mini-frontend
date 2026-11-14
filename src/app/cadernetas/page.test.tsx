@@ -44,6 +44,7 @@ describe("cadernetas comerciais", () => {
     fireEvent.change(screen.getByLabelText("Condição de pagamento"), { target: { value: "installments" } });
     fireEvent.change(screen.getByLabelText("Quantidade de parcelas"), { target: { value: "2" } });
     fireEvent.change(screen.getByLabelText("Primeiro vencimento"), { target: { value: "2027-01-31" } });
+    fireEvent.click(screen.getByLabelText("Confirmo a condição e o vencimento desta venda."));
     fireEvent.click(screen.getByRole("button", { name: "Registrar venda" }));
 
     await waitFor(() => expect(createMerchantSale).toHaveBeenCalledWith(expect.objectContaining({
@@ -51,5 +52,24 @@ describe("cadernetas comerciais", () => {
       items: [{ catalogItemId: item.id, quantity: 1, unitPriceMinor: 10002 }],
       condition: "installments", installmentCount: 2, firstDueDate: "2027-01-31",
     })));
+    expect((screen.getByLabelText("Condição de pagamento") as HTMLSelectElement).value).toBe("");
+  });
+
+  it("requires an explicit payment condition and confirmation for a sale on credit", async () => {
+    render(<MerchantLedgersPage />);
+    const condition = await screen.findByLabelText("Condição de pagamento") as HTMLSelectElement;
+    expect(condition.value).toBe("");
+    fireEvent.change(screen.getByLabelText("Cliente *"), { target: { value: customer.id } });
+    fireEvent.change(screen.getByLabelText("Item do catálogo"), { target: { value: item.id } });
+    fireEvent.change(condition, { target: { value: "single_due" } });
+    fireEvent.change(screen.getByLabelText("Primeiro vencimento"), { target: { value: "2026-11-20" } });
+
+    const submit = screen.getByRole("button", { name: "Registrar venda" });
+    expect(submit).toHaveProperty("disabled", true);
+    fireEvent.click(screen.getByLabelText("Confirmo a condição e o vencimento desta venda."));
+    expect(submit).toHaveProperty("disabled", false);
+    fireEvent.change(screen.getByLabelText("Primeiro vencimento"), { target: { value: "2026-11-21" } });
+    expect(submit).toHaveProperty("disabled", true);
+    expect(createMerchantSale).not.toHaveBeenCalled();
   });
 });

@@ -222,8 +222,8 @@ export const api = {
     return (await request("/api/v1/account/platform-access", platformAccessResponseSchema)).data;
   },
 
-  async getCustomerPortal() {
-    return (await request("/api/v1/customer-portal", customerPortalResponseSchema)).data;
+  async getCustomerPortal(init: RequestInit = {}) {
+    return (await request("/api/v1/customer-portal", customerPortalResponseSchema, init)).data;
   },
 
   async getMerchantCustomers(input: { query?: string; status?: "active" | "archived" | "all" } = {}): Promise<MerchantCustomer[]> {

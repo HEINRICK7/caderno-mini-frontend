@@ -3,15 +3,12 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CalendarDays, Check, CircleAlert, FilePlus2, PackageOpen, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, CircleAlert, PackageOpen, Phone, ShieldCheck, UserRound } from "lucide-react";
 import { CustomerAreaShell } from "@/components/customer-area-shell";
 import { CustomerProfileForm } from "@/components/customer-profile-form";
 import { ApiError, api } from "@/lib/api-client";
 import type { AccountAccessItem, CustomerPortalSummary, MerchantLedgerOverview, MerchantRecurringOverview } from "@/lib/api-contracts";
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("pt-BR");
-}
+import { formatDate, pluralLabel } from "@/lib/format-date";
 
 function formatAmount(value: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
@@ -34,9 +31,12 @@ export default function CustomerDashboardPage() {
     }).catch(() => undefined);
   }, []);
 
-  const loadPortal = useCallback(async () => {
+  const loadPortal = useCallback(async (signal?: AbortSignal, isActive: () => boolean = () => true) => {
+    setLoading(true);
+    setError("");
     try {
-      const data = await api.getCustomerPortal();
+      const data = await api.getCustomerPortal({ signal: signal ?? AbortSignal.timeout(15_000) });
+      if (!isActive()) return;
       if (!data.user.profileComplete) {
         router.replace("/primeiro-acesso?returnTo=%2Fpainel");
         return;
@@ -44,38 +44,26 @@ export default function CustomerDashboardPage() {
       setPortal(data);
       loadCommercialOverview();
     } catch (cause) {
+      if (!isActive()) return;
       if (cause instanceof ApiError && cause.status === 401) {
         router.replace("/entrar?returnTo=%2Fpainel");
       } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar sua área.");
+        setError(cause instanceof ApiError && cause.code === "NETWORK_ERROR"
+          ? "A conexão demorou mais que o esperado. Confira a internet e tente novamente."
+          : cause instanceof ApiError ? cause.message : "Não foi possível carregar sua área.");
       }
     } finally {
-      setLoading(false);
+      if (isActive()) setLoading(false);
     }
   }, [loadCommercialOverview, router]);
 
   useEffect(() => {
     let active = true;
-    void api.getCustomerPortal().then((data) => {
-      if (!active) return;
-      if (!data.user.profileComplete) {
-        router.replace("/primeiro-acesso?returnTo=%2Fpainel");
-        return;
-      }
-      setPortal(data);
-      loadCommercialOverview();
-    }).catch((cause: unknown) => {
-      if (!active) return;
-      if (cause instanceof ApiError && cause.status === 401) {
-        router.replace("/entrar?returnTo=%2Fpainel");
-      } else {
-        setError(cause instanceof ApiError ? cause.message : "Não foi possível carregar sua área.");
-      }
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [loadCommercialOverview, router]);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15_000);
+    const initialLoad = window.setTimeout(() => { void loadPortal(controller.signal, () => active); }, 0);
+    return () => { active = false; window.clearTimeout(timeout); window.clearTimeout(initialLoad); controller.abort(); };
+  }, [loadPortal]);
 
   const messageAccess = useMemo(() => {
     const unique = new Map<string, AccountAccessItem>();
@@ -87,6 +75,11 @@ export default function CustomerDashboardPage() {
     }
     return [...unique.values()];
   }, [portal?.accountAccess]);
+  const messageAccessByDraftId = useMemo(() => new Map(messageAccess.map((item) => [item.draftId, item])), [messageAccess]);
+  const drafts = portal?.drafts ?? [];
+  const needsFirstCustomer = ledgerOverview?.customerCount === 0;
+  const primaryHref = needsFirstCustomer ? "/clientes" : "/cadernetas";
+  const primaryLabel = needsFirstCustomer ? "Cadastrar primeiro cliente" : "Registrar uma venda";
 
   async function createPublicLink(draftId: string) {
     setPublishingDraftId(draftId);
@@ -105,6 +98,10 @@ export default function CustomerDashboardPage() {
     return <CustomerAreaShell><div className="customer-area-loading customer-area-loading--large" role="status">Abrindo sua área privada…</div></CustomerAreaShell>;
   }
 
+  if (error && !portal) {
+    return <CustomerAreaShell><section className="customer-area-load-error" role="alert"><CircleAlert aria-hidden="true" size={22} /><h1>Não foi possível abrir sua área</h1><p>{error}</p><button className="button button--primary" disabled={loading} onClick={() => void loadPortal()} type="button">{loading ? "Tentando…" : "Tentar novamente"}</button></section></CustomerAreaShell>;
+  }
+
   const user = portal?.user;
   const platformAccess = portal?.platformAccess;
   const firstName = user?.name?.trim().split(/\s+/)[0] || "cliente";
@@ -116,6 +113,7 @@ export default function CustomerDashboardPage() {
     ...(recurringOverview?.dueToday ?? []).map((item) => ({ name: item.customer.name, customerId: item.customerId, description: item.description, dueDate: item.dueDate, amount: item.balanceMinor, state: "Vence hoje", sourceType: "recurring_charge" as const, sourceId: item.id, templateId: "cobranca-pix" })),
     ...(recurringOverview?.upcoming ?? []).map((item) => ({ name: item.customer.name, customerId: item.customerId, description: item.description, dueDate: item.dueDate, amount: item.balanceMinor, state: "Próximo", sourceType: "recurring_charge" as const, sourceId: item.id, templateId: "cobranca-pix" })),
   ].sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, 6);
+  const dueTodayCount = (ledgerOverview?.dueToday.length ?? 0) + (recurringOverview?.dueToday.length ?? 0);
 
   return (
     <CustomerAreaShell access={platformAccess} email={user?.email}>
@@ -123,10 +121,10 @@ export default function CustomerDashboardPage() {
         <section className="customer-dashboard__intro">
           <div>
             <span className="customer-area-eyebrow"><UserRound aria-hidden="true" size={14} /> Área do cliente</span>
-            <h1>Olá, {firstName}.</h1>
-            <p>Seu acesso, suas mensagens e seus dados estão reunidos aqui.</p>
+            <h1>Olá, {firstName}. Organize seu negócio por aqui.</h1>
+            <p>O Cadernô organiza seus clientes, vendas e cobranças em um só lugar. {needsFirstCustomer ? "Comece cadastrando seu primeiro cliente." : "Registre uma venda ou acompanhe sua rotina."}</p>
           </div>
-          <Link className="button button--primary" href="/templates"><FilePlus2 aria-hidden="true" size={17} /> Criar mensagem</Link>
+          <Link className="button button--primary" href={primaryHref}>{primaryLabel}<ArrowRight aria-hidden="true" size={17} /></Link>
         </section>
 
         {error ? <div className="customer-area-error" role="alert"><CircleAlert aria-hidden="true" size={18} />{error}<button className="text-button" onClick={() => { setLoading(true); setError(""); void loadPortal(); }} type="button">Tentar novamente</button></div> : null}
@@ -144,13 +142,13 @@ export default function CustomerDashboardPage() {
         </section>
 
         <section className="merchant-overview" aria-labelledby="merchant-overview-title">
-          <div className="merchant-overview__heading"><div><span className="customer-area-eyebrow">Rotina comercial</span><h2 id="merchant-overview-title">Acompanhe seus compromissos</h2><p>Clientes, vendas e cobranças que precisam da sua atenção.</p></div><div className="merchant-overview__quick-links"><Link href="/clientes">Novo cliente</Link><Link href="/catalogo">Novo produto ou serviço</Link><Link href="/cadernetas">Registrar venda</Link><Link href="/cadernetas">Abrir caderneta</Link><Link href="/recorrencias">Nova recorrência</Link><Link href="/templates">Criar mensagem</Link></div></div>
+          <div className="merchant-overview__heading"><div><span className="customer-area-eyebrow">Rotina comercial</span><h2 id="merchant-overview-title">Acompanhe seus compromissos</h2><p>Clientes, vendas e cobranças que precisam da sua atenção.</p></div><details className="merchant-overview__quick-links"><summary>Outras opções</summary><div><Link href="/clientes">Novo cliente</Link><Link href="/catalogo">Novo produto ou serviço</Link><Link href="/cadernetas">Registrar venda</Link><Link href="/cadernetas">Abrir caderneta</Link><Link href="/recorrencias">Nova recorrência</Link><Link href="/templates">Criar mensagem</Link></div></details></div>
           <div className="merchant-overview__metrics">
-            <Link href="/clientes"><strong>{ledgerOverview?.customerCount ?? "—"}</strong><span>clientes</span></Link>
-            <Link href="/cadernetas"><strong>{ledgerOverview?.saleCount ?? "—"}</strong><span>vendas registradas</span></Link>
-            <Link href="/cadernetas"><strong>{(ledgerOverview?.dueToday.length ?? 0) + (recurringOverview?.dueToday.length ?? 0)}</strong><span>vencem hoje</span></Link>
+            <Link href="/clientes"><strong>{ledgerOverview?.customerCount ?? "—"}</strong><span>{pluralLabel(ledgerOverview?.customerCount ?? 0, "cliente", "clientes")}</span></Link>
+            <Link href="/cadernetas"><strong>{ledgerOverview?.saleCount ?? "—"}</strong><span>{pluralLabel(ledgerOverview?.saleCount ?? 0, "venda registrada", "vendas registradas")}</span></Link>
+            <Link href="/cadernetas"><strong>{dueTodayCount}</strong><span>{pluralLabel(dueTodayCount, "vence hoje", "vencem hoje")}</span></Link>
             <Link href="/cadernetas"><strong>{(ledgerOverview?.overdue.length ?? 0) + (recurringOverview?.overdue.length ?? 0)}</strong><span>em atraso</span></Link>
-            <Link href="/recorrencias"><strong>{recurringOverview?.activePlanCount ?? "—"}</strong><span>recorrências ativas</span></Link>
+            <Link href="/recorrencias"><strong>{recurringOverview?.activePlanCount ?? "—"}</strong><span>{pluralLabel(recurringOverview?.activePlanCount ?? 0, "recorrência ativa", "recorrências ativas")}</span></Link>
           </div>
           <div className="merchant-overview__lists">
             <section><div><h3>Compromissos para acompanhar</h3><Link href="/cadernetas">Ver cadernetas</Link></div>{attentionItems.length ? <ul>
@@ -163,11 +161,11 @@ export default function CustomerDashboardPage() {
         <div className="customer-dashboard__grid">
           <section className="customer-dashboard-panel customer-messages-panel">
             <div className="customer-dashboard-panel__heading">
-              <div><h2>Suas mensagens</h2><p>Links e compras vinculados a esta conta.</p></div>
-              <span className="customer-panel-count">{messageAccess.length}</span>
+              <div><h2>Suas mensagens</h2><p>Rascunhos salvos, links e acessos premium da sua conta.</p></div>
+              <span className="customer-panel-count">{drafts.length}</span>
               <Link className="text-button" href="/mensagens">Ver mensagens salvas</Link>
             </div>
-            {messageAccess.length === 0 ? (
+            {drafts.length === 0 ? (
               <div className="customer-empty-state">
                 <span><PackageOpen aria-hidden="true" size={22} /></span>
                 <h3>Sua primeira mensagem começa aqui</h3>
@@ -176,17 +174,19 @@ export default function CustomerDashboardPage() {
               </div>
             ) : (
               <div className="customer-message-list">
-                {messageAccess.map((item) => {
-                  const canShare = item.accessStatus === "active" && item.purchaseStatus === "paid";
-                  const publicUrl = publicLinks[item.draftId];
+                {drafts.map((draft) => {
+                  const item = messageAccessByDraftId.get(draft.id);
+                  const canShare = item?.accessStatus === "active" && item.purchaseStatus === "paid";
+                  const publicUrl = publicLinks[draft.id];
                   return (
-                    <article className="customer-message-card" key={item.draftId}>
-                      <div><h3>Mensagem personalizada</h3><p>{canShare ? item.expiresAt ? `Acesso até ${formatDate(item.expiresAt)}` : "Acesso ativo" : "Acesso indisponível"}</p></div>
-                      <span className={`customer-message-card__status${canShare ? " is-active" : ""}`}>{canShare ? "Ativa" : "Encerrada"}</span>
+                    <article className="customer-message-card" key={draft.id}>
+                      <div><h3>{draft.templateName}</h3><p>Salva em {formatDate(draft.updatedAt)} · {canShare ? item?.expiresAt ? `Acesso até ${formatDate(item.expiresAt)}` : "Acesso ativo" : "Rascunho salvo"}</p></div>
+                      <span className={`customer-message-card__status${canShare ? " is-active" : ""}`}>{canShare ? "Ativa" : "Rascunho"}</span>
+                      <Link className="button button--secondary" href={`/mensagens/${encodeURIComponent(draft.id)}`}>Editar mensagem</Link>
                       {canShare ? publicUrl ? (
-                        <div className="customer-message-card__share"><a className="share-result__url" href={publicUrl}>{publicUrl}</a><a className="button button--secondary" href={`https://wa.me/?text=${encodeURIComponent(publicUrl)}`} rel="noreferrer" target="_blank">Compartilhar no WhatsApp</a></div>
+                          <div className="customer-message-card__share"><a className="share-result__url" href={publicUrl}>{publicUrl}</a><a className="button button--secondary" href={`https://wa.me/?text=${encodeURIComponent(publicUrl)}`} rel="noreferrer" target="_blank">Compartilhar no WhatsApp</a></div>
                       ) : (
-                        <button className="button button--primary" disabled={publishingDraftId === item.draftId} onClick={() => void createPublicLink(item.draftId)} type="button">{publishingDraftId === item.draftId ? "Preparando link…" : "Criar link da mensagem"}</button>
+                        <button className="button button--primary" disabled={publishingDraftId === draft.id} onClick={() => void createPublicLink(draft.id)} type="button">{publishingDraftId === draft.id ? "Preparando link…" : "Criar link da mensagem"}</button>
                       ) : null}
                     </article>
                   );
@@ -210,7 +210,7 @@ export default function CustomerDashboardPage() {
                 <div><dt>Nome</dt><dd>{user.name}</dd></div>
                 <div><dt>E-mail conectado</dt><dd>{user.email}</dd></div>
                 <div><dt>WhatsApp</dt><dd><Phone aria-hidden="true" size={14} />{user.whatsapp}</dd></div>
-                <div><dt>Data de nascimento</dt><dd><CalendarDays aria-hidden="true" size={14} />{user.birthDate ? new Date(`${user.birthDate}T12:00:00`).toLocaleDateString("pt-BR") : "—"}</dd></div>
+                <div><dt>Data de nascimento</dt><dd><CalendarDays aria-hidden="true" size={14} />{user.birthDate ? formatDate(user.birthDate) : "—"}</dd></div>
               </dl>
             ) : null}
           </section>

@@ -7,11 +7,11 @@ import { BookOpenCheck, CalendarDays, CircleAlert, Plus, ReceiptText, UserRound 
 import { CustomerAreaShell, CustomerWorkspaceLoading } from "@/components/customer-area-shell";
 import { ApiError, api } from "@/lib/api-client";
 import type { CustomerPortalSummary, MerchantCatalogItem, MerchantChargeMessage, MerchantCustomer, MerchantCustomerLedger } from "@/lib/api-contracts";
+import { formatDate } from "@/lib/format-date";
 
 function toMinor(value: string) { return Number(value.replace(/\D/g, "") || 0); }
 function formatAmount(value: number) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100); }
 function formatInput(value: number) { return new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100); }
-function todayInput() { return new Date().toISOString().slice(0, 10); }
 
 export default function MerchantLedgersPage() {
   const router = useRouter();
@@ -26,10 +26,11 @@ export default function MerchantLedgersPage() {
   const [itemKind, setItemKind] = useState<"product" | "service" | "other">("product");
   const [quantity, setQuantity] = useState("1");
   const [unitPrice, setUnitPrice] = useState("0,00");
-  const [condition, setCondition] = useState<"cash" | "single_due" | "installments">("single_due");
+  const [condition, setCondition] = useState<"" | "cash" | "single_due" | "installments">("");
   const [downPayment, setDownPayment] = useState("0,00");
   const [installmentCount, setInstallmentCount] = useState("2");
-  const [firstDueDate, setFirstDueDate] = useState(todayInput());
+  const [firstDueDate, setFirstDueDate] = useState("");
+  const [confirmedSaleKey, setConfirmedSaleKey] = useState("");
   const [initialPaymentMethod, setInitialPaymentMethod] = useState<"pix" | "cash" | "bank_transfer" | "other">("pix");
   const [payingId, setPayingId] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("");
@@ -79,6 +80,9 @@ export default function MerchantLedgersPage() {
 
   const totalMinor = useMemo(() => toMinor(unitPrice) * Number(quantity || 0), [quantity, unitPrice]);
   const selectedItem = catalog.find((item) => item.id === catalogItemId);
+  const isCreditSale = condition === "single_due" || condition === "installments";
+  const saleConfirmationKey = JSON.stringify([condition, customerId, totalMinor, firstDueDate, installmentCount, toMinor(downPayment)]);
+  const saleConfirmed = condition === "cash" || confirmedSaleKey === saleConfirmationKey;
 
   function chooseCatalogItem(id: string) {
     setCatalogItemId(id);
@@ -91,6 +95,14 @@ export default function MerchantLedgersPage() {
   async function submitSale(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!customerId) return;
+    if (!condition) {
+      setError("Escolha a condição de pagamento antes de registrar a venda.");
+      return;
+    }
+    if (isCreditSale && (!firstDueDate || !saleConfirmed)) {
+      setError("Confira o vencimento e confirme que esta venda ficará a prazo antes de registrar.");
+      return;
+    }
     setSaving(true); setError(""); setNotice("");
     const minorPrice = toMinor(unitPrice);
     const payload = {
@@ -110,6 +122,7 @@ export default function MerchantLedgersPage() {
       setLedger(updated);
       setNotice("Venda registrada na caderneta.");
       setCatalogItemId(""); setItemName(""); setUnitPrice("0,00"); setQuantity("1"); setDownPayment("0,00");
+      setCondition(""); setFirstDueDate(""); setConfirmedSaleKey(""); setInstallmentCount("2");
     } catch (cause) { setError(cause instanceof ApiError ? cause.message : "Não foi possível registrar a venda."); }
     finally { setSaving(false); }
   }
@@ -150,23 +163,30 @@ export default function MerchantLedgersPage() {
                 <label className="form-field"><span>Preço unitário em reais</span><input aria-label="Preço unitário em reais" inputMode="decimal" onChange={(event) => setUnitPrice(event.target.value)} required value={unitPrice} /></label>
               </div>
               <div className="merchant-ledger-total"><span>Total da venda</span><strong>{formatAmount(totalMinor)}</strong></div>
-              <label className="form-field"><span>Condição de pagamento</span><select aria-label="Condição de pagamento" onChange={(event) => setCondition(event.target.value as typeof condition)} value={condition}><option value="cash">Pago integralmente</option><option value="single_due">Fiado · vencimento único</option><option value="installments">Parcelado</option></select></label>
-              {condition !== "cash" ? <label className="form-field"><span>Entrada (R$)</span><input aria-label="Entrada (R$)" inputMode="decimal" onChange={(event) => setDownPayment(event.target.value)} value={downPayment} /></label> : null}
+              <label className="form-field"><span>Condição de pagamento *</span><select aria-label="Condição de pagamento" onChange={(event) => setCondition(event.target.value as typeof condition)} required value={condition}><option value="">Escolha uma condição</option><option value="cash">Pago integralmente</option><option value="single_due">Fiado · vencimento único</option><option value="installments">Parcelado</option></select></label>
+              {isCreditSale ? <label className="form-field"><span>Entrada (R$)</span><input aria-label="Entrada (R$)" inputMode="decimal" onChange={(event) => setDownPayment(event.target.value)} value={downPayment} /></label> : null}
               {condition === "installments" ? <label className="form-field"><span>Quantidade de parcelas</span><input aria-label="Quantidade de parcelas" max="120" min="2" onChange={(event) => setInstallmentCount(event.target.value)} required type="number" value={installmentCount} /></label> : null}
-              {condition !== "cash" ? <label className="form-field"><span>{condition === "installments" ? "Primeiro vencimento" : "Vencimento"}</span><input aria-label="Primeiro vencimento" onChange={(event) => setFirstDueDate(event.target.value)} required type="date" value={firstDueDate} /></label> : null}
+              {isCreditSale ? <>
+                <label className="form-field"><span>{condition === "installments" ? "Primeiro vencimento" : "Vencimento"} *</span><input aria-label="Primeiro vencimento" onChange={(event) => setFirstDueDate(event.target.value)} required type="date" value={firstDueDate} /></label>
+                <div className="merchant-sale-confirmation" role="group" aria-label="Confirmação da venda a prazo">
+                  <strong>Esta venda ficará {condition === "installments" ? "parcelada" : "como fiado"}.</strong>
+                  <span>{formatAmount(totalMinor)} · vence {firstDueDate ? formatDate(firstDueDate) : "na data que você escolher"}{condition === "installments" ? ` · ${installmentCount} parcelas` : ""}</span>
+                  <label><input checked={confirmedSaleKey === saleConfirmationKey} onChange={(event) => setConfirmedSaleKey(event.target.checked ? saleConfirmationKey : "")} type="checkbox" />Confirmo a condição e o vencimento desta venda.</label>
+                </div>
+              </> : null}
               {toMinor(downPayment) > 0 || condition === "cash" ? <label className="form-field"><span>Como recebeu a entrada</span><select aria-label="Como recebeu a entrada" onChange={(event) => setInitialPaymentMethod(event.target.value as typeof initialPaymentMethod)} value={initialPaymentMethod}><option value="pix">Pix</option><option value="cash">Dinheiro</option><option value="bank_transfer">Transferência</option><option value="other">Outro</option></select></label> : null}
-              <button className="button button--primary" disabled={saving || !customerId || totalMinor <= 0} type="submit"><Plus aria-hidden="true" size={16} />{saving ? "Registrando…" : "Registrar venda"}</button>
+              <button className="button button--primary" disabled={saving || !customerId || totalMinor <= 0 || !condition || !saleConfirmed || (isCreditSale && !firstDueDate)} type="submit"><Plus aria-hidden="true" size={16} />{saving ? "Registrando…" : "Registrar venda"}</button>
             </form> : <div className="merchant-directory-empty"><span><UserRound aria-hidden="true" size={20} /></span><strong>Cadastre seu primeiro cliente</strong><p>Depois, volte aqui para registrar vendas na caderneta.</p><a className="button button--secondary" href="/clientes">Abrir clientes</a></div>}
           </section>
 
           <section className="customer-dashboard-panel merchant-ledger-history">
             <div className="customer-dashboard-panel__heading"><div><h2>{ledger?.customer.name ?? "Histórico do cliente"}</h2><p>Compras e compromissos de pagamento</p></div><span className="customer-panel-count">{ledger?.sales.length ?? 0}</span></div>
             {ledger?.sales.length ? <div className="merchant-ledger-sales">{ledger.sales.map((sale) => <article className="merchant-ledger-sale" key={sale.id}>
-              <div className="merchant-ledger-sale__heading"><div><strong>{formatAmount(sale.totalMinor)}</strong><small>{new Date(sale.createdAt).toLocaleDateString("pt-BR")} · {sale.condition === "cash" ? "Pago integralmente" : sale.condition === "installments" ? "Parcelado" : "Fiado"}</small></div><span>Saldo {formatAmount(sale.balanceMinor ?? sale.financedMinor)}</span></div>
+              <div className="merchant-ledger-sale__heading"><div><strong>{formatAmount(sale.totalMinor)}</strong><small>{formatDate(sale.createdAt)} · {sale.condition === "cash" ? "Pago integralmente" : sale.condition === "installments" ? "Parcelado" : "Fiado"}</small></div><span>Saldo {formatAmount(sale.balanceMinor ?? sale.financedMinor)}</span></div>
               <ul>{sale.items.map((item) => <li key={item.id}><span>{item.quantity} × {item.name}</span><strong>{formatAmount(item.lineTotalMinor)}</strong></li>)}</ul>
               <a className="button button--secondary" href={`/templates/agradecimento-compra?saleId=${encodeURIComponent(sale.id)}`}>Preparar agradecimento</a>
               {sale.installments.length ? <div className="merchant-ledger-installments"><h3>Vencimentos</h3>{sale.installments.map((installment) => <div className="merchant-ledger-installment" key={installment.id}>
-                <div><strong>{formatAmount(installment.amountMinor)}</strong><small><CalendarDays aria-hidden="true" size={13} /> {new Date(`${installment.dueDate}T12:00:00`).toLocaleDateString("pt-BR")} · {installment.derivedStatus === "paid" ? "Paga" : installment.derivedStatus === "partially_paid" ? "Parcialmente paga" : installment.derivedStatus === "overdue" ? "Atrasada" : installment.derivedStatus === "due_today" ? "Vence hoje" : "Pendente"}</small></div>
+                <div><strong>{formatAmount(installment.amountMinor)}</strong><small><CalendarDays aria-hidden="true" size={13} /> {formatDate(installment.dueDate)} · {installment.derivedStatus === "paid" ? "Paga" : installment.derivedStatus === "partially_paid" ? "Parcialmente paga" : installment.derivedStatus === "overdue" ? "Atrasada" : installment.derivedStatus === "due_today" ? "Vence hoje" : "Pendente"}</small></div>
                 {installment.balanceMinor && installment.balanceMinor > 0 ? <button className="button button--secondary" onClick={() => { setPayingId(installment.id); setPaymentAmount(formatInput(installment.balanceMinor!)); }} type="button">Registrar pagamento</button> : null}
                 {installment.balanceMinor && installment.balanceMinor > 0 && installment.status === "open" ? <a className="button button--secondary" href={`/templates/${installment.derivedStatus === "overdue" ? "parcela-atrasada" : installment.derivedStatus === "due_today" ? "parcela-hoje" : "parcela-proxima"}?installmentId=${encodeURIComponent(installment.id)}`}>Preparar mensagem</a> : null}
                 {payingId === installment.id ? <form className="merchant-ledger-payment-form" onSubmit={(event) => void submitPayment(event, installment.id)}><label className="form-field"><span>Valor recebido (R$)</span><input aria-label="Valor recebido (R$)" inputMode="decimal" onChange={(event) => setPaymentAmount(event.target.value)} required value={paymentAmount} /></label><label className="form-field"><span>Forma</span><select aria-label="Forma de pagamento" onChange={(event) => setPaymentMethod(event.target.value as typeof paymentMethod)} value={paymentMethod}><option value="pix">Pix</option><option value="cash">Dinheiro</option><option value="bank_transfer">Transferência</option><option value="other">Outro</option></select></label><button className="button button--primary" disabled={saving} type="submit">Salvar pagamento</button><button className="button button--secondary" onClick={() => setPayingId("")} type="button">Cancelar</button></form> : null}

@@ -254,6 +254,7 @@ export default function TemplatePage() {
             {billingSource && ["sale_payment", "recurring_payment"].includes(billingSource.sourceType) && template.id === "pagamento-confirmado" ? <p className="merchant-billing-prefill-notice" role="note">O valor e a data vêm do pagamento registrado. Só marque como confirmado depois de conferir o recebimento no banco; o Cadernô não consulta sua conta nem envia a mensagem automaticamente.</p> : null}
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
+                <p className="template-editor-guidance">Campos com * são necessários para salvar. Logo e redes sociais são opcionais. A mensagem fica salva como rascunho; publicar e compartilhar o link exige acesso Premium ativo.</p>
                 <TemplateFields
                   fields={templateEditorFields(template, values)}
                   values={values}

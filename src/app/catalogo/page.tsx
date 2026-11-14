@@ -13,10 +13,11 @@ type CatalogForm = {
   name: string;
   description: string;
   price: string;
+  isFree: boolean;
   status: "active" | "archived";
 };
 
-const emptyForm: CatalogForm = { kind: "product", name: "", description: "", price: "0,00", status: "active" };
+const emptyForm: CatalogForm = { kind: "product", name: "", description: "", price: "", isFree: false, status: "active" };
 
 function toBRLInputFromMinor(value: number) {
   return new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100);
@@ -36,7 +37,8 @@ function itemToForm(item: MerchantCatalogItem): CatalogForm {
     kind: item.kind,
     name: item.name,
     description: item.description ?? "",
-    price: toBRLInputFromMinor(item.priceMinor),
+    price: item.priceMinor === 0 ? "0,00" : toBRLInputFromMinor(item.priceMinor),
+    isFree: item.priceMinor === 0,
     status: item.status,
   };
 }
@@ -54,6 +56,7 @@ export default function MerchantCatalogPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [priceError, setPriceError] = useState("");
   const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
@@ -89,24 +92,35 @@ export default function MerchantCatalogPage() {
     setSelected(null);
     setForm(emptyForm);
     setNotice("");
+    setError("");
+    setPriceError("");
   }
 
   function editItem(item: MerchantCatalogItem) {
     setSelected(item);
     setForm(itemToForm(item));
     setNotice("");
+    setError("");
+    setPriceError("");
   }
 
   async function saveItem(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const priceMinor = form.isFree ? 0 : toMinorUnits(form.price);
+    if (!form.isFree && (!form.price.trim() || priceMinor <= 0)) {
+      setPriceError("Informe um preço maior que R$ 0,00 ou marque “Item gratuito”.");
+      document.getElementById("catalog-price")?.focus();
+      return;
+    }
     setSaving(true);
     setError("");
+    setPriceError("");
     setNotice("");
     const payload = {
       kind: form.kind,
       name: form.name,
       description: form.description,
-      priceMinor: toMinorUnits(form.price),
+      priceMinor,
       status: form.status,
     };
     try {
@@ -180,15 +194,16 @@ export default function MerchantCatalogPage() {
           </section>
 
           <section aria-label={selected ? "Editar item" : "Cadastrar item"} className="customer-dashboard-panel merchant-directory-form-panel">
-            <div className="customer-dashboard-panel__heading">
-              <div><h2>{selected ? "Editar item" : "Novo item"}</h2><p>O preço é salvo em centavos para manter os valores exatos.</p></div>
+          <div className="customer-dashboard-panel__heading">
+              <div><h2>{selected ? "Editar item" : "Novo item"}</h2><p>Informe um preço maior que zero. Para cadastrar sem cobrar, marque “Item gratuito”.</p></div>
               {selected ? <button aria-label="Fechar edição" className="merchant-directory-close" onClick={startNewItem} type="button"><X aria-hidden="true" size={18} /></button> : null}
             </div>
             <form className="merchant-directory-form" onSubmit={(event) => void saveItem(event)}>
               <label className="form-field"><span>Tipo *</span><select onChange={(event) => setForm({ ...form, kind: event.target.value as CatalogForm["kind"] })} value={form.kind}><option value="product">Produto</option><option value="service">Serviço</option></select></label>
               <label className="form-field"><span>Nome *</span><input maxLength={120} onChange={(event) => setForm({ ...form, name: event.target.value })} required value={form.name} /></label>
               <label className="form-field"><span>Descrição</span><textarea maxLength={1_000} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} value={form.description} /></label>
-              <label className="form-field"><span>Preço padrão (R$) *</span><div className="merchant-directory-currency"><span>R$</span><input aria-label="Preço padrão em reais" inputMode="decimal" onChange={(event) => setForm({ ...form, price: toBRLInputFromMinor(toMinorUnits(event.target.value)) })} value={form.price} /></div></label>
+              <label className="form-field"><span>Preço padrão (R$) *</span><div className="merchant-directory-currency"><span>R$</span><input aria-describedby={priceError ? "catalog-price-error" : "catalog-price-help"} aria-invalid={Boolean(priceError)} aria-label="Preço padrão em reais" disabled={form.isFree} id="catalog-price" inputMode="decimal" onChange={(event) => { const raw = event.target.value; setPriceError(""); setForm({ ...form, price: raw.trim() ? toBRLInputFromMinor(toMinorUnits(raw)) : "" }); }} required={!form.isFree} value={form.price} /></div><small id="catalog-price-help">O valor zero só é salvo quando “Item gratuito” estiver marcado.</small>{priceError ? <small className="form-field__error" id="catalog-price-error" role="alert">{priceError}</small> : null}</label>
+              <label className="form-field form-field--checkbox"><input checked={form.isFree} onChange={(event) => { setPriceError(""); setForm({ ...form, isFree: event.target.checked, price: event.target.checked ? "0,00" : "" }); }} type="checkbox" /><span>Item gratuito (R$ 0,00)</span></label>
               <label className="form-field"><span>Situação</span><select onChange={(event) => setForm({ ...form, status: event.target.value as CatalogForm["status"] })} value={form.status}><option value="active">Ativo</option><option value="archived">Arquivado</option></select></label>
               {notice ? <p className="merchant-directory-notice" role="status">{notice}</p> : null}
               {error ? <p className="form-error" role="alert">{error}</p> : null}

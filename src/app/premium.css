@@ -292,6 +292,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 .customer-area-error { display: flex; align-items: center; gap: 9px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid #f0d4cc; border-radius: 12px; background: #fff8f5; color: #934d43; font-size: 12px; }
 .customer-area-error > svg { flex: none; }
 .customer-area-error .text-button { margin-left: auto; }
+.customer-area-load-error { max-width: 560px; display: grid; justify-items: start; gap: 12px; margin: 6vh auto; padding: clamp(22px, 5vw, 36px); border: 1px solid #e0e9e2; border-radius: 20px; background: #fffefa; box-shadow: 0 12px 30px rgba(25, 50, 68, .06); }
+.customer-area-load-error > svg { color: #168e88; }
+.customer-area-load-error h1, .customer-area-load-error p { margin: 0; }
+.customer-area-load-error p { color: #657986; font-size: 14px; line-height: 1.6; }
 .customer-message-list { display: grid; gap: 12px; }
 .customer-message-card { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 14px; border: 1px solid #e7ece7; border-radius: 14px; background: #fff; }
 .customer-message-card > div:first-child { min-width: 0; }
@@ -668,6 +672,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 .customer-workspace__nav a:hover, .customer-workspace__nav a[aria-current="page"] { background: #eaf5f0; color: #087f79; }
 .customer-workspace__nav a[aria-current="page"] { box-shadow: inset 3px 0 #15958a; }
 .customer-workspace__nav a svg { flex: none; color: #158e86; }
+.customer-workspace__more > summary { min-height: 45px; display: flex; align-items: center; padding: 0 11px; border-radius: 12px; color: #4e6374; font-size: 13px; font-weight: 700; cursor: pointer; }
+.customer-workspace__more > summary:hover { background: #f3f7f3; color: #087f79; }
+.customer-workspace__more > div { display: grid; gap: 5px; padding: 5px 0 0 10px; }
+.customer-workspace__more > div a { min-height: 40px; display: flex; align-items: center; gap: 11px; padding: 0 11px; border-radius: 10px; color: #4e6374; font-size: 12px; font-weight: 650; }
+.customer-workspace__more > div a:hover, .customer-workspace__more > div a[aria-current="page"] { background: #eaf5f0; color: #087f79; }
+.customer-workspace__more > div a svg { flex: none; color: #158e86; }
 .customer-workspace__account { display: grid; gap: 8px; margin-top: auto; padding: 13px 4px 0; border-top: 1px solid #e9eee9; }
 .customer-workspace__license { width: fit-content; display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 999px; background: #f1f4f1; color: #67767b; font-size: 10px; font-weight: 800; }
 .customer-workspace__license.is-active { background: #e4f5ec; color: #087b63; }
@@ -676,6 +686,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 .customer-workspace__signout:hover { border-color: #c5ddd2; background: #f2f8f4; color: #087f79; }
 .customer-workspace__main { min-width: 0; min-height: 100svh; margin-left: 246px; }
 .customer-workspace__topbar { position: sticky; top: 0; z-index: 20; min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 clamp(20px, 3vw, 42px); border-bottom: 1px solid #e1e9e3; background: rgba(255, 254, 250, .94); backdrop-filter: blur(16px); }
+.customer-workspace__menu-toggle { display: none; min-height: 42px; align-items: center; gap: 7px; padding: 0 11px; border: 1px solid #d8e5de; border-radius: 11px; background: #fffefa; color: #087f79; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
 .customer-workspace__breadcrumb { display: inline-flex; align-items: center; gap: 10px; color: #89959a; font-size: 12px; }
 .customer-workspace__breadcrumb strong { color: #26425b; font-weight: 750; }
 .customer-workspace__topbar-status { display: inline-flex; align-items: center; gap: 7px; color: #687981; font-size: 11px; font-weight: 700; }
@@ -774,6 +785,21 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 .merchant-directory-currency { min-width: 0; display: flex; align-items: center; overflow: hidden; border: 1px solid #d8e3dc; border-radius: 10px; background: #fff; }
 .merchant-directory-currency > span { align-self: stretch; display: grid; place-items: center; padding: 0 11px; background: #eaf5f0; color: #087f79; font-size: 11px; font-weight: 800; }
 .merchant-directory-currency input { border: 0 !important; border-radius: 0 !important; outline: 0 !important; }
+.merchant-directory-form .form-field--checkbox { display: flex; align-items: center; gap: 9px; align-self: center; min-height: 42px; }
+.merchant-directory-form .form-field--checkbox input { width: 18px; height: 18px; accent-color: #168e88; }
+.merchant-directory-form .form-field--checkbox span { color: #344f68; font-size: 12px; font-weight: 700; }
+.merchant-directory-form .form-field > small { color: #71818c; font-size: 10px; font-weight: 450; line-height: 1.4; }
+.merchant-directory-form .form-field > small.form-field__error { color: #9b4035; }
+.merchant-sale-confirmation { display: grid; gap: 8px; padding: 12px; border: 1px solid #c9ddd4; border-radius: 12px; background: #f3f8f5; color: #29455f; }
+.merchant-sale-confirmation > strong { font-size: 12px; }
+.merchant-sale-confirmation > span { color: #526b7c; font-size: 12px; }
+.merchant-sale-confirmation > label { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; font-weight: 700; line-height: 1.45; }
+.merchant-sale-confirmation input { width: 18px; height: 18px; flex: none; accent-color: #168e88; }
+.template-editor-guidance { margin: 0; padding: 10px 12px; border: 1px solid #d5e8df; border-radius: 11px; background: #f4f9f6; color: #526b7c; font-size: 11px; line-height: 1.5; }
+.template-optional-fields { min-width: 0; display: grid; gap: 12px; padding: 12px; border: 1px solid #dbe8e1; border-radius: 12px; background: #fbfdfb; }
+.template-optional-fields > summary { display: flex; align-items: center; gap: 8px; color: #29455f; font-size: 13px; font-weight: 750; cursor: pointer; }
+.template-optional-fields > summary span { color: #70808b; font-size: 10px; font-weight: 500; }
+.template-optional-fields > p { margin: -4px 0 2px; color: #71818c; font-size: 11px; line-height: 1.45; }
 
 @media (max-width: 760px) {
   .merchant-directory-layout { grid-template-columns: minmax(0, 1fr); }
@@ -782,7 +808,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
   .customer-workspace__sidebar > .brand-mark { margin: 0; }
   .customer-workspace__sidebar > .brand-mark .brand-mark__symbol { width: 31px; height: 31px; }
   .customer-workspace__section-label, .customer-workspace__license, .customer-workspace__email { display: none; }
-  .customer-workspace__nav { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 6px 0 8px; border-top: 1px solid #edf0eb; }
+  .customer-workspace__nav { grid-column: 1 / -1; display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 6px 0 8px; border-top: 1px solid #edf0eb; }
+  .customer-workspace__sidebar.is-open .customer-workspace__nav { display: grid; }
+  .customer-workspace__more { grid-column: 1 / -1; }
+  .customer-workspace__more > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .customer-workspace__nav a { min-width: 0; min-height: 48px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 4px 3px; font-size: 10px; line-height: 1.2; text-align: center; }
   .customer-workspace__nav a[aria-current="page"] { box-shadow: inset 0 -2px #15958a; }
   .customer-workspace__nav a svg { width: 15px; height: 15px; }
@@ -790,6 +819,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
   .customer-workspace__signout { min-height: 34px; gap: 6px; padding: 0 9px; font-size: 10px; }
   .customer-workspace__main { margin-left: 0; }
   .customer-workspace__topbar { position: static; min-height: 48px; padding: 0 16px; }
+  .customer-workspace__menu-toggle { display: inline-flex; }
   .customer-workspace__breadcrumb { font-size: 11px; }
   .customer-workspace__topbar-status { font-size: 0; }
   .customer-workspace__topbar-status svg { width: 17px; height: 17px; }
