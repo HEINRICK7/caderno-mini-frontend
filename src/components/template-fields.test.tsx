@@ -2,6 +2,8 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { TemplateField } from "@/lib/api-contracts";
+import { backendCatalog } from "../../tests/helpers/backend-catalog";
 const { uploadImage } = vi.hoisted(() => ({ uploadImage: vi.fn() }));
 vi.mock("../lib/api-client", () => ({ api: { uploadImage } }));
 import { api } from "../lib/api-client";
@@ -40,5 +42,25 @@ describe("campo de logo da empresa", () => {
 
     expect(screen.getByRole("alert").textContent).toContain("até 1 KB");
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("renderiza os campos editáveis definidos pelo backend nos 16 modelos", () => {
+    const onChange = vi.fn();
+
+    for (const template of backendCatalog) {
+      const fields = (template.definition as { fields: TemplateField[] }).fields;
+      const { container } = render(<TemplateFields fields={fields} values={{}} onChange={onChange} />);
+
+      for (const field of fields) {
+        const input = container.querySelector(`#${field.id}`);
+        if (field.editable === false) {
+          expect(input, `${template.id}.${field.id} deve continuar protegido`).toBeNull();
+        } else {
+          expect(input, `${template.id}.${field.id} deve aparecer no formulário`).not.toBeNull();
+        }
+      }
+
+      cleanup();
+    }
   });
 });

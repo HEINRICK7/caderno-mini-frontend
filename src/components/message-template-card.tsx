@@ -128,11 +128,14 @@ export function MessageTemplateCard({
     const value = formatDetail(detail.value, detail.format, data, definition, mode === "preview", card.variables);
     const label = detail.labelFieldId ? readField(data, detail.labelFieldId) : detail.label ?? "";
     const imageSrc = detail.imageFieldId ? safeImageAssetPath(data[detail.imageFieldId], imagePreviews?.[detail.imageFieldId]) : null;
-    return { ...detail, label, value, imageSrc };
+    const valueBindings = [...detail.value.matchAll(/\{\{([A-Za-z][A-Za-z0-9_]{0,63})\}\}/g)].map((match) => match[1]);
+    const hasIncompleteCompoundValue = valueBindings.length > 1 && valueBindings.some((fieldId) => readField(data, fieldId) === "");
+    return { ...detail, label, value, imageSrc, hasIncompleteCompoundValue };
   });
   const pixDetail = layout === "pix" ? resolvedDetails.find((detail) => detail.imageFieldId || detail.icon === "qrcode") : undefined;
   const isSinglePixCharge = layout === "pix" && data.installmentNumber == null && data.installmentTotal == null;
   const details = resolvedDetails.filter((detail) => detail !== pixDetail)
+    .filter((detail) => !detail.hasIncompleteCompoundValue)
     .filter((detail) => !(isSinglePixCharge && detail.icon === "receipt" && detail.labelFieldId === "detailLabel3"))
     .filter((detail) => (detail.label.trim() !== "" || detail.value.trim() !== "") && (detail.value.trim() !== "" || detail.imageSrc !== null))
     .filter((detail) => layout !== "settled" || (detail.value !== "" && (detail.labelFieldId !== "settlementLabel" || detail.value === "Todas as parcelas pagas")));

@@ -28,6 +28,12 @@ function editableExampleValues(template: Template): Record<string, FieldValue> {
   const values = Object.fromEntries(
     Object.entries(template.definition.exampleData ?? {}).filter(([fieldId]) => editableFields.has(fieldId)),
   ) as Record<string, FieldValue>;
+  const financialFieldsToConfirm = template.id === "pagamento-confirmado"
+    ? ["amount", "paidAt", "installmentNumber", "installmentTotal", "paymentStatus", "detailsLink"]
+    : template.id === "caderneta-quitada"
+      ? ["settlementStatus", "outstandingBalance"]
+      : [];
+  for (const fieldId of financialFieldsToConfirm) values[fieldId] = "";
   if (template.id === "cobranca-pix") {
     values.chargeMode = SINGLE_PIX_CHARGE_MODE;
     values.detailLabel1 = "Valor";
