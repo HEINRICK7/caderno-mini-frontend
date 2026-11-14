@@ -49,6 +49,27 @@ describe("MessageTemplateCard", () => {
     expect(new Set(renderedIds).size).toBe(16);
   });
 
+  it("oculta o detalhe de parcelas até que os dois campos estejam preenchidos", () => {
+    const paymentTemplate = backendCatalog.find((template) => template.id === "pagamento-confirmado") as unknown as {
+      definition: TemplateDefinition;
+    };
+    const { container } = render(
+      <MessageTemplateCard
+        data={{
+          amount: 100,
+          paidAt: "2026-11-13",
+          installmentNumber: 1,
+          installmentTotal: "",
+          paymentStatus: "confirmed",
+        }}
+        definition={paymentTemplate.definition}
+      />,
+    );
+
+    expect(container.querySelectorAll(".message-template__detail")).toHaveLength(2);
+    expect(container.textContent).not.toMatch(/\bde\s*$/);
+  });
+
   it("renders the backend template as HTML and updates its field binding", () => {
     const { container, rerender } = render(
       <MessageTemplateCard data={{ recipientName: "Maria" }} definition={definition} />,

@@ -7,6 +7,11 @@ import { MAX_TEMPLATE_IMAGE_BYTES, type TemplateField } from "@/lib/api-contract
 
 type FieldValue = string | number | boolean;
 
+const selectOptionLabels: Record<string, Record<string, string>> = {
+  paymentStatus: { confirmed: "Conferi no banco: recebido" },
+  settlementStatus: { settled: "Conferi: todas as parcelas pagas" },
+};
+
 type TemplateFieldsProps = {
   fields: TemplateField[];
   values: Record<string, FieldValue>;
@@ -66,7 +71,7 @@ export function TemplateFields({
         input = (
           <select {...shared} value={String(value)} onChange={(event) => onChange(field.id, event.target.value)}>
             <option value="" disabled>Selecione</option>
-            {field.options?.map((option) => <option key={option} value={option}>{option}</option>)}
+            {field.options?.map((option) => <option key={option} value={option}>{selectOptionLabels[field.id]?.[option] ?? option}</option>)}
           </select>
         );
         break;

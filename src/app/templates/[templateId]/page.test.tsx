@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Template } from "@/lib/api-contracts";
+import { backendCatalog } from "../../../../tests/helpers/backend-catalog";
 
 const { getTemplate, validateTemplate, createDraft, push } = vi.hoisted(() => ({
   getTemplate: vi.fn(),
@@ -99,6 +100,8 @@ const serviceTemplate: Template = {
   },
 };
 
+const paymentConfirmedTemplate = backendCatalog.find((template) => template.id === "pagamento-confirmado") as unknown as Template;
+
 afterEach(cleanup);
 beforeEach(() => {
   getTemplate.mockReset().mockResolvedValue(purchaseTemplate);
@@ -164,5 +167,52 @@ describe("editor de modelo", () => {
     expect(screen.getByText("10 de nov de 2026")).toBeTruthy();
     expect(screen.getByText(/1\.200,00/)).toBeTruthy();
     expect(validateTemplate).not.toHaveBeenCalled();
+  });
+
+  it("permite editar valor, data e botão e exige confirmação manual após conferir o banco", async () => {
+    getTemplate.mockResolvedValue(paymentConfirmedTemplate);
+    const { container } = render(<TemplatePage />);
+
+    await screen.findByRole("heading", { name: "Personalize sua mensagem" });
+    const amount = screen.getByLabelText("Valor pago *") as HTMLInputElement;
+    const paidAt = screen.getByLabelText("Data do pagamento *") as HTMLInputElement;
+    const destination = screen.getByLabelText("Link dos detalhes do pagamento *") as HTMLInputElement;
+    const actionLabel = screen.getByLabelText("Texto do botão principal *") as HTMLInputElement;
+    const confirmation = screen.getByLabelText("Confirmar após conferir no banco *") as HTMLSelectElement;
+
+    expect(amount.value).toBe("");
+    expect(paidAt.value).toBe("");
+    expect(destination.value).toBe("");
+    expect(confirmation.value).toBe("");
+
+    fireEvent.change(amount, { target: { value: "100,00" } });
+    fireEvent.change(paidAt, { target: { value: "2026-11-13" } });
+    fireEvent.change(destination, { target: { value: "https://loja.example/comprovante" } });
+    fireEvent.change(actionLabel, { target: { value: "Ver comprovante" } });
+    fireEvent.change(confirmation, { target: { value: "confirmed" } });
+
+    expect(container.querySelectorAll(".message-template__detail")).toHaveLength(2);
+    expect(screen.getByText("13 de nov de 2026")).toBeTruthy();
+    expect(screen.getByText(/100,00/)).toBeTruthy();
+    expect(screen.getByText("Ver comprovante")).toBeTruthy();
+    expect(screen.getByText(/O Caderno não consulta sua conta bancária/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Continuar com esta mensagem/ }));
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/mensagens/draft-1"));
+    expect(validateTemplate).toHaveBeenCalledWith("pagamento-confirmado", expect.objectContaining({
+      amount: 100,
+      paidAt: "2026-11-13",
+      detailsLink: "https://loja.example/comprovante",
+      primaryActionLabel: "Ver comprovante",
+      paymentStatus: "confirmed",
+    }));
+    expect(createDraft).toHaveBeenCalledWith("pagamento-confirmado", expect.objectContaining({
+      amount: 100,
+      paidAt: "2026-11-13",
+      detailsLink: "https://loja.example/comprovante",
+      primaryActionLabel: "Ver comprovante",
+      paymentStatus: "confirmed",
+    }));
   });
 });
