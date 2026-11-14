@@ -8,9 +8,9 @@ import { HomePainPoints } from "@/components/home-pain-points";
 import { PricingSection } from "@/components/pricing-section";
 
 const steps = [
-  { number: "1", title: "Escolha um modelo", text: "Agradecimento, cobrança, novidade ou serviço.", icon: "mark" },
-  { number: "2", title: "Personalize e confira", text: "Edite a mensagem e veja a prévia sem pagar.", icon: "pencil" },
-  { number: "3", title: "Compartilhe seus cards", text: "Durante 12 meses, publique quantos cards quiser e compartilhe os links pelo canal que preferir.", icon: "share" },
+  { number: "1", title: "Escolha o que quer dizer", text: "Agradecer, lembrar um pagamento, divulgar uma oferta ou apresentar um serviço.", icon: "mark" },
+  { number: "2", title: "Ajuste e confira", text: "Personalize o modelo e veja a prévia sem pagar antes de publicar.", icon: "pencil" },
+  { number: "3", title: "Use e compartilhe", text: "Por R$ 47,00 em pagamento único, tenha 12 meses para publicar cards ilimitados. Compartilhe o link manualmente; nos modelos compatíveis, baixe a imagem para publicar por conta própria.", icon: "share" },
 ];
 
 export default function Home() {
@@ -49,7 +49,7 @@ export default function Home() {
         <div className="home-footer__inner">
           <div className="home-footer__brand">
             <span className="home-footer__name">Cadernô Express</span>
-            <p>Cartões para cuidar do cliente depois da venda.</p>
+            <p>Modelos de agradecimento, cobrança, oferta e serviços. R$ 47,00 em pagamento único, sem renovação: 12 meses para publicar cards ilimitados e compartilhar links manualmente. O download de imagem está disponível em modelos compatíveis.</p>
           </div>
           <nav aria-label="Links do rodapé" className="home-footer__links">
             <Link href="/templates">Modelos</Link>

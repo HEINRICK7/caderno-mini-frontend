@@ -109,7 +109,7 @@ export function PricingSection() {
             <PlanBenefits access="Crie, edite, publique e compartilhe cards ilimitados por 12 meses" />
             <PlanCheckoutAction />
             <Link className="pricing-plan__models-link" href="/templates">Ver os modelos antes de comprar</Link>
-            <p className="pricing-plan__note">R$ 47,00 em pagamento único, sem renovação automática. O acesso para criar, editar, publicar e compartilhar cards ilimitados é ativado após a confirmação na AbacatePay. Após 12 meses, os links deixam de abrir se sua conta não tiver outro acesso ativo. Você controla quando e para quem compartilhar; não há envio automático de mensagens.</p>
+            <p className="pricing-plan__note">R$ 47,00 em pagamento único, sem renovação automática. O acesso para criar, editar e publicar cards ilimitados é ativado após a confirmação na AbacatePay. Compartilhe os links manualmente; nos modelos compatíveis, baixe a imagem para publicar nas redes por conta própria. Após 12 meses, os links deixam de abrir se sua conta não tiver outro acesso ativo; os rascunhos continuam na conta. Não há postagem nem envio automático.</p>
           </AnimatedContent>
         </article>
       </AnimatedContent>

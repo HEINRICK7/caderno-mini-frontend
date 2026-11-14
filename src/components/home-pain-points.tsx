@@ -13,7 +13,7 @@ const painPoints = [
     label: "Agradecimento",
     title: "Agradeça uma compra",
     description:
-      "Escolha um cartão de agradecimento, ajuste a mensagem ao seu negócio e compartilhe com o cliente.",
+      "Escolha um cartão de agradecimento, ajuste a mensagem e compartilhe o link. Nos modelos compatíveis, você também pode baixar a imagem.",
   },
   {
     icon: Palette,
@@ -21,7 +21,7 @@ const painPoints = [
     label: "Lembrete de pagamento",
     title: "Lembrete de pagamento",
     description:
-      "Use um modelo de cobrança, confira os dados e envie o link quando quiser. O Cadernô não processa o pagamento.",
+      "Use um modelo de cobrança, confira os dados e compartilhe o link. A opção de baixar a imagem aparece nos modelos compatíveis; o Cadernô não processa o pagamento.",
   },
   {
     icon: HeartHandshake,
@@ -29,7 +29,7 @@ const painPoints = [
     label: "Novidade ou oferta",
     title: "Divulgue uma novidade",
     description:
-      "Troque texto e imagem em um cartão de divulgação e compartilhe pelos canais que seus clientes usam.",
+      "Troque texto e imagem em um cartão de divulgação. Nos modelos compatíveis, baixe o arquivo e publique nas redes por conta própria.",
   },
 ];
 
@@ -37,10 +37,10 @@ export function HomePainPoints() {
   return (
     <section aria-labelledby="home-pain-points-title" className="home-pain-points" id="situacoes">
       <AnimatedContent className="home-pain-points__intro" distance={18} duration={0.65} threshold={0.12}>
-        <p className="home-section-eyebrow">Use um modelo para uma conversa real</p>
-        <h2 id="home-pain-points-title">Agradeça, lembre um pagamento ou conte uma novidade.</h2>
+        <p className="home-section-eyebrow">Agradecimentos, cobranças, ofertas e serviços</p>
+        <h2 id="home-pain-points-title">Quando falta tempo ou inspiração, comece por um modelo.</h2>
         <p>
-          Edite o cartão, confira a prévia e escolha quando compartilhar o link.
+          Edite o cartão, confira a prévia e compartilhe o link manualmente. Em modelos compatíveis, baixe também a imagem para publicar por conta própria.
         </p>
       </AnimatedContent>
 
