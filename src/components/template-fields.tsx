@@ -138,18 +138,13 @@ export function TemplateFields({
           <div className="form-field__image-upload">
             <input
               {...shared}
-              accept="image/png,image/jpeg,image/webp"
+              accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
               disabled={anyUploadActive}
               type="file"
               onChange={(event) => {
                 const file = event.currentTarget.files?.[0];
                 event.currentTarget.value = "";
                 if (!file) return;
-                if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-                  onImagePreviewChange?.(field.id, null);
-                  setUploadErrors((current) => ({ ...current, [field.id]: "Escolha um arquivo PNG, JPEG ou WebP." }));
-                  return;
-                }
                 if (file.size > maxBytes) {
                   onImagePreviewChange?.(field.id, null);
                   setUploadErrors((current) => ({ ...current, [field.id]: "A imagem deve ter até " + formatFileSize(maxBytes) + "." }));
@@ -161,19 +156,20 @@ export function TemplateFields({
                 setFieldUploading(field.id, true);
                 const reader = new FileReader();
                 reader.onload = async () => {
-                  if (typeof reader.result !== "string" || !imageDataUriMatchesMime(reader.result, file.type)) {
+                  const imageDataUrl = typeof reader.result === "string" ? normalizeImageDataUri(reader.result) : null;
+                  if (!imageDataUrl) {
                     onImagePreviewChange?.(field.id, null);
-                    setUploadErrors((current) => ({ ...current, [field.id]: "Não foi possível ler essa imagem." }));
+                    setUploadErrors((current) => ({ ...current, [field.id]: "Escolha uma imagem PNG, JPEG ou WebP válida." }));
                     setFieldUploading(field.id, false);
                     return;
                   }
-                  onImagePreviewChange?.(field.id, reader.result);
+                  onImagePreviewChange?.(field.id, imageDataUrl);
                   if (localOnlyImages) {
                     setFieldUploading(field.id, false);
                     return;
                   }
                   try {
-                    const uploaded = await api.uploadImage(reader.result);
+                    const uploaded = await api.uploadImage(imageDataUrl);
                     setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
                     onImagePreviewChange?.(field.id, null);
                     onChange(field.id, uploaded.id);
@@ -260,13 +256,15 @@ export function TemplateFields({
   </>;
 }
 
-function imageDataUriMatchesMime(value: string, mime: string): boolean {
-  const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
-  if (!match || value.slice(0, value.indexOf(";")) !== `data:${mime}`) return false;
-  const bytes = atob(match[2]);
-  if (mime === "image/png") return bytes.slice(0, 8) === String.fromCharCode(137, 80, 78, 71, 13, 10, 26, 10);
-  if (mime === "image/jpeg") return bytes.charCodeAt(0) === 0xff && bytes.charCodeAt(1) === 0xd8 && bytes.charCodeAt(2) === 0xff;
-  return bytes.slice(0, 4) === "RIFF" && bytes.slice(8, 12) === "WEBP";
+function normalizeImageDataUri(value: string): string | null {
+  const match = /^data:[^;,]+;base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
+  if (!match?.[1]) return null;
+  const bytes = atob(match[1]);
+  let mime: "image/png" | "image/jpeg" | "image/webp" | null = null;
+  if (bytes.slice(0, 8) === String.fromCharCode(137, 80, 78, 71, 13, 10, 26, 10)) mime = "image/png";
+  else if (bytes.charCodeAt(0) === 0xff && bytes.charCodeAt(1) === 0xd8 && bytes.charCodeAt(2) === 0xff) mime = "image/jpeg";
+  else if (bytes.slice(0, 4) === "RIFF" && bytes.slice(8, 12) === "WEBP") mime = "image/webp";
+  return mime ? `data:${mime};base64,${match[1]}` : null;
 }
 
 function isImageAssetId(value: string): boolean {

@@ -32,6 +32,7 @@ export function DraftShareActions({
   shareVariables = {},
 }: DraftShareActionsProps) {
   const [feedback, setFeedback] = useState("");
+  const [preparingImage, setPreparingImage] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(DEFAULT_BILLING_MESSAGE_ID);
   const imageUrl = `/api/v1/drafts/${encodeURIComponent(draftId)}/export.png`;
   const billingMessage = renderBillingWhatsAppMessage(selectedMessageId, shareVariables);
@@ -40,27 +41,62 @@ export function DraftShareActions({
     ? billingWhatsAppShareUrl(whatsAppPublicUrl, billingMessage)
     : whatsappShareUrl(publicUrl, businessName);
 
-  async function shareImage() {
+  async function prepareImage() {
+    const response = await fetch(imageUrl, { credentials: "same-origin", cache: "no-store" });
+    const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+    if (!response.ok || contentType !== "image/png") {
+      throw new Error("Não foi possível preparar a imagem. Tente novamente em instantes.");
+    }
+
+    const blob = await response.blob();
+    if (blob.size === 0) throw new Error("A imagem gerada está vazia. Tente novamente.");
+    return new File([blob], `caderno-${draftId}.png`, { type: "image/png" });
+  }
+
+  function downloadPreparedImage(image: File) {
+    const objectUrl = URL.createObjectURL(image);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = image.name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  }
+
+  async function downloadImage() {
+    if (preparingImage) return;
+    setPreparingImage(true);
     setFeedback("");
     try {
-      const response = await fetch(imageUrl, { credentials: "same-origin", cache: "no-store" });
-      if (!response.ok) throw new Error("Não foi possível preparar a imagem.");
-      const image = new File([await response.blob()], `caderno-${draftId}.png`, { type: "image/png" });
+      const image = await prepareImage();
+      downloadPreparedImage(image);
+      setFeedback("Imagem baixada. Confira a pasta Downloads.");
+    } catch (cause) {
+      setFeedback(cause instanceof Error ? cause.message : "Não foi possível preparar a imagem.");
+    } finally {
+      setPreparingImage(false);
+    }
+  }
+
+  async function shareImage() {
+    if (preparingImage) return;
+    setPreparingImage(true);
+    setFeedback("");
+    try {
+      const image = await prepareImage();
       if (navigator.share && navigator.canShare?.({ files: [image] })) {
         await navigator.share({ files: [image], title: "Mensagem do Cadernô Express" });
         return;
       }
 
-      const objectUrl = URL.createObjectURL(image);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = image.name;
-      anchor.click();
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      downloadPreparedImage(image);
       setFeedback("Imagem baixada. Anexe o arquivo na conversa do WhatsApp.");
     } catch (cause) {
       if (cause instanceof Error && cause.name === "AbortError") return;
       setFeedback(cause instanceof Error ? cause.message : "Não foi possível compartilhar a imagem.");
+    } finally {
+      setPreparingImage(false);
     }
   }
 
@@ -117,11 +153,11 @@ export function DraftShareActions({
             </a>
             {allowImage ? (
               <>
-                <a className="button button--secondary" href={imageUrl} download>
-                  <Download aria-hidden="true" size={16} /> Baixar imagem
-                </a>
-                <button className="button button--secondary" onClick={() => void shareImage()} type="button">
-                  <ImageIcon aria-hidden="true" size={16} /> Enviar imagem
+                <button className="button button--secondary" disabled={preparingImage} onClick={() => void downloadImage()} type="button">
+                  <Download aria-hidden="true" size={16} /> {preparingImage ? "Preparando…" : "Baixar imagem"}
+                </button>
+                <button className="button button--secondary" disabled={preparingImage} onClick={() => void shareImage()} type="button">
+                  <ImageIcon aria-hidden="true" size={16} /> {preparingImage ? "Preparando…" : "Enviar imagem"}
                 </button>
               </>
             ) : null}
