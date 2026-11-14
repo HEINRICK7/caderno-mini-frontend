@@ -263,7 +263,7 @@ export default function DraftPage() {
               <p>
                 {platformAccess?.active
                   ? `Sua conta tem licença premium ativa${platformAccess.expiresAt ? ` até ${new Date(platformAccess.expiresAt).toLocaleDateString("pt-BR")}` : ""}. Você já pode publicar e exportar.`
-                  : "Confira o resumo do plano anual (R$ 47,00) e continue para o checkout seguro."}
+                      : "Ative o acesso de R$ 47,00 para criar, editar, publicar e compartilhar quantos cards quiser por 12 meses."}
               </p>
             </div>
             <div className="template-editor-layout">
@@ -360,18 +360,18 @@ export default function DraftPage() {
                     <section className="template-premium-panel" aria-labelledby="template-premium-title">
                       <div className="template-action-heading">
                         <span className="template-action-heading__eyebrow">Acesso premium</span>
-                        <h2 id="template-premium-title">Mantenha sua mensagem no ar</h2>
-                        <p>Libera a publicação e o compartilhamento do link definitivo por 12 meses.</p>
+                        <h2 id="template-premium-title">Ative seu acesso ilimitado</h2>
+                        <p>R$ 47,00 em pagamento único libera acesso para criar, editar, publicar e compartilhar quantos cards quiser por 12 meses, sem renovação automática.</p>
                       </div>
                       <div aria-label="Plano de acesso" className="template-premium-options" role="group">
                         <button aria-pressed={true} className="template-plan-card template-plan-card--annual is-selected" disabled={saving || checkingOut || creatingDemoLink || imageUploadBlocked} onClick={() => void continueToCheckout("annual")} type="button">
                           <span className="template-plan-card__topline">
-                            <span className="template-plan-card__name">Plano Anual</span>
+                            <span className="template-plan-card__name">Acesso ilimitado</span>
                             <span className="template-plan-card__badge">12 meses</span>
                           </span>
                           <span className="template-plan-card__price"><span>R$</span> 47,00</span>
-                          <span className="template-plan-card__description">Acesso premium por 12 meses.</span>
-                          <span className="template-plan-card__cta">Plano anual selecionado</span>
+                          <span className="template-plan-card__description">Todos os modelos, com cards ilimitados por 12 meses.</span>
+                          <span className="template-plan-card__cta">Esta mensagem selecionada</span>
                         </button>
                       </div>
                       <PlanTermsNotice plan="annual" />

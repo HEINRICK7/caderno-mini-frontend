@@ -10,26 +10,26 @@ const painPoints = [
   {
     icon: Lightbulb,
     number: "01",
-    label: "Relacionamento",
-    title: "Faltam palavras na hora certa?",
+    label: "Agradecimento",
+    title: "Agradeça uma compra",
     description:
-      "Comece com modelos para agradecer, lembrar um pagamento ou apresentar uma novidade.",
+      "Escolha um cartão de agradecimento, ajuste a mensagem ao seu negócio e compartilhe com o cliente.",
   },
   {
     icon: Palette,
     number: "02",
-    label: "Agilidade",
-    title: "Criar cada arte toma tempo?",
+    label: "Lembrete de pagamento",
+    title: "Lembrete de pagamento",
     description:
-      "Escolha um cartão e personalize os detalhes do seu negócio sem montar tudo do zero.",
+      "Use um modelo de cobrança, confira os dados e envie o link quando quiser. O Cadernô não processa o pagamento.",
   },
   {
     icon: HeartHandshake,
     number: "03",
-    label: "Pós-venda",
-    title: "O contato esfria depois da venda?",
+    label: "Novidade ou oferta",
+    title: "Divulgue uma novidade",
     description:
-      "Tenha opções para agradecer, acompanhar e retomar a conversa quando fizer sentido.",
+      "Troque texto e imagem em um cartão de divulgação e compartilhe pelos canais que seus clientes usam.",
   },
 ];
 
@@ -37,10 +37,10 @@ export function HomePainPoints() {
   return (
     <section aria-labelledby="home-pain-points-title" className="home-pain-points" id="situacoes">
       <AnimatedContent className="home-pain-points__intro" distance={18} duration={0.65} threshold={0.12}>
-        <p className="home-section-eyebrow">O que o Cadernô resolve</p>
-        <h2 id="home-pain-points-title">Menos página em branco. Mais presença no dia a dia.</h2>
+        <p className="home-section-eyebrow">Use um modelo para uma conversa real</p>
+        <h2 id="home-pain-points-title">Agradeça, lembre um pagamento ou conte uma novidade.</h2>
         <p>
-          Para transformar momentos comuns do negócio em conversas cuidadosas com seus clientes.
+          Edite o cartão, confira a prévia e escolha quando compartilhar o link.
         </p>
       </AnimatedContent>
 

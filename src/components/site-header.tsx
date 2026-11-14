@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Menu, Plus } from "lucide-react";
+import { ArrowRight, Menu } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { PwaInstallAction } from "@/components/pwa-install-action";
 import { api } from "@/lib/api-client";
@@ -50,16 +50,10 @@ export function SiteHeader() {
         ))}
         <PwaInstallAction variant="desktop" />
         <Link className="button button--primary button--header" href="/templates">
-          Criar um cartão <ArrowRight aria-hidden="true" size={14} />
+          Escolher um modelo <ArrowRight aria-hidden="true" size={14} />
         </Link>
       </nav>
       <div className="site-header__mobile-actions">
-        <Link className="button button--primary button--header" href="/templates">
-          <Plus aria-hidden="true" size={15} />
-          <span className="button--header-wide">Criar um cartão</span>
-          <span className="button--header-mobile">Criar cartão</span>
-          <span className="button--header-compact">Criar</span>
-        </Link>
         <details className="site-menu">
           <summary aria-label="Abrir menu principal">
             <Menu aria-hidden="true" size={21} />
@@ -74,7 +68,7 @@ export function SiteHeader() {
             </nav>
             <PwaInstallAction variant="menu" />
             <Link className="button button--primary site-menu__cta" href="/templates">
-              Criar um cartão <ArrowRight aria-hidden="true" size={16} />
+              Escolher um modelo <ArrowRight aria-hidden="true" size={16} />
             </Link>
           </div>
         </details>

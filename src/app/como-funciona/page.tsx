@@ -36,23 +36,27 @@ const steps = [
   {
     number: "04",
     title: "Publique e compartilhe",
-    description: "Escolha um plano e conclua a compra no checkout da AbacatePay. Depois que o pagamento for confirmado, você recebe um link público para compartilhar.",
-    note: "Seu cliente abre o link sem conta; você escolhe quando compartilhar.",
+    description: "Pague R$ 47 uma vez no checkout da AbacatePay. Por 12 meses, publique quantos cards quiser e compartilhe cada link quando preferir.",
+    note: "Não enviamos mensagens automaticamente; você controla o compartilhamento.",
   },
 ];
 
 const faqs = [
   {
     question: "Preciso pagar para criar a mensagem?",
-    answer: "Não. Você pode escolher um modelo, personalizar os campos e conferir a prévia sem custo. O pagamento é necessário para publicar o cartão e liberar o link público.",
+    answer: "Não. Escolha modelos, personalize e confira as prévias sem custo. R$ 47 em pagamento único libera 12 meses para criar, editar, publicar e compartilhar quantos cards quiser.",
   },
   {
     question: "O pagamento é mensal?",
-    answer: "Não. O Plano Anual custa R$ 47,00 em pagamento único e dá acesso por 12 meses.",
+    answer: "Não. São R$ 47,00 em pagamento único. Por 12 meses, você pode criar, editar, publicar e compartilhar quantos cards quiser, sem renovação automática.",
+  },
+  {
+    question: "O que acontece depois dos 12 meses?",
+    answer: "Após 12 meses, os links publicados deixam de abrir se sua conta não tiver outro acesso ativo. Seus rascunhos continuam na conta; para voltar a publicar, você precisa ter acesso premium ativo.",
   },
   {
     question: "Posso pedir reembolso?",
-    answer: "Os planos são de pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
+    answer: "O acesso por 12 meses é liberado com pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
   },
   {
     question: "O Cadernô envia a mensagem pelo WhatsApp?",
@@ -106,21 +110,21 @@ export default function HowItWorksPage() {
         <section aria-labelledby="how-plans-title" className="how-plans">
           <div className="marketing-section-heading">
             <h2 id="how-plans-title">Quanto custa publicar?</h2>
-            <p>Pagamento único, sem assinatura ou renovação automática. Acesso completo por 12 meses.</p>
+          <p>R$ 47,00 em pagamento único. Durante 12 meses, crie, edite, publique e compartilhe quantos cards quiser, sem renovação automática.</p>
           </div>
           <div className="how-plan-grid">
             <article className="how-plan">
               <div>
-                <h3>Plano Anual</h3>
+          <h3>Acesso a todos os cards</h3>
                 <p className="how-plan__price">R$ 47,00</p>
-                <p>Pagamento único · acesso por 12 meses</p>
+          <p>Pagamento único · cards ilimitados por 12 meses</p>
               </div>
               <Link className="button button--primary" href="/templates?plan=annual">
-                Escolher o plano anual <ArrowRight aria-hidden="true" size={16} />
+              Escolher um modelo <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </article>
           </div>
-          <p className="how-plans__note">O checkout abre na AbacatePay: use o mesmo e-mail do seu acesso. A publicação e o link público premium são liberados após a confirmação do pagamento. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
+          <p className="how-plans__note">O checkout abre na AbacatePay. Após a confirmação, seu acesso ilimitado fica ativo por 12 meses; você escolhe quando e para quem compartilhar os links. Alguns modelos também oferecem um link de demonstração temporário por 7 dias.</p>
           <PlanTermsNotice plan="annual" />
         </section>
 

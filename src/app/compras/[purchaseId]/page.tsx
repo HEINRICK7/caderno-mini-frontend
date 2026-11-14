@@ -62,7 +62,7 @@ export default function PurchasePage() {
       setPurchase(status);
       setError("");
       trackPurchaseConversion(status, trackedPurchaseIds.current);
-      if (status.accessStatus === "active" && !publishing.current && !publishedUrl.current) {
+      if (status.accessStatus === "active" && status.draftId && !publishing.current && !publishedUrl.current) {
         publishing.current = true;
         try {
           const publication = await api.publishDraft(status.draftId);
@@ -91,7 +91,7 @@ export default function PurchasePage() {
         setPurchase(status);
         setError("");
         trackPurchaseConversion(status, trackedPurchaseIds.current);
-        if (status.accessStatus === "active" && !publishing.current && !publishedUrl.current) {
+        if (status.accessStatus === "active" && status.draftId && !publishing.current && !publishedUrl.current) {
           publishing.current = true;
           try {
             const publication = await api.publishDraft(status.draftId);
@@ -120,6 +120,7 @@ export default function PurchasePage() {
   }, [purchaseId, router]);
 
   const shareablePublicUrl = purchase?.accessStatus === "active" ? publicUrl : "";
+  const platformLicenseActive = purchase?.accessStatus === "active" && purchase.draftId === null;
   const whatsappUrl = shareablePublicUrl
     ? `https://wa.me/?text=${encodeURIComponent(shareablePublicUrl)}`
     : "";
@@ -128,10 +129,10 @@ export default function PurchasePage() {
       <section className="subpage-content subpage-content--narrow purchase-content">
         <div className="page-heading page-heading--stacked purchase-heading">
           <span className="purchase-eyebrow">
-            {shareablePublicUrl ? <ShieldCheck aria-hidden="true" size={15} /> : <Clock3 aria-hidden="true" size={15} />}
-            {shareablePublicUrl ? "Tudo pronto para compartilhar" : "Acompanhamento seguro"}
+            {shareablePublicUrl || platformLicenseActive ? <ShieldCheck aria-hidden="true" size={15} /> : <Clock3 aria-hidden="true" size={15} />}
+            {shareablePublicUrl ? "Tudo pronto para compartilhar" : platformLicenseActive ? "Acesso à plataforma confirmado" : "Acompanhamento seguro"}
           </span>
-          <h1>{shareablePublicUrl ? "Seu cartão está pronto." : "Acompanhe sua compra."}</h1>
+          <h1>{shareablePublicUrl ? "Seu cartão está pronto." : platformLicenseActive ? "Sua licença está ativa." : "Acompanhe sua compra."}</h1>
           {purchase ? <p aria-live="polite" className={`purchase-status purchase-status--${purchase.status}`}>{statusLabels[purchase.status]}</p> : null}
           {purchase?.status === "pending" ? <span className="purchase-hint">A confirmação pode levar alguns instantes. Atualizamos esta tela automaticamente.</span> : null}
         </div>
@@ -143,6 +144,17 @@ export default function PurchasePage() {
             <a className="share-result__url" href={shareablePublicUrl}>{shareablePublicUrl}</a>
             <a className="button button--primary form-submit" href={whatsappUrl} rel="noreferrer" target="_blank">Compartilhar no WhatsApp</a>
           </div>
+        ) : null}
+        {platformLicenseActive ? (
+          <section aria-label="Acesso à plataforma" className="account-platform-access is-active">
+            <span className="account-platform-access__icon"><ShieldCheck aria-hidden="true" size={19} /></span>
+            <div>
+              <span className="account-platform-access__eyebrow">Acesso premium</span>
+              <h2>Todos os modelos estão liberados</h2>
+              <p>Você pode criar, editar, publicar e compartilhar quantos cards quiser durante 12 meses.</p>
+            </div>
+            <Link className="button button--primary" href="/templates">Criar uma mensagem</Link>
+          </section>
         ) : null}
         {purchase && purchase.accessStatus !== "active" ? (
           <button className="button button--secondary purchase-refresh" disabled={loading} onClick={() => { setLoading(true); void refresh(); }} type="button">{loading ? "Verificando…" : "Verificar situação"}</button>

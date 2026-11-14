@@ -140,8 +140,8 @@ export default function TemplatesPage() {
             <h1>Escolha o próximo recado.</h1>
             <p>
               {checkoutPlan
-                ? "Escolha um modelo para personalizar e continuar com o plano anual (R$ 47,00)."
-                : "Comece com uma ideia pronta, personalize do seu jeito e compartilhe no momento certo."}
+                ? "Escolha um modelo e personalize sua mensagem. R$ 47,00 em pagamento único libera acesso para criar, editar, publicar e compartilhar quantos cards quiser por 12 meses, sem renovação automática."
+                : "Escolha um modelo, personalize e confira a prévia sem pagar. Publicar com link exige acesso premium."}
             </p>
           </div>
           <div aria-label="Modelos para diferentes momentos do negócio" className="templates-heading__proof">

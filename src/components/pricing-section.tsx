@@ -1,16 +1,17 @@
-import { ArrowRight, Check, Star } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import AnimatedContent from "@/components/AnimatedContent";
+import { PlanCheckoutAction } from "@/components/plan-checkout-action";
 import { PlanTermsNotice } from "@/components/plan-terms-notice";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import installmentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/03-parcela-proxima-vencimento.png";
 import birthdayPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/11-aniversario.png";
 
 const benefits = [
-  "16 modelos premium",
-  "Personalização completa",
-  "Compartilhamento",
+  "Escolha entre 16 modelos",
+  "Personalize e revise antes de publicar",
+  "Crie, edite, publique e compartilhe quantos cards quiser",
 ];
 
 function PlanArtwork({
@@ -43,20 +44,6 @@ function PlanArtwork({
   );
 }
 
-function PlanAction({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) {
-  return (
-    <Link className="button pricing-plan__action" href={href}>
-      {label} <ArrowRight aria-hidden="true" size={17} />
-    </Link>
-  );
-}
-
 function PlanBenefits({ access }: { access: string }) {
   return (
     <ul className="pricing-plan__benefits">
@@ -80,8 +67,8 @@ export function PricingSection() {
       <AnimatedContent className="pricing-section__intro-reveal" distance={18} duration={0.65} threshold={0.1}>
         <div className="pricing-section__intro">
           <span className="pricing-section__eyebrow">Plano Cadernô Express</span>
-          <h2 id="pricing-title">Acesso completo para o seu negócio</h2>
-          <p>Os 16 modelos premium, com toda a liberdade para personalizar e compartilhar o ano todo.</p>
+          <h2 id="pricing-title">Todos os cards por 12 meses</h2>
+          <p>Escolha entre 16 modelos, personalize e confira a prévia sem pagar. Uma compra de R$ 47, em pagamento único, ativa o acesso da sua conta: por 12 meses, crie, edite, publique e compartilhe quantos cards quiser.</p>
         </div>
       </AnimatedContent>
 
@@ -103,8 +90,8 @@ export function PricingSection() {
           >
             <div className="pricing-plan__heading">
               <div>
-                <h3>Plano Anual</h3>
-                <p>Para criar e compartilhar o ano todo.</p>
+                <h3>Cards ilimitados</h3>
+                <p>Use todos os modelos para criar, editar, publicar e compartilhar quantos cards quiser por 12 meses.</p>
               </div>
               <span className="pricing-plan__badge">
                 <Star aria-hidden="true" fill="currentColor" size={13} /> 12 meses de acesso
@@ -119,8 +106,10 @@ export function PricingSection() {
               <span aria-hidden="true" className="pricing-plan__period">pagamento único</span>
             </div>
 
-            <PlanBenefits access="Acesso por 12 meses" />
-            <PlanAction href="/templates?plan=annual" label="Escolher plano anual" />
+            <PlanBenefits access="Crie, edite, publique e compartilhe cards ilimitados por 12 meses" />
+            <PlanCheckoutAction />
+            <Link className="pricing-plan__models-link" href="/templates">Ver os modelos antes de comprar</Link>
+            <p className="pricing-plan__note">R$ 47,00 em pagamento único, sem renovação automática. O acesso para criar, editar, publicar e compartilhar cards ilimitados é ativado após a confirmação na AbacatePay. Após 12 meses, os links deixam de abrir se sua conta não tiver outro acesso ativo. Você controla quando e para quem compartilhar; não há envio automático de mensagens.</p>
           </AnimatedContent>
         </article>
       </AnimatedContent>
