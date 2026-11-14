@@ -32,7 +32,7 @@ describe("catálogo de modelos", () => {
     render(<TemplatesPage />);
 
     expect(await screen.findByRole("heading", { name: "Escolha o próximo recado." })).toBeTruthy();
-    expect(screen.getByText("Comece com uma ideia pronta, personalize do seu jeito e compartilhe no momento certo.")).toBeTruthy();
+    expect(screen.getByText("Escolha um modelo, personalize e confira a prévia sem pagar. Publicar com link exige acesso premium.")).toBeTruthy();
     expect(await screen.findByRole("heading", { name: "Boas-vindas" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Agradecimento pela compra" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Parcela próxima do vencimento" })).toBeTruthy();

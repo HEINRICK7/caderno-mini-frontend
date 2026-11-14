@@ -23,6 +23,33 @@
   --page-gutter: 16px;
 }
 
+/* Landing page palette inspired by AbacatePay's public brand guide. */
+.home-page {
+  --ink: #244c4e;
+  --teal: #337d63;
+  --teal-action: #58c411;
+  --paper: #f5f8f2;
+  --surface: #fff;
+  --muted: #4c5267;
+  --mint: #edf6e7;
+  --border: #d7e2d2;
+  --pricing-action: #244c4e;
+  --pricing-action-hover: #183b3d;
+  --pricing-coral-soft: #eff6e8;
+  --pricing-coral-ink: #244c4e;
+  --pricing-annual-accent: #9eea6c;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.home-page .brand-mark__express { background: #58c411; color: #244c4e; }
+.home-page .button--primary { background: #9eea6c; color: #244c4e; }
+.home-page .button--primary:hover { background: #85d64f; }
+.home-page .site-nav > a:not(.button):hover,
+.home-page .pwa-install-action { color: #337d63; }
+.home-page .site-menu > summary { border-color: #d7e2d2; color: #244c4e; }
+.home-page .site-menu__links a:hover { background: #edf6e7; }
+
 * { box-sizing: border-box; }
 html { min-width: 320px; overflow-x: clip; scroll-behavior: smooth; }
 body {
@@ -281,7 +308,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .pricing-plan__action:not(:disabled):active { background: var(--pricing-action-hover); }
 .pricing-plan__action:disabled { background: var(--pricing-action); color: #fff; opacity: 1; cursor: not-allowed; }
 .pricing-plan__action:disabled:hover, .pricing-plan__action:disabled:active { background: linear-gradient(112deg, color-mix(in srgb, var(--pricing-action) 80%, #000), var(--pricing-action)); }
+.pricing-plan__action--paused { border-color: #d5dfdc !important; background: #e8efed !important; color: #667774 !important; box-shadow: none !important; }
 .pricing-plan__action:focus-visible { outline: 2px solid #058e91; outline-offset: 3px; }
+.pricing-plan__models-link { display: block; margin: 10px auto 0; color: var(--teal); font-size: 12px; font-weight: 700; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+.pricing-checkout-spinner { animation: pricing-checkout-spin .9s linear infinite; }
+.pricing-checkout-error { margin: 9px 0 0; color: #b23c32; font-size: 12px; line-height: 1.45; }
+.pricing-checkout-status { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; text-align: center; }
+@keyframes pricing-checkout-spin { to { transform: rotate(360deg); } }
 .pricing-section__note { max-width: 56ch; margin: 12px auto 0; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
 .plan-terms-notice { display: grid; gap: 7px; padding: 14px 16px; border: 1px solid #cbe5dc; border-radius: 14px; background: linear-gradient(135deg, #f0faf7, #fffdfa); color: var(--muted); font-size: 13px; line-height: 1.5; }
 .plan-terms-notice p { margin: 0; }
@@ -541,4 +574,239 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   .meta-consent__actions { grid-template-columns: 1fr; gap: 6px; }
   .meta-consent__button { min-height: 40px; }
   .meta-consent__manage { right: 8px; bottom: 8px; }
+}
+
+/* Stronger, AbacatePay-inspired visual treatment for the public home only. */
+body:has(.home-page) { background: #e2e7f1; }
+.home-page .site-header { border-color: #d7e2d2; }
+.home-page .hero {
+  min-height: 520px;
+  border-color: #337d63;
+  background:
+    radial-gradient(ellipse at 83% 22%, #58c41140 0, transparent 35%),
+    radial-gradient(ellipse at 12% 100%, #337d6340 0, transparent 42%),
+    linear-gradient(125deg, #244c4e 0%, #183b3d 100%);
+  box-shadow: 0 24px 64px #183b3d35;
+}
+.home-page .hero::after { background: linear-gradient(110deg, transparent 38%, #ffffff08 66%, transparent); }
+.home-page .hero__eyebrow { border-color: #ffffff40; background: #ffffff12; color: #c7f5a5; }
+.home-page .hero__eyebrow svg { color: #9eea6c; }
+.home-page .hero h1 { max-width: 630px; color: #fff; }
+.home-page .hero__headline-highlight { color: #9eea6c; text-decoration: none; }
+.home-page .hero__description,
+.home-page .home-pain-card p:not(.home-pain-card__label) { color: #4c5267; }
+.home-page .hero__description { color: #e2e7f1; }
+.home-page .hero__button { border: 1px solid #81cb4f; background: #9eea6c; color: #244c4e; box-shadow: 0 9px 20px #58c41135; }
+.home-page .hero__button:hover { border-color: #58c411; background: #8cdd5e; }
+.home-page .hero__secondary { border-color: #ffffff66; background: #ffffff08; color: #fff; }
+.home-page .hero__secondary:hover { border-color: #9eea6c; background: #ffffff14; }
+.home-page .hero__moments span { border-color: #ffffff38; background: #ffffff12; color: #e2e7f1; }
+.home-page .hero__moments span:first-child { color: #c7f5a5; }
+.home-page .hero__moments span:first-child,
+.home-page .home-section-eyebrow,
+.home-page .pricing-section__eyebrow { color: #337d63; }
+.home-page .hero__moments span:first-child { color: #c7f5a5; }
+.home-page .hero-art__halo { background: radial-gradient(circle at 48% 42%, #337d6380 0, #244c4e99 49%, #183b3d00 70%); }
+.home-page .hero-art__note-icon { background: #edf6e7; color: #337d63; }
+.home-page .home-pain-card h3,
+.home-page .step__copy h2 { color: #244c4e; }
+.home-page .home-categories button.is-active { border-color: #337d63; background: #244c4e; color: #fff; }
+.home-page .home-categories button:hover { border-color: #58c411; }
+.home-page .carousel-pagination__dot.is-active { background: #58c411; }
+.home-page .sample-card:focus-visible { outline-color: #337d63; }
+.home-page .steps { border-color: #d7e2d2; background: linear-gradient(135deg, #fff, #f2f7ed); }
+.home-page .step__number--1,
+.home-page .step__number--2,
+.home-page .step__number--3 { background: #244c4e; }
+.home-page .step__icon { color: #337d63; background: #edf6e7; }
+.home-page .step__icon--mark { background: transparent; }
+.home-page .step__mark-art::before { background: #337d63; }
+.home-page .step__mark-art::after { background: #9eea6c; }
+.home-page .pricing-section { border: 1px solid #d7e2d2; border-radius: 28px; background: #eaf1e5; }
+.home-page .pricing-plan { border-color: #d7e2d2; }
+.home-page .pricing-plan__art,
+.home-page .pricing-plan__art--lifetime { background: #edf6e7; }
+.home-page .home-carousel,
+.home-page .home-pain-points,
+.home-page .home-steps-section { width: min(100%, 1220px); margin-inline: auto; }
+.home-page .home-carousel { margin-top: 64px; }
+.home-page .home-pain-points { margin-top: 76px; }
+.home-page .home-steps-section { margin-top: 48px; }
+.home-page .home-carousel__intro h2,
+.home-page .home-pain-points__intro h2 { color: #244c4e; letter-spacing: -.045em; }
+.home-page .home-carousel__intro > p:last-child,
+.home-page .home-pain-points__intro > p:last-child { color: #4c5267; }
+.home-page .home-pain-card__surface { border: 1px solid #d7e2d2; border-radius: 22px; background: #fff; box-shadow: 0 12px 30px #244c4e0d; }
+.home-page .home-pain-card__surface:hover { border-color: #9eea6c; box-shadow: 0 18px 38px #244c4e18; }
+.home-page .home-pain-card__icon { border-color: #d7e2d2; background: #edf6e7; color: #337d63; }
+.home-page .steps { border-color: #d7e2d2; border-radius: 22px; background: #fff; box-shadow: 0 14px 34px #244c4e0c; }
+.home-page .pricing-section { margin-top: 72px; padding-block: 48px; background: #e2e7f1; }
+.home-page .pricing-section__intro h2 { color: #244c4e; }
+.home-page .pricing-plan { border-radius: 24px; box-shadow: 0 18px 42px #244c4e14; }
+.home-page .pricing-plan__action { background: #9eea6c; color: #244c4e; }
+.home-page .pricing-plan__action:hover { background: #85d64f; }
+.home-page .pricing-plan__action { background: #9eea6c; color: #244c4e; box-shadow: 0 8px 18px #58c41135; }
+.home-page .pricing-plan__action:not(:disabled):hover,
+.home-page .pricing-plan__action:not(:disabled):active { background: #8cdd5e; }
+.home-page .pricing-plan__action:focus-visible { outline-color: #244c4e; }
+.home-page .pricing-plan__note { color: #4c5267; }
+
+/* Hallmark · pre-emit critique: Philosophy 5 · Hierarchy 5 · Execution 4 · Specificity 5 · Restraint 4 · Variety 4 */
+/* Homepage visual system: AbacatePay palette, applied only to the Cadernô public home. */
+.home-page {
+  --home-lime: #9eea6c;
+  --home-green: #58c411;
+  --home-deep: #244c4e;
+  --home-text: #4c5267;
+  --home-canvas: #e2e7f1;
+  --home-white: #fff;
+  --home-rule: #cbd3e0;
+  --home-pale-green: #eef4e8;
+  --home-soft-blue: #f3f5fa;
+  color: var(--home-deep);
+  background: var(--home-canvas);
+}
+
+.home-page .site-header {
+  min-height: 76px;
+  margin: 0 0 14px;
+  padding-inline: clamp(8px, 2.4vw, 28px);
+  border-bottom: 1px solid var(--home-rule);
+  background: var(--home-canvas);
+}
+.home-page .site-nav > a:not(.button) { color: var(--home-deep); font-weight: 650; }
+.home-page .site-nav > a:not(.button):hover { color: var(--home-green); }
+.home-page .site-nav > a[aria-current="page"] { color: var(--home-deep); text-decoration: underline; text-decoration-color: var(--home-green); text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.home-page .site-header .button--header { border: 1px solid var(--home-deep); background: transparent; color: var(--home-deep); box-shadow: none; }
+.home-page .site-header .button--header:hover { border-color: var(--home-green); background: var(--home-lime); color: var(--home-deep); }
+.home-page .site-menu > summary { border-color: var(--home-rule); background: var(--home-white); color: var(--home-deep); }
+.home-page .site-menu__panel { border-color: var(--home-rule); background: var(--home-white); }
+.home-page .site-menu__links a { color: var(--home-deep); }
+.home-page .site-menu__links a:hover { background: var(--home-pale-green); }
+.home-page .site-menu__cta { border: 1px solid var(--home-green); background: var(--home-lime); color: var(--home-deep); }
+.home-page .pwa-install-action { color: var(--home-deep); }
+
+.home-page .hero {
+  min-height: 0;
+  padding: clamp(30px, 5vw, 64px) clamp(22px, 5vw, 68px);
+  border: 1px solid var(--home-deep);
+  border-radius: 30px;
+  background: linear-gradient(125deg, var(--home-deep) 0%, #1d4143 100%);
+  box-shadow: 0 18px 48px #244c4e24;
+}
+.home-page .hero__eyebrow { border-color: #ffffff42; background: #ffffff12; color: var(--home-lime); }
+.home-page .hero__eyebrow svg { color: var(--home-lime); }
+.home-page .hero h1 { color: var(--home-white); }
+.home-page .hero__headline-highlight { color: var(--home-lime); }
+.home-page .hero__description { color: var(--home-canvas); }
+.home-page .hero__button { border-color: var(--home-green); background: var(--home-lime); color: var(--home-deep); box-shadow: 0 8px 20px #58c4112e; }
+.home-page .hero__button:hover { border-color: var(--home-green); background: #b2f18a; }
+.home-page .hero__secondary { border-color: #ffffff70; background: transparent; color: var(--home-white); }
+.home-page .hero__secondary:hover { border-color: var(--home-lime); background: #ffffff12; }
+.home-page .hero__moments span { border-color: #ffffff38; background: #ffffff10; color: var(--home-canvas); }
+.home-page .hero__moments span:first-child { color: var(--home-lime); }
+.home-page .hero-art__halo { background: radial-gradient(circle at 50% 45%, #58c41136 0, #244c4e00 70%); }
+.home-page .hero-art__note { border-color: #ffffff80; background: var(--home-white); color: var(--home-text); }
+.home-page .hero-art__note-icon { background: var(--home-lime); color: var(--home-deep); }
+.home-page .hero-art__mini { border-color: #ffffffad; background: #ffffffdf; }
+
+.home-page .home-carousel,
+.home-page .home-pain-points,
+.home-page .home-steps-section { width: min(100%, 1220px); margin-inline: auto; }
+.home-page .home-carousel { margin-top: clamp(42px, 6vw, 76px); padding: clamp(20px, 3.8vw, 42px); border: 1px solid var(--home-rule); border-radius: 28px; background: var(--home-white); box-shadow: 0 14px 36px #244c4e0d; }
+.home-page .home-carousel__intro h2,
+.home-page .home-pain-points__intro h2 { color: var(--home-deep); }
+.home-page .home-section-eyebrow,
+.home-page .pricing-section__eyebrow { color: var(--home-deep); }
+.home-page .home-carousel__intro > p:last-child,
+.home-page .home-pain-points__intro > p:last-child { color: var(--home-text); }
+.home-page .cards-showcase { margin-top: 14px; border: 1px solid var(--home-rule); border-radius: 22px; background: var(--home-canvas); }
+.home-page .sample-card { border-color: #d2d9e5; box-shadow: 0 10px 24px #244c4e20; }
+.home-page .sample-card:hover,
+.home-page .sample-card.is-active { box-shadow: 0 16px 30px #244c4e2b; }
+.home-page .sample-card:focus-visible { outline-color: var(--home-deep); }
+.home-page .home-categories button { border-color: var(--home-rule); background: var(--home-white); color: var(--home-text); }
+.home-page .home-categories button.is-active { border-color: var(--home-deep); background: var(--home-deep); color: var(--home-white); }
+.home-page .home-categories button:hover { border-color: var(--home-green); }
+.home-page .carousel-arrow { border-color: var(--home-rule); color: var(--home-deep); }
+.home-page .carousel-arrow:focus-visible,
+.home-page .carousel-pagination__dot:focus-visible { outline-color: var(--home-deep); }
+.home-page .carousel-pagination__dot.is-active { background: var(--home-green); }
+
+.home-page .home-pain-points { margin-top: clamp(52px, 7vw, 84px); }
+.home-page .home-pain-card h3 { color: var(--home-deep); }
+.home-page .home-pain-card p:not(.home-pain-card__label) { color: var(--home-text); }
+.home-page .home-pain-card__surface { border-color: var(--home-rule); border-radius: 20px; background: var(--home-white); box-shadow: 0 10px 26px #244c4e0b; }
+.home-page .home-pain-card__surface:hover { border-color: var(--home-green); box-shadow: 0 15px 32px #244c4e18; }
+.home-page .home-pain-card__icon { border-color: #b4dc9a; background: var(--home-pale-green); color: var(--home-deep); }
+.home-page .home-pain-card__label { color: var(--home-deep) !important; }
+.home-page .home-pain-card__link { color: var(--home-deep); }
+.home-page .home-pain-card__link:hover { color: var(--home-green); }
+
+.home-page .home-steps-section { margin-top: clamp(42px, 6vw, 68px); }
+/* Keep homepage content readable if scroll animations have not initialized yet. */
+.home-page [style*="visibility:hidden"] { visibility: visible !important; }
+.home-page .steps { border-color: var(--home-deep); border-radius: 24px; background: var(--home-deep); box-shadow: 0 14px 34px #244c4e1a; }
+.home-page .step { border-color: #ffffff2e; }
+.home-page .step__copy h2 { color: var(--home-white); }
+.home-page .step__copy p { color: var(--home-canvas); }
+.home-page .step__number--1,
+.home-page .step__number--2,
+.home-page .step__number--3 { background: var(--home-lime); color: var(--home-deep); }
+.home-page .step__icon,
+.home-page .step__icon--pencil { background: #ffffff16; color: var(--home-lime); }
+.home-page .step__icon--mark { background: transparent; }
+.home-page .step__mark-art::before { background: var(--home-lime); }
+.home-page .step__mark-art::after { background: var(--home-green); }
+
+.home-page .pricing-section { margin-top: clamp(48px, 7vw, 82px); padding: clamp(26px, 5vw, 54px); border: 1px solid var(--home-rule); border-radius: 30px; background: var(--home-soft-blue); }
+.home-page .pricing-section__intro h2 { color: var(--home-deep); }
+.home-page .pricing-section__intro p { color: var(--home-text); }
+.home-page .pricing-section__eyebrow { background: var(--home-lime); }
+.home-page .pricing-plan { border-color: var(--home-rule); border-top-color: var(--home-green); border-radius: 24px; box-shadow: 0 18px 40px #244c4e15; }
+.home-page .pricing-plan__art { background: var(--home-canvas); }
+.home-page .pricing-plan__badge { background: var(--home-pale-green); color: var(--home-deep); }
+.home-page .pricing-plan__check { background: var(--home-pale-green); color: var(--home-deep); }
+.home-page .pricing-plan__action { min-height: 56px; padding-block: 10px; border: 1px solid var(--home-green); background: var(--home-lime); color: var(--home-deep); white-space: normal; text-align: center; box-shadow: 0 8px 18px #58c4112c; }
+.home-page .pricing-plan__action:not(:disabled):hover,
+.home-page .pricing-plan__action:not(:disabled):active { background: #b2f18a; }
+.home-page .pricing-plan__action:focus-visible { outline-color: var(--home-deep); }
+.home-page .pricing-plan__note { color: var(--home-text); }
+.home-page .plan-terms-notice { border-color: var(--home-rule); background: var(--home-white); color: var(--home-text); }
+.home-page .plan-terms-notice h3 { color: var(--home-deep); }
+.home-page .plan-terms-notice__eyebrow { color: var(--home-deep); }
+
+.home-page .home-footer { margin-top: clamp(42px, 6vw, 72px); border-top: 1px solid var(--home-deep); background: var(--home-deep); color: var(--home-white); }
+.home-page .home-footer__inner { width: min(100%, 1220px); display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-inline: auto; padding: 28px 16px; }
+.home-page .home-footer__brand { min-width: 0; }
+.home-page .home-footer__name { color: var(--home-lime); font: 800 17px/1.2 var(--font-heading); letter-spacing: -.035em; }
+.home-page .home-footer__brand p { margin: 6px 0 0; color: var(--home-canvas); font-size: 12px; }
+.home-page .home-footer__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px 22px; }
+.home-page .home-footer__links a { color: var(--home-white); font-size: 12px; font-weight: 650; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; }
+.home-page .home-footer__links a:hover { color: var(--home-lime); text-decoration-color: currentColor; }
+.home-page .home-footer__links a:focus-visible { outline-color: var(--home-lime); }
+
+@media (max-width: 639px) {
+  .home-page .site-header { min-height: 66px; padding-inline: 4px; }
+  .home-page .hero { padding: 28px 18px 18px; border-radius: 24px; }
+  .home-page .hero__actions { gap: 8px; }
+  .home-page .hero__button,
+  .home-page .hero__secondary { width: 100%; }
+  .home-page .hero-art { min-height: 340px; }
+  .home-page .hero-art__note { right: 2px; bottom: 0; max-width: 190px; }
+  .home-page .home-carousel { padding: 18px 14px 14px; border-radius: 22px; }
+  .home-page .home-pain-points { margin-top: 46px; }
+  .home-page .home-steps-section { margin-top: 38px; }
+  .home-page .pricing-section { padding: 22px 14px 28px; border-radius: 24px; }
+  .home-page .home-footer__inner { align-items: flex-start; flex-direction: column; padding: 24px 8px; }
+  .home-page .home-footer__links { justify-content: flex-start; gap: 12px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .hero__eyebrow,
+  .home-page .hero h1,
+  .home-page .hero__actions,
+  .home-page .hero__moments,
+  .home-page .hero-art__main,
+  .home-page .hero-art__mini { animation: none; }
 }

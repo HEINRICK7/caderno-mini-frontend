@@ -235,8 +235,8 @@ export function HomeTemplateCarousel() {
       <AnimatedContent className="home-carousel__intro-reveal" distance={18} duration={0.65} threshold={0.1}>
         <div className="home-carousel__intro">
           <p className="home-section-eyebrow">Modelos para situações reais</p>
-          <h2>O que você precisa dizer hoje?</h2>
-          <p>Encontre um ponto de partida para agradecer, cobrar com cuidado ou divulgar uma novidade.</p>
+          <h2>Escolha um cartão para editar</h2>
+          <p>Escolha entre 16 modelos, personalize e confira a prévia grátis. Alguns modelos também têm um link de demonstração por 7 dias. Para publicar e compartilhar seus cards, o acesso custa R$ 47 por 12 meses.</p>
         </div>
       </AnimatedContent>
 

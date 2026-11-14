@@ -244,17 +244,17 @@ export default function TemplatePage() {
               <h1>Personalize sua mensagem</h1>
               <p>
                 {checkoutPlan
-                  ? "Edite os campos e continue para o checkout do plano anual (R$ 47,00)."
+                  ? "Edite os campos e veja a prévia. R$ 47,00 em pagamento único libera acesso para criar, editar, publicar e compartilhar quantos cards quiser por 12 meses."
                   : workspace.access?.active
-                    ? "Sua conta está conectada e tem acesso premium ativo. Personalize e crie sua mensagem."
-                    : "Exemplo preenchido com a mensagem da referência. Edite os campos e veja a prévia em tempo real; para publicar, entre e tenha uma licença ativa."}
+                    ? "Seu acesso de 12 meses está ativo. Personalize, crie e publique quantos cards quiser."
+                    : "Prévia grátis: personalize antes de decidir. Por R$ 47 em pagamento único, ative 12 meses para criar, editar, publicar e compartilhar quantos cards quiser."}
               </p>
             </div>
             {billingPrefilled ? <p className="merchant-billing-prefill-notice" role="status">{billingSource?.sourceType === "sale" ? "Preenchida com os dados da venda. Confira os detalhes antes de salvar e compartilhar." : billingSource?.sourceType.includes("payment") ? "Preenchida com os dados do pagamento registrado." : "Preenchida com os dados atuais da caderneta. Confira o valor e o vencimento antes de salvar e compartilhar."}</p> : null}
             {billingSource && ["sale_payment", "recurring_payment"].includes(billingSource.sourceType) && template.id === "pagamento-confirmado" ? <p className="merchant-billing-prefill-notice" role="note">O valor e a data vêm do pagamento registrado. Só marque como confirmado depois de conferir o recebimento no banco; o Cadernô não consulta sua conta nem envia a mensagem automaticamente.</p> : null}
             <div className="template-editor-layout">
               <form className="template-form template-editor-form" onSubmit={submit}>
-                <p className="template-editor-guidance">Campos com * são necessários para salvar. Logo e redes sociais são opcionais. A mensagem fica salva como rascunho; publicar e compartilhar o link exige acesso Premium ativo.</p>
+                <p className="template-editor-guidance">Campos com * são necessários para salvar. Logo e redes sociais são opcionais. O rascunho é grátis; R$ 47 em pagamento único ativa 12 meses para criar, editar, publicar e compartilhar quantos cards quiser.</p>
                 <TemplateFields
                   fields={templateEditorFields(template, values)}
                   values={values}

@@ -228,10 +228,14 @@ export const checkoutResponseSchema = z.object({
   }).strict(),
 }).strict();
 
+export const platformCheckoutAvailabilityResponseSchema = z.object({
+  data: z.object({ enabled: z.boolean() }).strict(),
+}).strict();
+
 export const purchaseStatusResponseSchema = z.object({
   data: z.object({
     purchaseId: z.string(),
-    draftId: z.string(),
+    draftId: z.string().nullable(),
     status: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
     accessStatus: z.enum(["active", "revoked", "none"]),
     amountMinor: z.number().int().positive().nullable().optional().default(null),
@@ -424,8 +428,8 @@ export const adminUserResponseSchema = z.object({
     }),
     purchases: z.array(z.object({
       purchaseId: z.string().uuid(),
-      draftId: z.string().uuid(),
-      templateId: z.string(),
+      draftId: z.string().uuid().nullable(),
+      templateId: z.string().nullable(),
       templateName: z.string(),
       purchaseStatus: z.enum(["pending", "paid", "refunded", "chargedback", "canceled", "refused"]),
       accessStatus: z.enum(["active", "revoked"]).nullable(),

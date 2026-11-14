@@ -16,8 +16,12 @@ export const metadata: Metadata = {
 
 const faqs = [
   {
+    question: "O que acontece depois dos 12 meses?",
+    answer: "Após 12 meses, os links publicados deixam de abrir se sua conta não tiver outro acesso ativo. Seus rascunhos continuam na conta; para voltar a publicar, você precisa ter acesso premium ativo.",
+  },
+  {
     question: "Posso pedir reembolso?",
-    answer: "Os planos são de pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
+    answer: "O acesso por 12 meses é liberado com pagamento único, sem renovação automática. Para solicitar um reembolso, entre em contato com o suporte do Cadernô; o acesso é encerrado depois que o estorno é confirmado.",
   },
   {
     question: "É para quem vende produtos ou presta serviços?",
@@ -94,12 +98,12 @@ export default function ForYourBusinessPage() {
           <div className="how-plan-grid">
             <article className="how-plan">
               <div>
-                <h3>Plano Anual</h3>
+          <h3>Acesso ilimitado a todos os cards</h3>
                 <p className="how-plan__price">R$ 47,00</p>
-                <p>Pagamento único · acesso por 12 meses</p>
+          <p>Pagamento único · cards ilimitados por 12 meses</p>
               </div>
               <Link className="button button--primary" href="/templates?plan=annual">
-                Escolher o plano anual <ArrowRight aria-hidden="true" size={16} />
+              Escolher um modelo <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </article>
           </div>

@@ -6,7 +6,6 @@ import { ArrowRight, Heart, MessageCircleHeart } from "lucide-react";
 import thanksPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/02-agradecimento-compra.png";
 import paymentPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/07-pagamento-confirmado.png";
 import offerPreview from "../../CADERNO_EXPRESS_BRANDKIT/assets/Caderno_Templates_Premium_16/13-oferta-especial.png";
-import BlurText from "@/components/BlurText";
 import TiltedCard from "@/components/TiltedCard";
 
 export function HomeHero() {
@@ -15,26 +14,15 @@ export function HomeHero() {
       <div className="hero__copy">
         <p className="hero__eyebrow">
           <MessageCircleHeart aria-hidden="true" size={15} strokeWidth={2} />
-          Cartões prontos para o dia a dia do seu negócio
+          16 modelos para pequenos negócios
         </p>
         <h1 id="home-title">
-          Continue perto dos seus clientes.
-          <span className="hero__headline-highlight">Mesmo depois da venda.</span>
+          Cartões para agradecer, lembrar e divulgar.
         </h1>
-        <BlurText
-          animateBy="words"
-          blur={5}
-          className="hero__description"
-          delay={16}
-          direction="top"
-          distance={14}
-          stepDuration={0.42}
-          text="Crie cartões personalizados para agradecer, lembrar um pagamento e divulgar novidades — prontos para enviar pelo WhatsApp."
-          trigger="load"
-        />
+        <p className="hero__description">Escolha um modelo, personalize e compartilhe pelo WhatsApp. Por R$ 47, em pagamento único, crie, edite, publique e compartilhe quantos cards quiser por 12 meses.</p>
         <div className="hero__actions">
           <Link className="button button--primary hero__button" href="/templates">
-            Escolher um cartão <ArrowRight aria-hidden="true" size={17} />
+            Escolher um modelo <ArrowRight aria-hidden="true" size={17} />
           </Link>
           <Link className="button hero__secondary" href="#steps">
             Ver como funciona
@@ -42,8 +30,8 @@ export function HomeHero() {
         </div>
         <div aria-label="Situações atendidas" className="hero__moments">
           <span><Heart aria-hidden="true" size={14} /> Agradecer</span>
-          <span>Lembrar</span>
-          <span>Divulgar</span>
+          <span>Lembrar pagamento</span>
+          <span>Divulgar novidade</span>
         </div>
       </div>
 
@@ -80,7 +68,7 @@ export function HomeHero() {
         </div>
         <div className="hero-art__note">
           <span className="hero-art__note-icon"><Heart aria-hidden="true" size={15} fill="currentColor" /></span>
-          <span>Uma mensagem boa fica na memória.</span>
+          <span>Personalize antes de publicar.</span>
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   checkoutResponseSchema,
+  platformCheckoutAvailabilityResponseSchema,
   authMessageResponseSchema,
   accountAccessResponseSchema,
   platformAccessResponseSchema,
@@ -123,6 +124,13 @@ async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit 
 }
 
 export const api = {
+  async getPlatformCheckoutAvailability(): Promise<{ enabled: boolean }> {
+    return (await request(
+      "/api/v1/checkout/availability",
+      platformCheckoutAvailabilityResponseSchema,
+    )).data;
+  },
+
   async uploadImage(dataUrl: string): Promise<{ id: string; contentUrl: string }> {
     return (await request("/api/v1/assets", imageUploadResponseSchema, {
       method: "POST",
@@ -538,6 +546,14 @@ export const api = {
     const result = await request("/api/v1/checkout", checkoutResponseSchema, {
       method: "POST",
       body: JSON.stringify({ draftId, plan }),
+    });
+    return result.data;
+  },
+
+  async createPlatformCheckout(plan: "annual" | "lifetime"): Promise<{ purchaseId: string; checkoutUrl: string }> {
+    const result = await request("/api/v1/checkout", checkoutResponseSchema, {
+      method: "POST",
+      body: JSON.stringify({ plan }),
     });
     return result.data;
   },
