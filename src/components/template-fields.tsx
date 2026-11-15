@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LockKeyhole, QrCode } from "lucide-react";
 import { api } from "../lib/api-client";
 import { MAX_TEMPLATE_IMAGE_BYTES, type TemplateField } from "@/lib/api-contracts";
+import { MAX_SOURCE_IMAGE_BYTES, optimizeImageForUpload } from "@/lib/image-compression";
 
 type FieldValue = string | number | boolean;
 
@@ -52,7 +53,8 @@ export function TemplateFields({
     const sectionHeading = includeSectionHeading && field.section && field.section !== previousField?.section ? field.section : null;
     const label = field.id === "pixCopyPaste" ? "Código Pix copia e cola" : field.label ?? field.id;
     const value = values[field.id] ?? (field.type === "boolean" ? false : "");
-    const describedBy = field.helpText ? `${field.id}-help` : undefined;
+    const describedBy = field.type === "image" || field.helpText ? `${field.id}-help` : undefined;
+    const imageMaxBytes = field.type === "image" ? field.maxBytes ?? MAX_TEMPLATE_IMAGE_BYTES : null;
     const shared = {
       id: field.id,
       required: field.type === "boolean" || field.type === "image" ? undefined : field.required,
@@ -130,7 +132,7 @@ export function TemplateFields({
         input = <input {...shared} type="date" value={String(value)} onChange={(event) => onChange(field.id, event.target.value)} />;
         break;
       case "image": {
-        const maxBytes = field.maxBytes ?? MAX_TEMPLATE_IMAGE_BYTES;
+        const maxBytes = imageMaxBytes ?? MAX_TEMPLATE_IMAGE_BYTES;
         const imageValue = typeof value === "string" && isImageAssetId(value) ? value : "";
         const localPreview = imagePreviews?.[field.id];
         const previewSrc = localPreview || (imageValue ? `/api/v1/assets/${imageValue}/content` : "");
@@ -145,35 +147,29 @@ export function TemplateFields({
                 const file = event.currentTarget.files?.[0];
                 event.currentTarget.value = "";
                 if (!file) return;
-                if (file.size > maxBytes) {
+                if (file.size > MAX_SOURCE_IMAGE_BYTES) {
                   onImagePreviewChange?.(field.id, null);
-                  setUploadErrors((current) => ({ ...current, [field.id]: "A imagem deve ter até " + formatFileSize(maxBytes) + "." }));
+                  setUploadErrors((current) => ({ ...current, [field.id]: "A imagem original deve ter até 10 MB." }));
                   return;
                 }
-                onChange(field.id, "");
-                onImagePreviewChange?.(field.id, null);
                 setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
                 setFieldUploading(field.id, true);
-                const reader = new FileReader();
-                reader.onload = async () => {
-                  const imageDataUrl = typeof reader.result === "string" ? normalizeImageDataUri(reader.result) : null;
-                  if (!imageDataUrl) {
-                    onImagePreviewChange?.(field.id, null);
-                    setUploadErrors((current) => ({ ...current, [field.id]: "Escolha uma imagem PNG, JPEG ou WebP válida." }));
-                    setFieldUploading(field.id, false);
-                    return;
-                  }
-                  onImagePreviewChange?.(field.id, imageDataUrl);
-                  if (localOnlyImages) {
-                    setFieldUploading(field.id, false);
-                    return;
-                  }
+                void (async () => {
                   try {
+                    const optimizedFile = await optimizeImageForUpload(file, maxBytes);
+                    const imageDataUrl = normalizeImageDataUri(await readFileAsDataUrl(optimizedFile));
+                    if (!imageDataUrl) throw new Error("Escolha uma imagem PNG, JPEG ou WebP válida.");
+
+                    onChange(field.id, "");
+                    onImagePreviewChange?.(field.id, imageDataUrl);
+                    if (localOnlyImages) return;
+
                     const uploaded = await api.uploadImage(imageDataUrl);
                     setUploadErrors((current) => { const next = { ...current }; delete next[field.id]; return next; });
                     onImagePreviewChange?.(field.id, null);
                     onChange(field.id, uploaded.id);
                   } catch (error) {
+                    onImagePreviewChange?.(field.id, null);
                     setUploadErrors((current) => ({
                       ...current,
                       [field.id]: error instanceof Error ? error.message : "Não foi possível enviar essa imagem.",
@@ -181,13 +177,7 @@ export function TemplateFields({
                   } finally {
                     setFieldUploading(field.id, false);
                   }
-                };
-                reader.onerror = () => {
-                  onImagePreviewChange?.(field.id, null);
-                  setUploadErrors((current) => ({ ...current, [field.id]: "Não foi possível ler essa imagem." }));
-                  setFieldUploading(field.id, false);
-                };
-                reader.readAsDataURL(file);
+                })();
               }}
             />
             {previewSrc ? (
@@ -200,7 +190,7 @@ export function TemplateFields({
                 }}>Remover imagem</button>
               </div>
             ) : null}
-            {uploading[field.id] ? <p className="form-field__help" role="status">Enviando imagem…</p> : null}
+            {uploading[field.id] ? <p className="form-field__help" role="status">Otimizando e enviando imagem…</p> : null}
             {uploadErrors[field.id] ? <p className="form-field__error" role="alert">{uploadErrors[field.id]}</p> : null}
           </div>
         );
@@ -222,7 +212,9 @@ export function TemplateFields({
             {field.type === "number" && field.format === "currency" ? <div className="form-field__currency"><span aria-hidden="true">R$</span>{input}</div> : input}
           </>
         )}
-        {field.helpText && <p className="form-field__help" id={describedBy}>{field.helpText}</p>}
+        {imageMaxBytes !== null ? (
+          <p className="form-field__help" id={describedBy}>Imagem original até {formatFileSize(MAX_SOURCE_IMAGE_BYTES)}; otimizamos automaticamente para o limite de {formatFileSize(imageMaxBytes)} deste modelo.</p>
+        ) : field.helpText ? <p className="form-field__help" id={describedBy}>{field.helpText}</p> : null}
         {field.id === "pixCopyPaste" && pixQrGeneratorHref ? (
           <Link className="pix-qr-generator-link" href={pixQrGeneratorHref}><QrCode aria-hidden="true" size={16} /> Gerar QR Code Pix para este modelo</Link>
         ) : null}
@@ -265,6 +257,15 @@ function normalizeImageDataUri(value: string): string | null {
   else if (bytes.charCodeAt(0) === 0xff && bytes.charCodeAt(1) === 0xd8 && bytes.charCodeAt(2) === 0xff) mime = "image/jpeg";
   else if (bytes.slice(0, 4) === "RIFF" && bytes.slice(8, 12) === "WEBP") mime = "image/webp";
   return mime ? `data:${mime};base64,${match[1]}` : null;
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Não foi possível ler essa imagem."));
+    reader.onerror = () => reject(new Error("Não foi possível ler essa imagem."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function isImageAssetId(value: string): boolean {

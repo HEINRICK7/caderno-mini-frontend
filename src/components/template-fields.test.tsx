@@ -33,14 +33,14 @@ describe("campo de logo da empresa", () => {
     expect(onChange).toHaveBeenLastCalledWith("businessLogo", "");
   });
 
-  it("não aceita imagem acima do limite enviado pelo backend", () => {
+  it("não aceita imagem acima do limite enviado pelo backend quando ela não pode ser otimizada", async () => {
     const onChange = vi.fn();
     render(<TemplateFields fields={[{ id: "businessLogo", type: "image", label: "Logo da empresa", maxBytes: 1024 }]} values={{}} onChange={onChange} />);
     fireEvent.change(screen.getByLabelText("Logo da empresa"), {
       target: { files: [new File([new Uint8Array(1025)], "logo.png", { type: "image/png" })] },
     });
 
-    expect(screen.getByRole("alert").textContent).toContain("até 1 KB");
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("até 1 KB"));
     expect(onChange).not.toHaveBeenCalled();
   });
 
