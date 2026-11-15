@@ -94,7 +94,7 @@ export function MessageTemplateCard({
       return [[field.label ?? field.id, displayValue(value)] as const];
     });
     return (
-      <article className="message-template message-template--legacy" style={style}>
+      <article className="message-template message-template--legacy" data-card-preview-export="true" style={style}>
         <div className="message-template__surface">
           <h1>{title ?? "Cadernô Express"}</h1>
           {description ? <p>{description}</p> : null}
@@ -110,7 +110,7 @@ export function MessageTemplateCard({
     (!card.financial.balanceFieldId || data[card.financial.balanceFieldId] === 0)
   );
   if (mode === "published" && !financialStateIsValid) {
-    return <article aria-label="Mensagem indisponível" className="message-template message-template--unavailable" style={style}>A mensagem não pode ser exibida sem confirmação financeira.</article>;
+    return <article aria-label="Mensagem indisponível" className="message-template message-template--unavailable" data-card-preview-export="true" style={style}>A mensagem não pode ser exibida sem confirmação financeira.</article>;
   }
 
   const heading = interpolate(card.heading, data, definition, mode === "preview", card.variables);
@@ -329,7 +329,7 @@ export function MessageTemplateCard({
   const splitHeaderLayout = layout === "product" || layout === "offer" || layout === "collection" || layout === "settled" || layout === "approval" || card.illustration === "reactivation-heart";
 
   return (
-    <article className={articleClassName} style={style}>
+    <article className={articleClassName} data-card-preview-export="true" style={style}>
       <div aria-hidden="true" className="message-template__art">
         <StatusSticker className="message-template__illustration" illustration={card.illustration} label="" />
       </div>
