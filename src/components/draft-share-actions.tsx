@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Download, ExternalLink, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { toBlob } from "html-to-image";
 import { WhatsAppPhonePreview } from "@/components/whatsapp-phone-preview";
 import { SharePublicLinkQr } from "@/components/share-public-link-qr";
 import {
@@ -34,7 +35,6 @@ export function DraftShareActions({
   const [feedback, setFeedback] = useState("");
   const [preparingImage, setPreparingImage] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(DEFAULT_BILLING_MESSAGE_ID);
-  const imageUrl = `/api/v1/drafts/${encodeURIComponent(draftId)}/export.png`;
   const billingMessage = renderBillingWhatsAppMessage(selectedMessageId, shareVariables);
   const whatsAppPublicUrl = billingMessages ? pixChargeShareUrl(publicUrl) : publicUrl;
   const shareUrl = billingMessages
@@ -42,14 +42,26 @@ export function DraftShareActions({
     : whatsappShareUrl(publicUrl, businessName);
 
   async function prepareImage() {
-    const response = await fetch(imageUrl, { credentials: "same-origin", cache: "no-store" });
-    const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
-    if (!response.ok || contentType !== "image/png") {
+    await document.fonts.ready;
+    const previewCard = document.querySelector<HTMLElement>(".template-editor-preview [data-card-preview-export='true']");
+    if (!previewCard) throw new Error("Não foi possível localizar a prévia da mensagem.");
+
+    const images = [...previewCard.querySelectorAll("img")];
+    await Promise.all(images.map(async (image) => {
+      if (image.complete && image.naturalWidth > 0) return;
+      await image.decode();
+    }));
+
+    const rect = previewCard.getBoundingClientRect();
+    const blob = await toBlob(previewCard, {
+      cacheBust: true,
+      height: Math.ceil(Math.max(rect.height, previewCard.scrollHeight)),
+      pixelRatio: 3,
+      width: Math.ceil(rect.width),
+    });
+    if (!blob || blob.type !== "image/png" || blob.size === 0) {
       throw new Error("Não foi possível preparar a imagem. Tente novamente em instantes.");
     }
-
-    const blob = await response.blob();
-    if (blob.size === 0) throw new Error("A imagem gerada está vazia. Tente novamente.");
     return new File([blob], `caderno-${draftId}.png`, { type: "image/png" });
   }
 
